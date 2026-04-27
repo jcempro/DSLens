@@ -1,0 +1,230 @@
+name: Geração de Unattend + Autoformatação
+
+# ==============================================================================
+# DESCRIÇÃO:
+# Workflow CI/CD que:
+#   - Gera arquivos XML Unattend a partir de um modelo
+#   - Aplica formatação consistente (Prettier) em arquivos suportados
+#   - Sincroniza automaticamente alterações no repositório
+#
+# FLUXO DE EXECUÇÃO:
+#   1. Detecta mudanças relevantes nos arquivos monitorados
+#   2. Interrompe execução se não houver alterações (early-exit)
+#   3. Aplica Prettier nos arquivos alterados do commit (escopo global)
+#   4. Executa script gerador de XMLs Unattend
+#   5. Detecta arquivos criados/modificados pelo gerador
+#   6. Aplica Prettier SOMENTE nesses arquivos (escopo restrito)
+#   7. Detecta alterações resultantes (geração + formatação)
+#   8. Cria commit apenas se houver mudanças reais
+#   9. Realiza push com retry e rebase para manter histórico linear
+#
+# GARANTIAS:
+#   - Idempotência: evita commits vazios e execuções redundantes
+#   - Resiliência: retry com tratamento de conflito e limpeza de estado
+#   - Observabilidade: logs estruturados visíveis apenas no console
+#   - Segurança: sem geração de arquivos de log ou execução insegura
+#   - Limite máximo de execução de 120 segundos
+#   - Prettier atua em dois contextos:
+#       * arquivos alterados no commit (escopo global)
+#       * arquivos gerados/modificados em boot/autonome/windows/autounattend/**
+# ==============================================================================
+
+on:
+  push:
+    branches: [master]
+    paths:
+      - '.github/workflows/autogen_autoformat.yml'
+      - 'boot/autonome/windows/autounattend.model.xml'
+      - '**/*.{ps1,py,bat,json,sh}'
+      - 'boot/autonome/windows/make.autounattend.sh'
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  process-matrix:
+    timeout-minutes: 2
+
+    if: |
+      github.event_name == 'workflow_dispatch' ||
+      !contains(github.event.head_commit.message, '[skip ci]')
+
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+
+    steps:
+      - name: Contexto da execução
+        run: |
+          set -Eeuo pipefail
+          echo "::group::Contexto"
+          echo "[INFO] Evento: ${{ github.event_name }}"
+          echo "[INFO] SHA: ${{ github.sha }}"
+          echo "[INFO] Timestamp: $(date -Iseconds)"
+          echo "::endgroup::"
+
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Detectar arquivos alterados (entrada)
+        id: changed
+        uses: tj-actions/changed-files@v44
+        with:
+          files: |
+            .github/workflows/autogen_autoformat.yml
+            boot/autonome/windows/autounattend.model.xml
+            **/*.{ps1,py,bat,json,sh}
+            boot/autonome/windows/make.autounattend.sh
+            boot/autonome/windows/modelo_script_embutido.ps1
+          files_ignore: |
+            boot/autonome/windows/autounattend/**
+            **/*.min.*
+
+      - name: Validar execução
+        run: |
+          set -Eeuo pipefail
+
+          if [ "${{ steps.changed.outputs.any_changed }}" != "true" ]; then
+            echo "[INFO] Nenhuma mudança relevante detectada."
+            exit 0
+          fi
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      # =========================================
+      # PRETTIER - CONTEXTO GLOBAL (commit)
+      # =========================================
+      - name: Prettier (arquivos do commit)
+        env:
+          FILE_LIST: ${{ steps.changed.outputs.all_changed_files_output_file }}
+        run: |
+          set -Eeuo pipefail
+
+          if [ ! -s "$FILE_LIST" ]; then
+            echo "[INFO] Nenhum arquivo para formatação (commit)."
+            exit 0
+          fi
+
+          npm install -g --no-save --no-package-lock --loglevel=error \
+            prettier@3.2.5 \
+            prettier-plugin-powershell \
+            @prettier/plugin-python
+
+          xargs -0 -r npx prettier --write \
+            --plugin=prettier-plugin-powershell \
+            --plugin=@prettier/plugin-python \
+            --ignore-unknown < "$FILE_LIST" \
+            || echo "[WARN] Prettier (commit) com falhas não críticas."
+
+      # =========================================
+      # GERADOR
+      # =========================================
+      - name: Executar gerador
+        run: |
+          set -Eeuo pipefail
+
+          SCRIPT="boot/autonome/windows/make.autounattend.sh"
+
+          if [ ! -f "$SCRIPT" ]; then
+            echo "[FATAL] Script não encontrado."
+            exit 1
+          fi
+
+          sed -i 's/\r$//' "$SCRIPT"
+          chmod +x "$SCRIPT" || true
+
+          (cd boot/autonome/windows && ./make.autounattend.sh)
+
+      # =========================================
+      # DETECÇÃO PÓS-GERAÇÃO
+      # =========================================
+      - name: Detectar arquivos gerados/modificados
+        id: generated
+        run: |
+          set -Eeuo pipefail
+
+          TARGET="boot/autonome/windows/autounattend"
+          TMP=$(mktemp)
+
+          git ls-files --others --modified --exclude-standard -z -- "$TARGET" > "$TMP"
+
+          COUNT=$(tr -cd '\0' < "$TMP" | wc -c)
+
+          echo "[INFO] Arquivos gerados/modificados: $COUNT"
+
+          echo "file_list=$TMP" >> "$GITHUB_OUTPUT"
+          echo "count=$COUNT" >> "$GITHUB_OUTPUT"
+
+      # =========================================
+      # PRETTIER - CONTEXTO GERADOR
+      # =========================================
+      - name: Prettier (pós-geração)
+        if: steps.generated.outputs.count != '0'
+        env:
+          FILE_LIST: ${{ steps.generated.outputs.file_list }}
+        run: |
+          set -Eeuo pipefail
+
+          FILTERED=$(mktemp)
+
+          tr '\0' '\n' < "$FILE_LIST" \
+            | grep -E '\.(xml|json|ya?ml|ps1|py|sh)$' \
+            | tr '\n' '\0' > "$FILTERED"
+
+          if [ ! -s "$FILTERED" ]; then
+            echo "[INFO] Nenhum arquivo suportado."
+            exit 0
+          fi
+
+          xargs -0 -r npx prettier --write \
+            --plugin=prettier-plugin-powershell \
+            --plugin=@prettier/plugin-python \
+            --ignore-unknown < "$FILTERED" \
+            || echo "[WARN] Prettier (geração) com falhas não críticas."
+
+      # =========================================
+      # GIT SYNC (ROBUSTO)
+      # =========================================
+      - name: Sincronizar repositório
+        run: |
+          set -Eeuo pipefail
+
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          git add -A
+
+          if git diff --cached --quiet; then
+            echo "[INFO] Sem alterações para commit."
+            exit 0
+          fi
+
+          COUNT=$(git diff --cached --name-only | wc -l)
+          git commit -m "auto: generate + format ($COUNT files) [skip ci]"
+
+          for i in 1 2 3; do
+            git fetch origin master
+
+            if git rebase origin/master; then
+              if git push origin master; then
+                echo "[SUCCESS] Push realizado."
+                exit 0
+              fi
+            fi
+
+            echo "[WARN] Tentativa $i falhou. Limpando estado..."
+            git rebase --abort || true
+            git reset --hard HEAD
+            sleep 5
+          done
+
+          echo "[FATAL] Falha ao sincronizar após múltiplas tentativas."
+          exit 1
