@@ -1,4 +1,3 @@
-````markdown
 # DSLens
 
 > Declarative URL Resolution DSL for structured APIs (JSON, YAML, XML)
@@ -69,13 +68,16 @@ Any divergence between languages is considered a **contract violation**.
 ```text
 ${"https://api.example.com/data"}.items[0].download.url
 ```
-````
 
 **Note:** The content inside `${"..."}`
 
 - may be a URL (default case)
 - may be the structured content itself (JSON / YAML / XML)
 - may be a path to a local or network file
+
+Supported Quotation Marks:
+
+- The quotation marks can be double quotes (`"`), single quotes (`'`), or backticks (`` ` ``).
 
 Logical pipeline:
 
@@ -97,20 +99,8 @@ ${"SOURCE"}.path.to.field[index].value
 ### Capabilities
 
 - Field navigation: `.field`
-
 - Indexing: `[0]`
-
-- Semantic filters:
-
-```text
-[@name="release"]
-```
-
-- Hybrid with metadata:
-
-```text
-".exe,x64 | ${DSL}"
-```
+- Semantic filters: `[@name="release"]`
 
 ---
 
@@ -283,7 +273,8 @@ http://mozilla.org/MPL/2.0/
 
 ## 👤 Author
 
-**JeanCarloEM** https://jeancarloem.com
+**JeanCarloEM** https://jeancarloem.com.
+
 This project is a segregation from https://github.com/jcempentools, also maintained by **JeanCarloEM** under MPL-2.
 
 ---
@@ -307,7 +298,3 @@ It aims to be:
 - correct
 
 This rigidity is intentional — and fundamental to the project.
-
-```
-
-```
