@@ -1,35 +1,35 @@
 {
   "json": {
     "Direct": [
-      ["${\"https://api.github.com\"}.current_user_url", ""],
+      ["${'https://api.github.com'}.current_user_url", ""],
       [
-        "${\"https://api.github.com/repos/PowerShell/PowerShell\"}.html_url",
+        "${'https://api.github.com/repos/PowerShell/PowerShell'}.html_url",
         ""
       ]
     ],
     "Subitem": [
       [
-        "${\"https://api.github.com/repos/PowerShell/PowerShell\"}.owner.avatar_url",
+        "${'https://api.github.com/repos/PowerShell/PowerShell'}.owner.avatar_url",
         ""
       ],
       [
-        "${\"https://api.github.com/repos/microsoft/vscode\"}.owner.html_url",
+        "${'https://api.github.com/repos/microsoft/vscode'}.owner.html_url",
         ""
       ],
       [
-        "${\"https://api.github.com/repos/nodejs/node\"}.owner.avatar_url",
+        "${'https://api.github.com/repos/nodejs/node'}.owner.avatar_url",
         ""
       ]
     ],
     "Indices": [
       [
-        "${\"https://api.github.com/repos/microsoft/vscode/commits\"}[1].url",
+        "${'https://api.github.com/repos/microsoft/vscode/commits'}[1].url",
         ""
       ]
     ],
     "Attribute-Search": [
       [
-        "${\"https://api.github.com/repos/PowerShell/PowerShell/releases\"}[@draft=\"false\"].url",
+        "${'https://api.github.com/repos/PowerShell/PowerShell/releases'}[@draft='false'].url",
         ""
       ]
     ],
