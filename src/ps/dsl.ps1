@@ -18,31 +18,31 @@
     - Deep Nesting: Suporta acesso a membros (.campo) e índices de arrays ([0]).
     - Hibridismo: Compatível com strings de metadados (ex: ".exe,x64 | ${DSL}").
     - Deve resolver também indices semânticos, ex.: [@attr="img"] e [@attr='img']
-      onde "attr" indica onome de qualquer atributo (ex. src, name, href...) que deve
-      cadar com o valor de exemplo 'img', DLS, retorna a primeira ocorrência de casar.
+      onde "attr" indica o nome de qualquer atributo (ex. src, name, href...) que deve
+      casar com o valor de exemplo 'img', DSL retorna a primeira ocorrência de casar.
 
     PIPELINE DE RESOLUÇÃO:
     1. DETECÇÃO: Identificação de expressões DSL via 'has_parser_expression'.
     2. FETCH: Requisição remota com identificação automática de tipo (JSON/YAML/XML).
     3. NAVEGAÇÃO: Resolução determinística do path sobre o objeto retornado.
     4. CONVERSÃO: Retorno obrigatório do valor final como [string] de URL.
-    5. Encadeamento/Aninhamento/Profundidade: Suporte a até MAX_DEEP e MAX_ENCADEAMENTOS níveis de aninhamento
-       de expressões DSL limitado a um timeout por demanda inicial (conjunto total de resoluções aninhadas+encadeadas) de MAX_BUSCA_TIMEOUT e
-       timeout global (todas as resoluçoes do runtime) de MAX_TIMEOUT_GLOBAL.
+    5. Encadeamento/Aninhamento/Profundidade: Suporte a até MAX_DSL_DEPTH e MAX_DSL_CHAINING níveis de aninhamento
+       de expressões DSL limitado a um timeout por demanda inicial (conjunto total de resoluções aninhadas+encadeadas) de MAX_DSL_RESOLUTION_TIMEOUT e
+       timeout global (todas as resoluções do runtime) de MAX_GLOBAL_TIMEOUT.
 
     GESTÃO DE CACHE & PERFORMANCE:
     - Escopo: Cache em memória persistente na sessão (__PARSER_CACHE).
-    - TTL (Time-To-Live): 60 segundos por entrada (URL + Path).
+    - TTL (Time-To-Live): CACHE_TTL_SECONDS segundos por entrada (URL + Path).
     - Objetivo: Minimização de tráfego e latência em execuções repetitivas.
 
     RESTRIÇÕES ESPECÍFICAS (HARD RULES):
     - ❌ VEDAÇÃO: Proibido parsing de HTML ou técnicas de Scraping.
     - ❌ VEDAÇÃO: Proibida execução de código arbitrário (Bloqueio de Invoke-Expression).
-    - ❌ VEDAÇÃO: Proibido encadeamento de múltiplas expressões DSL (limitar deept em MAX_DEEP).
+    - ❌ VEDAÇÃO: Proibido encadeamento de múltiplas expressões DSL (limitar depth em MAX_DSL_DEPTH).
     - ❌ VEDAÇÃO: Operação estritamente de leitura (Idempotência HTTP GET).
 
     FAIL-SAFE & TRATAMENTO DE ERROS:
-    - Falhas (404, Timeout, Path Inválido) retornam obrigatoriamente $null.
+    - Falhas (ERROR_HTTP, ERROR_TIMEOUT, ERROR_INVALID_PATH) retornam obrigatoriamente $null.
     - Isolamento: Erros de parsing não devem interromper o fluxo do Orquestrador.
     - Log: Erros registrados via 'show_message' ou callback de telemetria.
 
@@ -65,6 +65,7 @@
     [CAPACIDADES TÉCNICAS (REAPROVEITÁVEIS)]
     - COMPATIBILIDADE: Identificação de versão/subversão para comandos adequados.
     - RESILIÊNCIA: Retry com backoff progressivo e múltiplas formas de tentativa.
+                   Controlado por RETRY_MAX_ATTEMPTS, RETRY_BACKOFF_BASE_MS e RETRY_BACKOFF_MAX_MS.
     - OFFLINE-FIRST: Lógica global de priorização de recursos locais vs rede.
                      configurável para Online-FIRST.
     - DETERMINISMO: Validação de estado real pós-operação (não apenas ExitCode).
@@ -85,7 +86,7 @@
     - ISOLAMENTO: Mutex Global obrigatório para prevenir paralelismo.
     - MODULARIDADE: Baseado em micro-funções especialistas e reutilizáveis.
     - SINCRO: Execução 100% síncrona, bloqueante e sequencial:
-      * Garantia de exeução totalmente síncrona ou assincrona predeterminada
+      * Garantia de execução totalmente síncrona ou assíncrona predeterminada
         >> Atomicidade com Flexibilidade Controlada
           - Por padrão, o processo é tratado como um bloco síncrono e indivisível para
             eliminar lacunas de etapa e garantir a integridade lógica do sistema.
@@ -102,7 +103,11 @@
     [DIRETRIZES DE IMPLEMENTAÇÃO]
     - IDEMPOTÊNCIA: Seguro para múltiplas execuções no mesmo ambiente.
     - HEADLESS: Operação plena sem interface gráfica ou interação de usuário.
-    - TIMEOUT: Limites controlados adequados à capacidade do hardware.
+    - TIMEOUT: Limites controlados:
+        * Execução: MAX_EXECUTION_TIMEOUT
+        * Rede: MAX_NETWORK_TIMEOUT
+        * DSL: MAX_DSL_RESOLUTION_TIMEOUT
+        * Global: MAX_GLOBAL_TIMEOUT
 
     [RESTRIÇÕES / VEDAÇÕES]
     - Não prosseguir com sistema em estado inconsistente ou pendente.
@@ -118,12 +123,12 @@
     4. Orquestração modular com validação individual de cada micro-função.
     5. Finalização auditável com log rastreável e saída determinística.
 
-    [INVOCAÇãO]
+    [INVOCAÇÃO]
     O script sempre auto identifica se foi importado ou executado:
-    1. Se executado diretatamente executa função main repassando parametros 
-       recebidos por linha de comando ou variáveis de ambiente.,
+    1. Se executado diretamente executa função main repassando parâmetros 
+       recebidos por linha de comando ou variáveis de ambiente.
     2. Se importado expõe as funções públicas para serem chamadas por outros
-       scripts sem executar nada.        
+       scripts sem executar nada.
 
 .COMPONENT
     Abstração de APIs, Resolutor de URLs e Parser de Dados Estruturados.
@@ -133,10 +138,29 @@
 # =========================
 # LIMITES DSL (CONTROLE)
 # =========================
-$script:__DSL_MAX_DEPTH = 7
-$script:__DSL_MAX_CHAIN = 3
-$script:__DSL_TIMEOUT_SEC = 30
-$script:__DSL_GLOBAL_TIMEOUT_SEC = 90
+#region CONSTANTS
+
+Set-Variable MAX_DSL_DEPTH              5    -Option Constant -Scope Script
+Set-Variable MAX_DSL_CHAINING           3    -Option Constant -Scope Script
+
+Set-Variable MAX_EXECUTION_TIMEOUT      90   -Option Constant -Scope Script
+Set-Variable MAX_NETWORK_TIMEOUT        30   -Option Constant -Scope Script
+Set-Variable MAX_DSL_RESOLUTION_TIMEOUT 45   -Option Constant -Scope Script
+Set-Variable MAX_GLOBAL_TIMEOUT         300  -Option Constant -Scope Script
+
+Set-Variable CACHE_TTL_SECONDS          60   -Option Constant -Scope Script
+Set-Variable CACHE_MAX_ENTRIES          512  -Option Constant -Scope Script
+
+Set-Variable RETRY_MAX_ATTEMPTS         3    -Option Constant -Scope Script
+Set-Variable RETRY_BACKOFF_BASE_MS      200  -Option Constant -Scope Script
+Set-Variable RETRY_BACKOFF_MAX_MS       2000 -Option Constant -Scope Script
+
+Set-Variable ERROR_HTTP                 'HTTP_ERROR'       -Option Constant -Scope Script
+Set-Variable ERROR_TIMEOUT              'TIMEOUT_EXCEEDED' -Option Constant -Scope Script
+Set-Variable ERROR_INVALID_PATH         'INVALID_PATH'     -Option Constant -Scope Script
+Set-Variable ERROR_PARSE_FAILURE        'PARSE_FAILURE'    -Option Constant -Scope Script
+
+#endregion
 
 # init lazy (evita chamada antes da definição de função)
 if (-not $script:__DSL_RUNTIME_START) {
