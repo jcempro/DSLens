@@ -1,3 +1,4 @@
+````markdown
 # DSLens
 
 > Declarative URL Resolution DSL for structured APIs (JSON, YAML, XML)
@@ -5,37 +6,61 @@
 ![status](https://img.shields.io/badge/status-in--development-orange)
 ![license](https://img.shields.io/badge/license-MPL%202.0-brightgreen)
 ![multi-lang](https://img.shields.io/badge/languages-multi--runtime-blue)
-![no-scraping](https://img.shields.io/badge/scraping-forbidden-red)
 ![deterministic](https://img.shields.io/badge/execution-deterministic-success)
+![no-scraping](https://img.shields.io/badge/scraping-forbidden-red)
 
 ---
 
 ## 📌 Overview
 
-**DSLens** is a cross-language library that resolves dynamic endpoints declaratively using a navigation DSL over structured remote data.
+**DSLens** is a **multi-implementation and multi-runtime** library for declarative resolution of dynamic endpoints from remote structured data.
 
-It is **not a parser in the traditional sense**.  
-It is a **deterministic resolver**.
+It is not a generic parser.  
+It is not a heuristic engine.
 
-> Think of it as a `querySelector` for APIs — but for JSON, YAML, and XML.
+It is a **deterministic resolver with strict semantics, portable across languages**.
+
+> Think of it as a `querySelector` for APIs — with identical behavior in any language.
 
 ---
 
-## 🎯 Purpose
+## 🎯 Objective
 
-Enable manifest-driven resolution of dynamic URLs without:
+Enable resolution of dynamic URLs via a declarative DSL, eliminating:
 
 - ❌ HTML parsing
 - ❌ scraping
-- ❌ heuristic extraction
+- ❌ fragile heuristics
 - ❌ arbitrary code execution
 
-Instead, DSLens provides:
+And ensuring:
 
-- ✅ Deterministic navigation
-- ✅ Declarative expressions
-- ✅ Strict read-only resolution
-- ✅ Cross-format support (JSON / YAML / XML)
+- ✅ absolute determinism
+- ✅ idempotency (GET-only)
+- ✅ pure declarative navigation
+- ✅ cross-language portability
+
+---
+
+## 🌍 Multi-Language Nature (Project Contract)
+
+DSLens is **not just a library** — it is an **implementable specification**.
+
+Each implementation (Python, JS, PHP, etc.) must be considered:
+
+> An _equivalent instance_ of the same logical system.
+
+### Mandatory requirements
+
+All implementations MUST:
+
+- Preserve **identical DSL semantics**
+- Produce the **same output for the same input**
+- Respect **all constraints (hard rules)**
+- Implement the same **resolution pipeline**
+- Maintain **deterministic and idempotent** behavior
+
+Any divergence between languages is considered a **contract violation**.
 
 ---
 
@@ -44,122 +69,143 @@ Instead, DSLens provides:
 ```text
 ${"https://api.example.com/data"}.items[0].download.url
 ```
+````
 
-This expression:
+**Note:** The content inside `${"..."}`
 
-1. Fetches remote data
-2. Navigates the structure
-3. Resolves the final value
-4. Returns a **string (URL or metadata)**
+- may be a URL (default case)
+- may be the structured content itself (JSON / YAML / XML)
+- may be a path to a local or network file
+
+Logical pipeline:
+
+1. Remote fetch (when applicable)
+2. Structural interpretation (JSON/YAML/XML)
+3. Deterministic navigation
+4. Mandatory conversion → `string`
 
 ---
 
 ## 🔎 DSL Syntax
 
-### Base Pattern
+### Base structure
 
 ```text
-${"URL"}.path.to.field[index].value
+${"SOURCE"}.path.to.field[index].value
 ```
 
-### Features
+### Capabilities
 
-- Dot navigation: `.field`
-- Array indexing: `[0]`
+- Field navigation: `.field`
+
+- Indexing: `[0]`
+
 - Semantic filters:
-  ```text
-  [@name="release"]
-  ```
-- Hybrid metadata:
-  ```text
-  ".exe,x64 | ${DSL}"
-  ```
+
+```text
+[@name="release"]
+```
+
+- Hybrid with metadata:
+
+```text
+".exe,x64 | ${DSL}"
+```
 
 ---
 
-## ⚙️ Resolution Pipeline
+## ⚙️ Resolution Pipeline (Normative)
 
 1. **Detection**
-   - `has_parser_expression()`
+   - `has_parser_expression`
 
 2. **Fetch**
-   - Remote request
+   - HTTP request (GET only, when applicable)
    - Auto-detect: JSON / YAML / XML
 
 3. **Navigation**
-   - Deterministic traversal
+   - Deterministic traversal (no heuristic fallback)
 
 4. **Conversion**
-   - Final output → `string`
+   - Mandatory output: `string`
 
-5. **Controlled Depth**
-   - `MAX_PROFUNDIDADE`
-   - `MAX_ENCADEAMENTOS`
-   - Timeouts enforced
+5. **Execution Control**
+   - Limits for:
+     - depth (`MAX_DSL_DEPTH`)
+     - chaining (`MAX_DSL_CHAINING`)
+     - time (`MAX_DSL_RESOLUTION_TIMEOUT`, `MAX_GLOBAL_TIMEOUT`)
 
 ---
 
 ## 🚀 Features
 
-- Deterministic execution (no heuristics)
-- Strict idempotent behavior (GET only)
-- In-memory caching with TTL
-- Cross-language portability
-- Fail-safe design (no exception propagation)
+- Deterministic execution
+- No side effects
+- In-memory cache with TTL
+- Runtime independence
+- Fail-safe (no exception propagation)
 
 ---
 
 ## 🧱 Constraints (Hard Rules)
 
-- ❌ No HTML parsing
-- ❌ No scraping techniques
-- ❌ No `eval` / `exec`
-- ❌ No uncontrolled chaining
-- ❌ No side-effects
+- ❌ HTML parsing forbidden
+- ❌ Scraping forbidden
+- ❌ `eval` / `exec` forbidden
+- ❌ Heuristic behavior forbidden
+- ❌ Side effects forbidden
+- ❌ Unlimited chaining forbidden
 
 ---
 
 ## 🧯 Error Handling
 
-- Failures return: `None`
-- No exceptions leak externally
+- Default return: `null` / `None`
+- No exception must escape
 - Errors are isolated and loggable
 
 ---
 
 ## 🧠 Cache Model
 
-- Scope: in-memory session cache
+- Scope: session memory
 - Key: `URL + path`
-- TTL: `CACHE_TTL` (default: 60s)
+- TTL: `CACHE_TTL`
+
+Objective: reduce latency and traffic without compromising determinism.
 
 ---
 
-## 🌍 Multi-language Implementations
+## 📁 Project Structure
 
-DSLens is designed to be implemented across multiple runtimes:
+```text
+/src/
+  ├── py/
+  │    ├── dsl.py
+  │    └── dsl.test.py
+  ├── js/
+  │    ├── dsl.js
+  │    └── dsl.test.js
+  ├── ps1/
+  │    ├── dsl.ps1
+  │    └── dsl.test.ps1
+```
 
-- Python
-- Node.js / JavaScript (browser + server)
-- PHP
-- Others (Go, Rust, etc.)
+### Structural rules
 
-Each implementation MUST:
+- Each language resides in: `./src/<language>/`
 
-- Preserve deterministic behavior
-- Respect constraints and restrictions
-- Maintain identical DSL semantics
+- `<language>` preferably follows the extension (`py`, `js`, `ps1`, etc.), but it is not mandatory
 
----
+- Minimum structure per implementation:
+  - 1 main file (implementation)
+  - 1 test file
 
-## 📐 Design Principles
+- Preference for:
+  - **single file** containing all logic
+  - recommended limit: **≤ 1800 lines (including header)**
 
-- Deterministic > Smart
-- Explicit > Implicit
-- Declarative > Imperative
-- Immutable data flow
-- Minimal surface area
-- Diff-friendly evolution
+- Multiple files are allowed when justifiable
 
 ---
 
@@ -172,29 +218,50 @@ ${"https://api.github.com/repos/user/repo/releases"}
 
 ---
 
-## 📦 Project Structure (suggested)
+## 📐 Design Principles
 
-## 🤝 Contributing
+- Deterministic > Intelligent
+- Explicit > Implicit
+- Declarative > Imperative
+- Immutability by default
+- Minimal surface
+- Diff-friendly evolution
+
+---
+
+## 🧑‍💻 Implementation Guidelines
+
+### Code
+
+- Indentation: **2 spaces** (when supported)
+- Avoid magic values
+- Centralize constants
+- Small and specialized functions
+- No logic duplication
+
+### Architecture
+
+- Low coupling
+- High predictability
+- Synchronous and controlled flow
+- No implicit dependency on external state
+
+---
+
+## 🤝 Contribution
 
 ### Requirements
 
-- Follow deterministic design
-- No hidden side-effects
-- No duplication of logic
-- Keep functions small and composable
+- Preserve DSL semantics
+- Do not introduce heuristics
+- Do not alter behavior across languages
+- Maintain deterministic compatibility
 
-### Code Style
+### Commits
 
-- Prefer **tab indentation (priority level 2)** where language allows
-- Enforce immutability when possible
-- Avoid magic values
-- Centralize constants
-
-### Commit Guidelines
-
-- Atomic commits
-- Clear intent
-- Minimal diff surface
+- Atomic
+- Intentional
+- With minimal diffs
 
 ---
 
@@ -203,39 +270,44 @@ ${"https://api.github.com/repos/user/repo/releases"}
 - Read-only operations
 - No code execution
 - No dynamic evaluation
-- Strict input boundaries
+- Strict input and execution limits
 
 ---
 
 ## 📜 License
 
-This project is licensed under the **Mozilla Public License 2.0 (MPL-2.0)**.
-
-See:
+Mozilla Public License 2.0 (MPL-2.0)
 http://mozilla.org/MPL/2.0/
 
 ---
 
 ## 👤 Author
 
-**JeanCarloEM**  
-https://github.com/jcempentools
+**JeanCarloEM** https://jeancarloem.com
+This project is a segregation from https://github.com/jcempentools, also maintained by **JeanCarloEM** under MPL-2.
 
 ---
 
 ## ⚠️ Status
 
-> This project is under active development.  
-> Breaking changes may occur until stabilization.
+Project under active development.
+Breaking changes may occur.
 
 ---
 
 ## 🧭 Final Note
 
-DSLens is not trying to be flexible.
+DSLens does not aim to be flexible.
 
-It is trying to be **correct, predictable, and safe**.
+It aims to be:
 
-That is a deliberate constraint.
+- predictable
+- auditable
+- portable
+- correct
 
-NOTE: This project is a decoupled component of https://github.com/jcempentools
+This rigidity is intentional — and fundamental to the project.
+
+```
+
+```
