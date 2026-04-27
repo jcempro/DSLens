@@ -263,7 +263,7 @@ function _cache_set {
 
   $script:__PARSER_CACHE[$key] = @{
     value  = $value
-    expire = (_now).AddSeconds(60)
+    expire = (_now).AddSeconds($script:CACHE_TTL_SECONDS) # FIX-BUG: respeita constante global
   }
 }
 
@@ -332,7 +332,8 @@ function _fetch_raw {
   foreach ($method in $methods) {
     for ($i = 0; $i -lt 3; $i++) {
 
-      if (((_now) - $start).TotalSeconds -gt $script:__DSL_TIMEOUT_SEC) {
+      if (((_now) - $start).TotalSeconds -gt $script:MAX_DSL_RESOLUTION_TIMEOUT) {
+        # FIX-BUG: constante correta
         _emit "fetch timeout per demand" "w" $callback
         break
       }
@@ -550,22 +551,26 @@ function resolve_parser_expression {
   }
   catch {}
 
-  if ($__depth -gt $script:__DSL_MAX_DEPTH) {
+  if ($__depth -gt $script:MAX_DSL_DEPTH) {
+    # FIX-BUG: constante correta
     _emit "max depth reached" "e" $callback
     return $null
   }
 
-  if ($__chain -gt $script:__DSL_MAX_CHAIN) {
+  if ($__chain -gt $script:MAX_DSL_CHAINING) {
+    # FIX-BUG: constante correta
     _emit "max chain reached" "e" $callback
     return $null
   }
 
   $matchesAll = [regex]::Matches($source, '\$\{\s*(["'']).+?\1\s*\}')
 
-  if ($matchesAll.Count -gt $script:__DSL_MAX_CHAIN) {
+  if ($matchesAll.Count -gt $script:MAX_DSL_CHAINING) {
+    # FIX-BUG: constante correta
     _emit "dsl chain limit exceeded" "e" $callback
     return $null
   }
+
   if ($matchesAll.Count -gt 1) {
     _emit "multiple DSL expressions not allowed" "e" $callback
     return $null
@@ -589,7 +594,8 @@ function resolve_parser_expression {
     [Text.Encoding]::UTF8.GetBytes("$($dsl.url)::__::$($dsl.path)")
   )
 
-  if (((_now) - $script:__DSL_RUNTIME_START).TotalSeconds -gt $script:__DSL_GLOBAL_TIMEOUT_SEC) {
+  if (((_now) - $script:__DSL_RUNTIME_START).TotalSeconds -gt $script:MAX_GLOBAL_TIMEOUT) {
+    # FIX-BUG: constante correta
     _emit "global timeout reached" "e" $callback
     return $null
   }
