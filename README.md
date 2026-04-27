@@ -174,31 +174,6 @@ ${"https://api.github.com/repos/user/repo/releases"}
 
 ## 📦 Project Structure (suggested)
 
-```text
-dslens/
-├── core/
-│   ├── resolver
-│   ├── fetcher
-│   ├── navigator
-│   └── cache
-│
-├── dsl/
-│   ├── tokenizer
-│   ├── parser
-│   └── validator
-│
-├── adapters/
-│   ├── json
-│   ├── yaml
-│   └── xml
-│
-└── runtime/
-    ├── config
-    └── limits
-```
-
----
-
 ## 🤝 Contributing
 
 ### Requirements
