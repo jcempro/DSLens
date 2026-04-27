@@ -1,0 +1,11 @@
+# === Sistema e Metadados ===
+/System Volume Information/
+*.log
+*.tmp
+
+# === Cache e Compilados ===__pycache__
+.ruff_cache
+
+# === Exceções (Não ignorar) ===
+!.gitkeep
+!.gitignore

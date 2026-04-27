@@ -1,0 +1,22 @@
+[tool.ruff]
+# Onde a mágica acontece (Equivalente ao printWidth)
+line-length = 70
+
+[tool.ruff.lint]
+# Ativa regras básicas de erro e estilo (Equivalente ao ESLint recommended)
+select = ["E", "F", "W", "I"]
+
+[tool.ruff.format]
+# Equivalente ao singleQuote: true
+quote-style = "single"
+
+# Equivalente ao useTabs: false
+indent-style = "space"
+
+# Python exige 4 espaços por padrão (PEP 8)
+# Se colocar 2, o código pode quebrar em algumas situações
+skip-magic-trailing-comma = false
+
+[tool.ruff.lint.isort]
+# Organiza os imports automaticamente ao formatar
+combine-as-imports = true
