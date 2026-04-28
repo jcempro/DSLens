@@ -18,28 +18,24 @@
           "##< $url >"
         ],
         [
-          "${'https://api.github.com/repos/PowerShell/PowerShell'}.html_url",
+          "${'https://api.github.com/repos/PowerShell/PowerShell'}.watchers",
+          "##< \\d+ >"
+        ],
+        [
+          "${'https://api.github.com/repos/PowerShell/PowerShell'}.organization.id",
+          "##< \\d+ >"
+        ],
+        [
+          "${'https://api.github.com/repos/PowerShell/PowerShell'}.organization.avatar_url",
           "##< $url >"
         ],
         [
-          "${'https://api.github.com/repos/PowerShell/PowerShell'}.owner.avatar_url",
+          "${'https://api.github.com/repos/PowerShell/PowerShell/commits'}[3].parents[0].url",
           "##< $url >"
         ],
         [
-          "${'https://api.github.com/repos/microsoft/vscode'}.owner.html_url",
-          "##< $url >"
-        ],
-        [
-          "${'https://api.github.com/repos/nodejs/node'}.owner.avatar_url",
-          "##< $url >"
-        ],
-        [
-          "${'https://api.github.com/repos/microsoft/vscode/commits'}[1].url",
-          "##< $url >"
-        ],
-        [
-          "${'https://api.github.com/repos/PowerShell/PowerShell/releases'}[@draft='false'].url",
-          "##< $url >"
+          "${'https://api.github.com/repos/PowerShell/PowerShell/releases'}[@draft='false'].assets[7].id",
+          "##< \\d+ >"
         ]
       ]
     }
