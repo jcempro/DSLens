@@ -12,7 +12,7 @@
       "Nested": [["", ""]],
       "ComplexMixed": [["", ""]],
       "Inlne": [["", ""]],
-      "Real-Cases": [
+      "Real-Cases-(github)": [
         [
           "${'https://api.github.com'}.organization_url",
           "##< $url >"
