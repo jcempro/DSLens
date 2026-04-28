@@ -1,39 +1,44 @@
 {
-  "json": {
-    "Direct": [["", ""]],
-    "Subitem": [["", ""]],
-    "Indices": [["", ""]],
-    "Attribute-Search": [["", ""]],
-    "Mixed": [["", ""]],
-    "Nested": [["", ""]],
-    "ComplexMixed": [["", ""]],
-    "Inlne": [["", ""]],
-    "Real-Cases": [
-      ["${'https://api.github.com'}.current_user_url", ""],
-      [
-        "${'https://api.github.com/repos/PowerShell/PowerShell'}.html_url",
-        ""
-      ],
-      [
-        "${'https://api.github.com/repos/PowerShell/PowerShell'}.owner.avatar_url",
-        ""
-      ],
-      [
-        "${'https://api.github.com/repos/microsoft/vscode'}.owner.html_url",
-        ""
-      ],
-      [
-        "${'https://api.github.com/repos/nodejs/node'}.owner.avatar_url",
-        ""
-      ],
-      [
-        "${'https://api.github.com/repos/microsoft/vscode/commits'}[1].url",
-        ""
-      ],
-      [
-        "${'https://api.github.com/repos/PowerShell/PowerShell/releases'}[@draft='false'].url",
-        ""
+  "regex": {
+    "urls": "^https?:\\/\\/(?:www\\.)?[-a-zA-Z0-9@:%._\\+~#=]{1,256}\\.[a-zA-Z0-9()]{1,6}\\b(?:[-a-zA-Z0-9()@:%_\\+.~#?&\\/=]*)$"
+  },
+  "tests": {
+    "json": {
+      "Direct": [["", ""]],
+      "Subitem": [["", ""]],
+      "Indices": [["", ""]],
+      "Attribute-Search": [["", ""]],
+      "Mixed": [["", ""]],
+      "Nested": [["", ""]],
+      "ComplexMixed": [["", ""]],
+      "Inlne": [["", ""]],
+      "Real-Cases": [
+        ["${'https://api.github.com'}.current_user_url", "@@{url}"],
+        [
+          "${'https://api.github.com/repos/PowerShell/PowerShell'}.html_url",
+          "@@{url}"
+        ],
+        [
+          "${'https://api.github.com/repos/PowerShell/PowerShell'}.owner.avatar_url",
+          "@@{url}"
+        ],
+        [
+          "${'https://api.github.com/repos/microsoft/vscode'}.owner.html_url",
+          "@@{url}"
+        ],
+        [
+          "${'https://api.github.com/repos/nodejs/node'}.owner.avatar_url",
+          "@@{url}"
+        ],
+        [
+          "${'https://api.github.com/repos/microsoft/vscode/commits'}[1].url",
+          "@@{url}"
+        ],
+        [
+          "${'https://api.github.com/repos/PowerShell/PowerShell/releases'}[@draft='false'].url",
+          "@@{url}"
+        ]
       ]
-    ]
+    }
   }
 }
