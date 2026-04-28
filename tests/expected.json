@@ -37,6 +37,16 @@
           "${'https://api.github.com/repos/PowerShell/PowerShell/releases'}[@draft='false'].assets[1].id",
           "##< \\d+ >"
         ]
+      ],
+      "Real-Cases-(sourceforge)": [
+        [
+          "${'https://sourceforge.net/projects/qbittorrent/best_release.json'}.release.bytes",
+          "##< \\d+ >"
+        ],
+        [
+          "${'https://sourceforge.net/projects/qbittorrent/best_release.json'}.platform_releases.windows.sf_platform_default[0]",
+          "windows"
+        ]
       ]
     }
   }
