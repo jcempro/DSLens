@@ -30,11 +30,11 @@
           "##< $url >"
         ],
         [
-          "${'https://api.github.com/repos/PowerShell/PowerShell/commits'}[3].parents[0].url",
+          "${'https://api.github.com/repos/PowerShell/PowerShell/commits'}[2].parents[0].url",
           "##< $url >"
         ],
         [
-          "${'https://api.github.com/repos/PowerShell/PowerShell/releases'}[@draft='false'].assets[7].id",
+          "${'https://api.github.com/repos/PowerShell/PowerShell/releases'}[@draft='false'].assets[1].id",
           "##< \\d+ >"
         ]
       ]
