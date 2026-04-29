@@ -11,7 +11,6 @@
       "Mixed": [["", ""]],
       "Nested": [["", ""]],
       "ComplexMixed": [["", ""]],
-      "Inlne": [["", ""]],
       "Real-Cases-(github)": [
         [
           "${'https://api.github.com'}.organization_url",
@@ -59,7 +58,9 @@
           "${'https://sourceforge.net/projects/libreoffice/best_release.json'}.platform_releases.windows.url",
           "##< $url >"
         ]
-      ]
+      ],
+      "Filepath": [["", ""]],
+      "Inlne": [["", ""]]
     }
   }
 }
