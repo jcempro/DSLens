@@ -17,7 +17,7 @@
       1. PADRÃO BASE E ESCOPO
         A sintaxe DEVE seguir a estrutura sequencial: ${"URL"[, `{OPÇÕES}`]}.PATH
         Onde [, `{OPÇÕES}`] é um componente facultativo destinado à parametrização de 
-        requisições de rede (API) em ambiente cross-platform.
+        requisições de rede (API) em ambiente cross-platform e cross-language.
 
       2. DELIMITADORES E LITERAIS
         2.1. URL de Origem: DEVE ser encapsulada obrigatoriamente por aspas duplas ("..."), 
