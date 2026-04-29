@@ -15,12 +15,13 @@
     SINTAXE DSL (ESTRUTURA NAVEGACIONAL):     
 
       1. PADRÃO BASE E ESCOPO
-        A sintaxe DEVE seguir a estrutura sequencial: ${"URL_FILEPATH_OR_CONTENT"[, `{OPÇÕES}`]}.PATH
+        A sintaxe DEVE seguir a estrutura sequencial: ${"MIXED_INPUT"[, `{OPÇÕES}`]}.PATH
         Onde [, `{OPÇÕES}`] é um componente facultativo destinado à parametrização de 
         requisições de rede (API) em ambiente cross-platform e cross-language.
+        * MIXED_INPUT: é a URL, FILEPATH ou CONTEÚDO plano
 
       2. DELIMITADORES E LITERAIS
-        2.1. URL_FILEPATH_OR_CONTENT de Origem: DEVE ser encapsulada obrigatoriamente por aspas duplas ("..."), 
+        2.1. MIXED_INPUT de Origem: DEVE ser encapsulada obrigatoriamente por aspas duplas ("..."), 
               aspas simples ('...') ou crases (`...`).
         2.2. Objeto de Opções: Se presente, DEVE ser obrigatoriamente envolvido em sua 
               totalidade por crases (ex: `{"method":"POST", "header": {"chave": "val"}}`).
@@ -46,7 +47,7 @@
 
       5. HIBRIDISMO E COMPATIBILIDADE
         5.1. Composição: A DSL DEVE permitir coexistência com strings de metadados.
-              Exemplo: ".exe,x64 | ${"URL_FILEPATH_OR_CONTENT"}.path.subcampo"
+              Exemplo: ".exe,x64 | ${"MIXED_INPUT"}.path.subcampo"
         5.2. Preservação: Literais externos à marcação ${ } DEVE ser mantidos intactos 
               durante a resolução da expressão.
 
