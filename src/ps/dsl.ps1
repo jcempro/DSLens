@@ -12,14 +12,43 @@
     Pense num Document.querySelector para APIs: que funcione em JSON/YAML/XML, com suporte a filtros
     e índices, e que retorne strings (URLs ou metadados) - é isso que esta biblioteca pretende ser.    
 
-    SINTAXE DSL (ESTRUTURA NAVEGACIONAL):
-    - Padrão Base: ${"URL_API"}.path.subcampo[index].valor
-    - Delimitadores: URL de origem obrigatoriamente entre ${"..."} ou ${'...'}.
-    - Deep Nesting: Suporta acesso a membros (.campo) e índices de arrays ([0]).
-    - Hibridismo: Compatível com strings de metadados (ex: ".exe,x64 | ${DSL}").
-    - Deve resolver também indices semânticos, ex.: [@attr="img"] e [@attr='img']
-      onde "attr" indica o nome de qualquer atributo (ex. src, name, href...) que deve
-      casar com o valor de exemplo 'img', DSL retorna a primeira ocorrência de casar.
+    SINTAXE DSL (ESTRUTURA NAVEGACIONAL):     
+
+      1. PADRÃO BASE E ESCOPO
+        A sintaxe DEVE seguir a estrutura sequencial: ${"URL"[, `{OPÇÕES}`]}.PATH
+        Onde [, `{OPÇÕES}`] é um componente facultativo destinado à parametrização de 
+        requisições de rede (API) em ambiente cross-platform.
+
+      2. DELIMITADORES E LITERAIS
+        2.1. URL de Origem: DEVE ser encapsulada obrigatoriamente por aspas duplas ("..."), 
+              aspas simples ('...') ou crases (`...`).
+        2.2. Objeto de Opções: Se presente, DEVE ser obrigatoriamente envolvido em sua 
+              totalidade por crases (ex: `{"header": "val"}`).
+        2.3. Delimitador de Escopo: Toda a instrução de origem DEVE estar contida em ${ }.
+
+      3. NAVEGAÇÃO E DEEP NESTING
+        3.1. Membros: O acesso a campos DEVE utilizar o operador ponto (.).
+        3.2. Índices Numéricos: O acesso a coleções DEVE utilizar colchetes ([index]).
+        3.3. Índices Semânticos: Suporte a seletores [@attr="valor"] ou [@attr='valor'].
+              A DSL DEVE retornar a primeira ocorrência onde o atributo (ex: src, name, 
+              href) corresponda exatamente ao valor literal fornecido.
+        3.4. Coringas: Inclusão de seletores aderentes ao QuerySelector (*) para 
+              casamento de padrões em chaves ou estruturas de dados.
+
+      4. FUNCIONALIDADE DE BUSCA RECURSIVA (FIND)
+        4.1. Definição: O método .find(query) PODE ser invocado a partir do ROOT ou de 
+              qualquer nível do PATH.
+        4.2. Comportamento: DEVE realizar busca em profundidade (não linear), localizando 
+              a primeira estrutura que satisfaça a query, independentemente de estar 
+              imediatamente aninhada ao ponto de invocação.
+        4.3. Sintaxe de Busca: O argumento de .find() aceita qualquer especificação 
+              válida de PATH ou seletor semântico.
+
+      5. HIBRIDISMO E COMPATIBILIDADE
+        5.1. Composição: A DSL DEVE permitir coexistência com strings de metadados.
+              Exemplo: ".exe,x64 | ${"URL"}.path.subcampo"
+        5.2. Preservação: Literais externos à marcação ${ } DEVE ser mantidos intactos 
+              durante a resolução da expressão.
 
     PIPELINE DE RESOLUÇÃO:
     1. DETECÇÃO: Identificação de expressões DSL via 'has_parser_expression'.
