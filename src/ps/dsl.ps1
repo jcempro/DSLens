@@ -23,7 +23,7 @@
         2.1. URL de Origem: DEVE ser encapsulada obrigatoriamente por aspas duplas ("..."), 
               aspas simples ('...') ou crases (`...`).
         2.2. Objeto de Opções: Se presente, DEVE ser obrigatoriamente envolvido em sua 
-              totalidade por crases (ex: `{"header": "val"}`).
+              totalidade por crases (ex: `{"method":"POST", "header": {"chave": "val"}}`).
         2.3. Delimitador de Escopo: Toda a instrução de origem DEVE estar contida em ${ }.
 
       3. NAVEGAÇÃO E DEEP NESTING
