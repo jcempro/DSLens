@@ -2,6 +2,7 @@
   "regex": {
     "urls": "^https?:\\/\\/(?:www\\.)?[-a-zA-Z0-9@:%._\\+~#=]{1,256}\\.[a-zA-Z0-9()]{1,6}\\b(?:[-a-zA-Z0-9()@:%_\\+.~#?&\\/=]*)$"
   },
+  "payload_PowerShell": "{ \"id\": 49609581, \"node_id\": \"MDEwOlJlcG9zaXRvcnk0OTYwOTU4MQ==\", ... }",
   "tests": {
     "json": {
       "Direct": [["", ""]],
@@ -59,7 +60,19 @@
           "##< $url >"
         ]
       ],
-      "Inlne": [["", ""]]
+      "Inlne": [
+        ["${ $payload_PowerShell }.watchers", "##< \\d+ >"],
+        ["${ $payload_PowerShell }.organization.id", "##< \\d+ >"],
+        [
+          "${ $payload_PowerShell }.organization.avatar_url",
+          "##< $url >"
+        ],
+        ["${ $payload_PowerShell }[2].parents[0].url", "##< $url >"],
+        [
+          "${ $payload_PowerShell }[@draft='false'].assets[1].id",
+          "##< \\d+ >"
+        ]
+      ]
     }
   }
 }
