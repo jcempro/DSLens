@@ -60,7 +60,7 @@
           "##< $url >"
         ]
       ],
-      "Inlne": [
+      "Inlne-json": [
         ["${ $payload_PowerShell }.watchers", "##< \\d+ >"],
         ["${ $payload_PowerShell }.organization.id", "##< \\d+ >"],
         [
