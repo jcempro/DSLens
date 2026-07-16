@@ -1,6 +1,6 @@
 SCHEMA=1
 MACHINE_ID=JEAN-DESKTOP
-DATA_REF=20260716.043000
+DATA_REF=20260716.044500
 CONTRATO=./RCF.md
 CACHE=documentos lidos e estado Git validos em 20260716; reler somente arquivos alterados
 BLOQUEIO_NAO_REPETIR=agent:verify procura src/.agents incorretamente; repetir somente apos correcao ou evidencia nova
@@ -50,7 +50,7 @@ aceite=Typecheck estrito; JS client/server carregável; TypeScript por subpath o
   2/3 Validar browser real e Node [concluído]
   3/3 Fixar baseline e orçamento [concluído]
 
-FT-003|nome=Testes multinível CI e metadados|escopo=Técnico|prioridade=alta|status=em_andamento|inicio=20260716.000000
+FT-003|nome=Testes multinível CI e metadados|escopo=Técnico|prioridade=alta|status=concluído|inicio=20260716.000000|fim=20260716.044500
 objetivo=Orquestrar npm test unitário, integração, conformidade e E2E; criar CI seletivo e badges verificáveis.
 nao_escopo=Transformar APIs reais em requisito determinístico do CI; publicação de release.
 dependencias=FT-001 vetores; FT-002 pacote e builds.
@@ -62,14 +62,15 @@ aceite=npm test cobre todos os níveis; mocks/fixtures dinâmicos; API real opt-
   2/4 Criar unidades e integração [concluído]
   3/4 Criar E2E mock/fixture e real opt-in [concluído]
   4/4 Garantir saída humana e parseável [concluído]
-2/3 CI/CD [em andamento]
+2/3 CI/CD [concluído]
   1/3 Criar workflow e matriz homologada [concluído]
   2/3 Configurar paths e workflow_dispatch [concluído]
-  3/3 Validar sintaxe e seleção documental [em andamento]
-3/3 Metadados e aceite global [em andamento]
+  3/3 Validar sintaxe e seleção documental [concluído]
+3/3 Metadados e aceite global [concluído]
   1/3 Validar badges, runtimes e ambientes [concluído]
   2/3 Executar suíte global e pacote limpo [concluído]
-  3/3 Atualizar memória, handoff e documentação [em andamento]
+  3/3 Atualizar memória, handoff e documentação [concluído]
 
 DECISOES=20260716: sintaxe/semântica são canônicas; linguagens equivalentes; PowerShell/Python convergem; TypeScript opcional e JavaScript transpilado cliente/servidor; API real opt-in.
-PROXIMO=Commitar testes e CI, publicar dev, verificar execução remota, concluir FT-003 e integrar dev em main.
+VERIFICACOES=20260716 npm test 9 etapas; test:real 10 etapas; browser real PASS sem console; npm pack/instalação/imports PASS; audit 0; GitHub Actions 29471167293 success.
+PROXIMO=Integrar dev em main por fast-forward e publicar ambas as branches.
