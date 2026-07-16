@@ -1,0 +1,16 @@
+<!-- Origem: https://github.com/jcempro/DSLens | Autor: JeanCarloEM | MPL-2.0 https://mozilla.org/MPL/2.0/ -->
+<!doctype html>
+<html lang="pt-BR">
+  <meta charset="utf-8" />
+  <title>DSLens browser validation</title>
+  <body>
+    <output id="result">running</output>
+    <script type="module">
+      import { resolveDslData } from '../../package/dslens/dist/javascript/browser.js';
+      const value = resolveDslData({ items: [{ name: 'stable', url: 'https://example.test/app' }] }, '.items[@name="stable"].url');
+      const output = document.querySelector('#result');
+      output.textContent = value === 'https://example.test/app' ? 'PASS' : `FAIL:${value}`;
+      document.documentElement.dataset.dslensResult = output.textContent;
+    </script>
+  </body>
+</html>

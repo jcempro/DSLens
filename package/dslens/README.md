@@ -12,7 +12,7 @@ DSLens é uma especificação e uma família de bibliotecas para localizar valor
 ${"https://api.example.com/data"}.items[0].download.url
 ```
 
-O projeto está em desenvolvimento. PowerShell e Python existem e estão em convergência obrigatória com o contrato comum. TypeScript e JavaScript foram autorizados: TypeScript será importável opcionalmente e será transpilado para JavaScript destinado a cliente e servidor.
+O projeto está em desenvolvimento. PowerShell, Python, TypeScript e JavaScript implementam o contrato comum. TypeScript é importável opcionalmente e origina por transpilação os artefatos JavaScript destinados a cliente e servidor.
 
 ## O que existe hoje
 
@@ -21,7 +21,7 @@ O projeto está em desenvolvimento. PowerShell e Python existem e estão em conv
 - Python: [src/py/dsl.py](src/py/dsl.py), atualmente com diferenças que serão corrigidas pelos mesmos vetores de conformidade aplicados às demais linguagens.
 - Vetores ainda incompletos: [tests/expected.json](tests/expected.json).
 
-O trabalho autorizado adicionará pacote do produto, TypeScript importável, JavaScript de cliente e servidor, declarações, bundle e manifestos. O `package.json` atual pertence à governança operacional e não representa o pacote DSLens publicável; a segregação será preservada.
+O pacote do produto reside em `package/dslens`, segregado do `package.json` operacional da raiz. Ele inclui TypeScript importável, JavaScript de cliente e servidor, declarações, source maps, build minificado e manifesto público.
 
 ## Sintaxe estável documentada
 
@@ -83,9 +83,9 @@ Nenhuma linguagem é principal: a sintaxe e a semântica são canônicas. TypeSc
 
 ## Distribuição planejada
 
-Os canais previstos são Git, submódulo Git, npm, importação ESM, arquivo local e CDN. O checkout como submódulo poderá ocupar path arbitrário; nenhuma implementação poderá depender do nome da pasta ou do diretório corrente.
+Os canais implementados são Git, submódulo Git, pacote npm montável, importação ESM, TypeScript explícito e arquivo JavaScript para cliente/CDN. O checkout como submódulo pode ocupar path arbitrário; nenhuma implementação depende do nome da pasta ou do diretório corrente.
 
-Artefatos planejados incluem ESM core, browser, worker, adaptador Node.js, declarações, source maps e um JavaScript client-side otimizado. CommonJS, IIFE ou UMD somente serão adicionados após necessidade comprovada e decisão registrada.
+Os artefatos incluem ESM core, browser e server, declarações, source maps e JavaScript client-side otimizado. CommonJS, IIFE, UMD e worker permanecem condicionados a consumidor e implementação comprovados.
 
 ## Contratos e manifestos
 
@@ -113,9 +113,9 @@ As FTs de convergência e implementação são mantidas na memória operacional 
 
 ## Testes e integração contínua
 
-`npm test` será o ponto único para unidades, integração, conformidade multilinguagem e E2E. O perfil determinístico usará mocks e fixtures locais geradas; APIs públicas reais integrarão um perfil opt-in separado, pois disponibilidade externa não pode definir o resultado obrigatório do CI.
+`npm test` é o ponto único para typecheck, build, unidades, conformidade multilinguagem, schema, orçamento e E2E. O perfil determinístico usa mocks e fixtures locais geradas; `npm run test:real` acrescenta API pública real sem torná-la requisito do CI.
 
-Em terminal local, a saída será compacta, colorida quando suportada e legível por pessoas. Em CI, cores serão desativadas e o mesmo resultado manterá estrutura estável para parsing por automações e agentes. O workflow será executado em mudanças de runtime ou configuração e poderá ser acionado manualmente; commits exclusivamente documentais não iniciarão testes.
+Em terminal local, a saída é compacta, colorida quando suportada e legível por pessoas. Em CI, cores são desativadas e o mesmo resultado mantém estrutura estável para parsing por automações e agentes. O workflow executa em mudanças de runtime ou configuração, aceita acionamento manual e ignora commits exclusivamente documentais.
 
 ## Licença e autoria
 

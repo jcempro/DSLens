@@ -1,0 +1,46 @@
+# Origem: https://github.com/jcempro/DSLens
+# Autor: JeanCarloEM - https://jeancarloem.com
+# Licença: MPL-2.0 - https://mozilla.org/MPL/2.0/
+# Resumo: uso, cópia, modificação e distribuição conforme a MPL-2.0.
+
+name: Tests
+
+on:
+  push:
+    paths-ignore:
+      - '**/*.md'
+      - 'docs/**'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: tests-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    name: Node ${{ matrix.node }} / Python ${{ matrix.python }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        node: ['20.19.0', '22']
+        python: ['3.11', '3.14']
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+          cache: npm
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Install
+        run: npm ci --ignore-scripts
+      - name: Test
+        env:
+          CI: 'true'
+        run: npm test

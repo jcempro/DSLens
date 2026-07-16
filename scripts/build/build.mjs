@@ -7,7 +7,7 @@ const banner = '/* DSLens | https://github.com/jcempro/DSLens | JeanCarloEM | MP
 await rm('package/dslens/dist', { recursive: true, force: true });
 await mkdir('package/dslens/dist/javascript', { recursive: true });
 execFileSync(process.execPath, ['node_modules/typescript/bin/tsc', '-p', 'tsconfig.json'], { stdio: 'inherit' });
-for (const entry of ['index', 'browser', 'server']) {
+for (const entry of ['index', 'browser', 'worker', 'server']) {
   await build({ entryPoints: [`src/ts/${entry}.ts`], outfile: `package/dslens/dist/javascript/${entry}.js`, bundle: true, format: 'esm', platform: entry === 'server' ? 'node' : 'browser', target: 'es2020', sourcemap: true, banner: { js: banner } });
 }
 await build({ entryPoints: ['src/ts/browser.ts'], outfile: 'package/dslens/dist/javascript/browser.min.js', bundle: true, format: 'esm', platform: 'browser', target: 'es2020', minify: true, sourcemap: true, banner: { js: banner } });

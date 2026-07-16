@@ -39,8 +39,8 @@ Estado documental em 2026-07-16:
 |---|---|---|---|
 | PowerShell | existente, convergência obrigatória | `./src/ps/dsl.ps1` | implementação equivalente |
 | Python | existente, convergência obrigatória | `./src/py/dsl.py` | implementação equivalente |
-| TypeScript | implementação autorizada | inicialmente ausente | fonte importável opcionalmente |
-| JavaScript | implementação autorizada | inicialmente ausente | transpilação para cliente e servidor |
+| TypeScript | implementada e testada | `./src/ts/` | fonte importável opcionalmente |
+| JavaScript | implementada e testada | `./package/dslens/dist/javascript/` | transpilação para cliente e servidor |
 | demais | futura | ausente | sub-RCF futuro obrigatório |
 
 Recurso futuro NÃO DEVE ser anunciado como implementado. PowerShell e Python DEVEM ser atualizados até aderirem ao contrato canônico e aos vetores comuns; compatibilidade pública válida DEVE ser preservada durante a convergência. Nenhuma implementação DEVE ser promovida a referência semântica única.

@@ -12,13 +12,13 @@ Cada artefato DEVE declarar `id`, família, consumidor, runtime, formato, extens
 |---|---|---|
 | script PowerShell | importação/execução direta | existente, não empacotado |
 | fonte Python | importação/execução direta | existente, convergência obrigatória |
-| fonte TypeScript | toolchain compatível, subpath opcional | autorizado |
-| ESM core | browser/bundler/server compatível | autorizado |
-| ESM client | browser/CDN/bundler | autorizado |
-| worker | Web Worker | autorizado |
-| ESM server | Node.js | autorizado |
-| JavaScript minificado | browser/CDN/local | autorizado |
-| declarações/maps | toolchain TS/depuração | autorizado |
+| fonte TypeScript | toolchain compatível, subpath opcional | implementado |
+| ESM core | browser/bundler/server compatível | implementado |
+| ESM client | browser/CDN/bundler | implementado |
+| worker | Web Worker | implementado |
+| ESM server | Node.js | implementado |
+| JavaScript minificado | browser/CDN/local | implementado |
+| declarações/maps | toolchain TS/depuração | implementado |
 
 CommonJS, IIFE e UMD NÃO DEVEM ser produzidos sem consumidor e decisão registrada.
 

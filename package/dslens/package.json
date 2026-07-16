@@ -15,6 +15,7 @@
   "exports": {
     ".": { "types": "./dist/typescript/index.d.ts", "import": "./dist/javascript/index.js" },
     "./browser": { "types": "./dist/typescript/browser.d.ts", "browser": "./dist/javascript/browser.js", "import": "./dist/javascript/browser.js" },
+    "./worker": { "types": "./dist/typescript/worker.d.ts", "browser": "./dist/javascript/worker.js", "import": "./dist/javascript/worker.js" },
     "./server": { "types": "./dist/typescript/server.d.ts", "node": "./dist/javascript/server.js", "import": "./dist/javascript/server.js" },
     "./typescript": "./src/index.ts",
     "./manifest": "./dist/manifest.json"

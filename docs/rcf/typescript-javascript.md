@@ -2,7 +2,7 @@
 
 ## 1. Escopo e estado
 
-Este arquivo especializa `../../RCF.md` para TypeScript, JavaScript, browser, worker, Node.js e npm. A implementação está autorizada, mas nenhum item DEVE ser apresentado como concluído antes de artefato e validação correspondentes.
+Este arquivo especializa `../../RCF.md` para TypeScript, JavaScript, browser, worker, Node.js e npm. Artefato somente DEVE ser apresentado como concluído quando constar do manifesto e possuir validação correspondente.
 
 ## 2. Baseline TypeScript
 
