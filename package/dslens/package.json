@@ -1,0 +1,22 @@
+{
+  "name": "@jcempro/dslens",
+  "version": "0.1.0",
+  "description": "Resolvedor declarativo e determinístico de dados estruturados.",
+  "type": "module",
+  "license": "MPL-2.0",
+  "author": { "name": "JeanCarloEM", "url": "https://jeancarloem.com" },
+  "repository": { "type": "git", "url": "https://github.com/jcempro/DSLens.git" },
+  "homepage": "https://github.com/jcempro/DSLens",
+  "bugs": "https://github.com/jcempro/DSLens/issues",
+  "engines": { "node": ">=20.19.0" },
+  "sideEffects": false,
+  "files": ["dist", "src", "README.md", "LICENSE"],
+  "types": "./dist/typescript/index.d.ts",
+  "exports": {
+    ".": { "types": "./dist/typescript/index.d.ts", "import": "./dist/javascript/index.js" },
+    "./browser": { "types": "./dist/typescript/browser.d.ts", "browser": "./dist/javascript/browser.js", "import": "./dist/javascript/browser.js" },
+    "./server": { "types": "./dist/typescript/server.d.ts", "node": "./dist/javascript/server.js", "import": "./dist/javascript/server.js" },
+    "./typescript": "./src/index.ts",
+    "./manifest": "./dist/manifest.json"
+  }
+}

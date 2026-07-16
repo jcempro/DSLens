@@ -2,9 +2,14 @@
 /System Volume Information/
 *.log
 *.tmp
+.npm-cache/
+.runtime/
+node_modules/
 
-# === Cache e Compilados ===__pycache__
-.ruff_cache
+# === Cache e Compilados ===
+__pycache__/
+.ruff_cache/
+*.tgz
 
 # === Exceções (Não ignorar) ===
 !.gitkeep
