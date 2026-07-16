@@ -9,7 +9,7 @@
   },
   "homepage": "https://DSLens.jcemp.pro",
   "bugs": "https://github.com/jcempro/DSLens/issues",
-  "description": "Orquestra e valida contextos estruturados e arquiteturas normativas para fluxos de IA.",
+  "description": "Cross-language library for declaratively resolving dynamic endpoints and values through a navigation DSL over structured remote data.",
   "main": "README.md",
   "type": "module",
   "types": "./dist/typescript/index.d.ts",

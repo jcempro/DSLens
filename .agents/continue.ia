@@ -1,9 +1,24 @@
 SCHEMA=1
 MACHINE_ID=JEAN-DESKTOP
-DATA_REF=20260716.022056
+DATA_REF=20260716.022628
 CONTRATO=./RCF.md
 CACHE=documentos lidos e estado Git validos em 20260716; reler somente arquivos alterados
 BLOQUEIO_NAO_REPETIR=agent:verify e agent:test procuram src/.agents incorretamente; repetir somente apos correcao ou evidencia nova
+
+FT-007|nome=Descrição npm aderente ao produto|escopo=Técnico|prioridade=alta|status=concluído|inicio=20260716.022628|fim=20260716.022628
+objetivo=Corrigir a descrição npm para representar DSLens como biblioteca multilinguagem de resolução declarativa sobre dados remotos estruturados.
+nao_escopo=Alterar sintaxe, API, artefatos, versão ou finalidade normativa do produto.
+dependencias=RCF.md §§2 e README.md introdução.
+riscos=Reintroduzir conceitos do repositório agents.md; omitir natureza multilinguagem ou determinística.
+arquivos_previstos=package.json; package/dslens/package.json; package-lock.json; README.md; .agents/continue.ia.
+aceite=Descrição canônica concisa e fiel ao RCF; staging regenerado idêntico; npm test e pack aprovados.
+1/2 Correção semântica [concluído]
+  1/2 Derivar descrição do RCF e README [concluído]
+  2/2 Atualizar manifesto raiz e staging [concluído]
+2/2 Validação e conclusão [concluído]
+  1/2 Validar build, teste e tarball [concluído]
+  2/2 Gerar handoff, publicar e convergir branches [concluído]
+verificacao=npm test 12 etapas; npm pack dry-run 48 entradas; staging reproduziu exatamente a descrição raiz.
 
 FT-005|nome=Pacote npm híbrido e publicação por release|escopo=Técnico|prioridade=alta|status=concluído|inicio=20260716.014625|fim=20260716.020355
 objetivo=Publicar @jeancarloem/dslens com ESM, CommonJS, tipos e entradas segregadas para browser, worker e servidor, automatizado por GitHub Release.

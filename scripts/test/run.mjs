@@ -152,6 +152,8 @@ try {
     if (
       rootManifest.type !== 'commonjs' ||
       manifest.type !== 'module' ||
+      manifest.description !== rootManifest.description ||
+      !/cross-language library/iu.test(manifest.description) ||
       manifest.name !== '@jeancarloem/dslens' ||
       manifest.version !== '0.0.1' ||
       manifest.main !== 'README.md'
