@@ -1,10 +1,71 @@
 {
-  "name": "agents-governance",
-  "version": "0.0.7",
+  "name": "@jeancarloem/dslens",
+  "version": "0.0.1",
   "private": false,
   "license": "MPL-2.0",
-  "description": "Governanca operacional portavel para agentes IA.",
-  "main": "AGENTS.md",
+  "author": "JeanCarloEM (https://jeancarloem.com)",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jcempro/DSLens.git"
+  },
+  "homepage": "https://DSLens.jcemp.pro",
+  "bugs": "https://github.com/jcempro/DSLens/issues",
+  "description": "Orquestra e valida contextos estruturados e arquiteturas normativas para fluxos de IA.",
+  "main": "README.md",
+  "type": "module",
+  "types": "./package/dslens/dist/typescript/index.d.ts",
+  "sideEffects": false,
+  "engines": {
+    "node": ">=20.19.0"
+  },
+  "keywords": [
+    "ai",
+    "architecture",
+    "context",
+    "dsl",
+    "validation"
+  ],
+  "files": [
+    "package/dslens"
+  ],
+  "exports": {
+    ".": {
+      "types": "./package/dslens/dist/typescript/index.d.ts",
+      "browser": {
+        "import": "./package/dslens/dist/javascript/browser.js",
+        "require": "./package/dslens/dist/commonjs/browser.cjs"
+      },
+      "worker": {
+        "import": "./package/dslens/dist/javascript/worker.js",
+        "require": "./package/dslens/dist/commonjs/worker.cjs"
+      },
+      "node": {
+        "import": "./package/dslens/dist/javascript/server.js",
+        "require": "./package/dslens/dist/commonjs/server.cjs"
+      },
+      "import": "./package/dslens/dist/javascript/index.js",
+      "require": "./package/dslens/dist/commonjs/index.cjs",
+      "default": "./package/dslens/dist/javascript/index.js"
+    },
+    "./browser": {
+      "types": "./package/dslens/dist/typescript/browser.d.ts",
+      "import": "./package/dslens/dist/javascript/browser.js",
+      "require": "./package/dslens/dist/commonjs/browser.cjs"
+    },
+    "./worker": {
+      "types": "./package/dslens/dist/typescript/worker.d.ts",
+      "import": "./package/dslens/dist/javascript/worker.js",
+      "require": "./package/dslens/dist/commonjs/worker.cjs"
+    },
+    "./server": {
+      "types": "./package/dslens/dist/typescript/server.d.ts",
+      "import": "./package/dslens/dist/javascript/server.js",
+      "require": "./package/dslens/dist/commonjs/server.cjs"
+    },
+    "./typescript": "./src/ts/index.ts",
+    "./manifest": "./manifests/dslens.json",
+    "./build-target": "./package/dslens/dist/build-target.json"
+  },
   "agentsUpstream": {
     "schema": 1,
     "upstreamRepository": "JeanCarloEM/agents.md",
@@ -16,7 +77,8 @@
     "check": "npm run agent:verify",
     "lint": "npm run agent:lint",
     "prepare": "npm run agent:setup",
-    "release": "npm run agent:release",
+    "release": "node scripts/release/npm-release.mjs",
+    "release:dry-run": "node scripts/release/npm-release.mjs --dry-run",
     "release:trigger": "npm run agent:release:trigger",
     "test": "node scripts/test/run.mjs",
     "test:real": "node scripts/test/run.mjs --real",

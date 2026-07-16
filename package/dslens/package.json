@@ -1,49 +1,71 @@
 {
-  "name": "@jcempro/dslens",
-  "version": "0.1.0",
-  "description": "Resolvedor declarativo e determinístico de dados estruturados.",
-  "type": "module",
+  "name": "@jeancarloem/dslens",
+  "version": "0.0.1",
   "license": "MPL-2.0",
-  "author": {
-    "name": "JeanCarloEM",
-    "url": "https://jeancarloem.com"
-  },
+  "author": "JeanCarloEM (https://jeancarloem.com)",
   "repository": {
     "type": "git",
-    "url": "https://github.com/jcempro/DSLens.git"
+    "url": "git+https://github.com/jcempro/DSLens.git"
   },
-  "homepage": "https://github.com/jcempro/DSLens",
+  "homepage": "https://DSLens.jcemp.pro",
   "bugs": "https://github.com/jcempro/DSLens/issues",
+  "description": "Orquestra e valida contextos estruturados e arquiteturas normativas para fluxos de IA.",
+  "main": "README.md",
+  "type": "module",
+  "types": "./dist/typescript/index.d.ts",
+  "sideEffects": false,
   "engines": {
     "node": ">=20.19.0"
   },
-  "sideEffects": false,
+  "keywords": [
+    "ai",
+    "architecture",
+    "context",
+    "dsl",
+    "validation"
+  ],
   "files": [
     "dist",
     "src",
     "README.md",
     "LICENSE"
   ],
-  "types": "./dist/typescript/index.d.ts",
   "exports": {
     ".": {
       "types": "./dist/typescript/index.d.ts",
-      "import": "./dist/javascript/index.js"
+      "browser": {
+        "import": "./dist/javascript/browser.js",
+        "require": "./dist/commonjs/browser.cjs"
+      },
+      "worker": {
+        "import": "./dist/javascript/worker.js",
+        "require": "./dist/commonjs/worker.cjs"
+      },
+      "node": {
+        "import": "./dist/javascript/server.js",
+        "require": "./dist/commonjs/server.cjs"
+      },
+      "import": "./dist/javascript/index.js",
+      "require": "./dist/commonjs/index.cjs",
+      "default": "./dist/javascript/index.js"
     },
     "./browser": {
       "types": "./dist/typescript/browser.d.ts",
-      "browser": "./dist/javascript/browser.js",
-      "import": "./dist/javascript/browser.js"
+      "import": "./dist/javascript/browser.js",
+      "require": "./dist/commonjs/browser.cjs",
+      "default": "./dist/javascript/browser.js"
     },
     "./worker": {
       "types": "./dist/typescript/worker.d.ts",
-      "browser": "./dist/javascript/worker.js",
-      "import": "./dist/javascript/worker.js"
+      "import": "./dist/javascript/worker.js",
+      "require": "./dist/commonjs/worker.cjs",
+      "default": "./dist/javascript/worker.js"
     },
     "./server": {
       "types": "./dist/typescript/server.d.ts",
-      "node": "./dist/javascript/server.js",
-      "import": "./dist/javascript/server.js"
+      "import": "./dist/javascript/server.js",
+      "require": "./dist/commonjs/server.cjs",
+      "default": "./dist/javascript/server.js"
     },
     "./typescript": "./src/index.ts",
     "./manifest": "./dist/manifest.json",

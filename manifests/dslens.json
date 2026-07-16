@@ -170,6 +170,62 @@
       "sourceMap": true,
       "stability": "stable",
       "budgetBytes": null
+    },
+    {
+      "id": "commonjs-core",
+      "implementation": "typescript",
+      "consumer": "Node.js or CommonJS bundler",
+      "runtime": "Node.js 20.19+",
+      "format": "CommonJS",
+      "entryPoint": "package/dslens/dist/commonjs/index.cjs",
+      "types": "package/dslens/dist/typescript/index.d.ts",
+      "externalDependencies": [],
+      "minified": false,
+      "sourceMap": true,
+      "stability": "stable",
+      "budgetBytes": null
+    },
+    {
+      "id": "commonjs-browser",
+      "implementation": "javascript-browser",
+      "consumer": "CommonJS browser bundler",
+      "runtime": "ES2020 browser bundler",
+      "format": "CommonJS",
+      "entryPoint": "package/dslens/dist/commonjs/browser.cjs",
+      "types": "package/dslens/dist/typescript/browser.d.ts",
+      "externalDependencies": [],
+      "minified": false,
+      "sourceMap": true,
+      "stability": "stable",
+      "budgetBytes": null
+    },
+    {
+      "id": "commonjs-worker",
+      "implementation": "javascript-browser",
+      "consumer": "CommonJS worker bundler",
+      "runtime": "ES2020 worker bundler",
+      "format": "CommonJS",
+      "entryPoint": "package/dslens/dist/commonjs/worker.cjs",
+      "types": "package/dslens/dist/typescript/worker.d.ts",
+      "externalDependencies": [],
+      "minified": false,
+      "sourceMap": true,
+      "stability": "stable",
+      "budgetBytes": null
+    },
+    {
+      "id": "commonjs-server",
+      "implementation": "javascript-server",
+      "consumer": "Node.js CommonJS",
+      "runtime": "Node.js 20.19+",
+      "format": "CommonJS",
+      "entryPoint": "package/dslens/dist/commonjs/server.cjs",
+      "types": "package/dslens/dist/typescript/server.d.ts",
+      "externalDependencies": [],
+      "minified": false,
+      "sourceMap": true,
+      "stability": "stable",
+      "budgetBytes": null
     }
   ]
 }

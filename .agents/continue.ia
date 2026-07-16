@@ -12,15 +12,15 @@ dependencias=RCF global §§10-14; docs/rcf/typescript-javascript.md; docs/rcf/d
 riscos=dual-package hazard; escopo npm sem autorização; token/2FA; divergência entre manifesto raiz e staging; publicação duplicada.
 arquivos_previstos=package.json; package-lock.json; package/dslens/package.json; scripts/build/*; scripts/release/*; .github/workflows/*; RCF.md; docs/rcf/*; README.md; manifests/*; tests/*.
 aceite=Pacote 0.0.1 empacota ESM/CJS/tipos; exports segregam browser/worker/server; instalação limpa testa import e require; release publicada aciona npm com provenance e NPM_TOKEN; fallback local orienta autenticação.
-1/4 Contrato e saneamento [em andamento]
+1/4 Contrato e saneamento [concluído]
   1/3 Registrar decisão CommonJS e manifesto raiz do produto [concluído]
-  2/3 Fixar metadados, descrição e staging derivado [pendente]
-  3/3 Registrar publicação e segurança npm [pendente]
-2/4 Artefatos híbridos [pendente]
-  1/3 Gerar ESM e CommonJS por runtime [pendente]
-  2/3 Mapear exports condicionais e declarações [pendente]
-  3/3 Sincronizar manifesto e documentação [pendente]
-3/4 Release npm [pendente]
+  2/3 Fixar metadados, descrição e staging derivado [concluído]
+  3/3 Registrar publicação e segurança npm [concluído]
+2/4 Artefatos híbridos [concluído]
+  1/3 Gerar ESM e CommonJS por runtime [concluído]
+  2/3 Mapear exports condicionais e declarações [concluído]
+  3/3 Sincronizar manifesto e documentação [concluído]
+3/4 Release npm [em andamento]
   1/3 Implementar comando local com dry-run e diagnóstico de PKI/token [pendente]
   2/3 Criar workflow disparado por release publicada [pendente]
   3/3 Impedir versão/tag divergente e republicação [pendente]
