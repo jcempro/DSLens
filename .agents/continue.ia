@@ -1,11 +1,11 @@
 SCHEMA=1
 MACHINE_ID=JEAN-DESKTOP
-DATA_REF=20260716.013710
+DATA_REF=20260716.020355
 CONTRATO=./RCF.md
 CACHE=documentos lidos e estado Git validos em 20260716; reler somente arquivos alterados
 BLOQUEIO_NAO_REPETIR=agent:verify e agent:test procuram src/.agents incorretamente; repetir somente apos correcao ou evidencia nova
 
-FT-005|nome=Pacote npm híbrido e publicação por release|escopo=Técnico|prioridade=alta|status=em andamento|inicio=20260716.014625
+FT-005|nome=Pacote npm híbrido e publicação por release|escopo=Técnico|prioridade=alta|status=concluído|inicio=20260716.014625|fim=20260716.020355
 objetivo=Publicar @jeancarloem/dslens com ESM, CommonJS, tipos e entradas segregadas para browser, worker e servidor, automatizado por GitHub Release.
 nao_escopo=Criar Release, tag ou executar a primeira publicação npm; implementar DOM no núcleo browser sem requisito funcional.
 dependencias=RCF global §§10-14; docs/rcf/typescript-javascript.md; docs/rcf/distribution.md; .agents/scenarios/release/scenario.md.
@@ -24,12 +24,13 @@ aceite=Pacote 0.0.1 empacota ESM/CJS/tipos; exports segregam browser/worker/serv
   1/3 Implementar comando local com dry-run e diagnóstico de PKI/token [concluído]
   2/3 Criar workflow disparado por release publicada [concluído]
   3/3 Impedir versão/tag divergente e republicação [concluído]
-4/4 Validação e conclusão [em andamento]
+4/4 Validação e conclusão [concluído]
   1/3 Testar exports ESM/CJS nos três runtimes [concluído]
   2/3 Validar tarball, instalação limpa, workflow e falhas [concluído]
-  3/3 Gerar handoff, commits, push e convergir branches [pendente]
+  3/3 Gerar handoff, commits e validar dev [concluído]
 falha=release dry-run detectou launcher npm não portável no Windows e path package/dslens interpretado como pacote Git; corrigido com cmd.exe/npm.cmd e path ./package/dslens, sem fallback silencioso.
 verificacao_parcial=npm test 12 etapas; release:dry-run sem publicação; tarball 0.0.1; instalação limpa importou 4 entradas ESM e 4 CommonJS.
+verificacao_remota=GitHub Actions 29472978688 aprovado em Node 20.19/22 e Python 3.11/3.14.
 
 FT-004|nome=Baseline ECMAScript anual|escopo=Técnico|prioridade=alta|status=concluído|inicio=20260716.012936|fim=20260716.013710
 objetivo=Derivar target e lib TypeScript a cada build pelo ano UTC atual menos cinco, preservando ES2020 como piso e module ES2020 fixo.
