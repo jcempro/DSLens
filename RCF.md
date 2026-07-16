@@ -1,300 +1,160 @@
-# DSLens
+# RCF global — DSLens
 
-> Declarative URL Resolution DSL for structured APIs (JSON, YAML, XML)
+## 1. Autoridade, escopo e conformidade
 
-![status](https://img.shields.io/badge/status-in--development-orange)
-![license](https://img.shields.io/badge/license-MPL%202.0-brightgreen)
-![multi-lang](https://img.shields.io/badge/languages-multi--runtime-blue)
-![deterministic](https://img.shields.io/badge/execution-deterministic-success)
-![no-scraping](https://img.shields.io/badge/scraping-forbidden-red)
+Este RCF define o contrato funcional, arquitetural e público do DSLens. Ele DEVE complementar `./AGENTS.md`; processamento da IA, FT, Git e operação do repositório permanecem sob a norma superior. Sub-RCFs DEVEM especializar somente o próprio escopo e NÃO DEVEM enfraquecer este arquivo.
 
----
+Ordem normativa do produto: `./RCF.md` → sub-RCF aplicável → manifesto canônico publicado → `./README.md`. Divergência entre implementação, build, pacote, manifesto ou documentação DEVE ser tratada como não conformidade; o RCF NÃO DEVE ser inferido da implementação divergente.
 
-## 📌 Overview
+Aplicam-se `./AGENTS.md` §§0.13, 10–14 e `./.agents/core/contracts.md` CT-1–CT-4. Linguagem normativa segue `./.agents/core/concepts/microconceitos.md` MN-2119, MN-DENS, MN-PRES, MN-REF e MN-VAL.
 
-**DSLens** is a **multi-implementation and multi-runtime** library for declarative resolution of dynamic endpoints from remote structured data.
+## 2. Finalidade e limites
 
-It is not a generic parser.  
-It is not a heuristic engine.
+DSLens é uma especificação implementável e uma família de bibliotecas para resolução declarativa e determinística de valores em dados estruturados. O núcleo DEVE transformar uma expressão DSL e uma origem autorizada em valor textual ou falha normalizada, sem avaliação de código, scraping ou heurística.
 
-It is a **deterministic resolver with strict semantics, portable across languages**.
+O projeto NÃO DEVE ser parser genérico, seletor de HTML, mecanismo de automação imperativa nem linguagem de execução arbitrária. Operação de rede do núcleo DEVE ser somente leitura por HTTP `GET`; mutação, autenticação implícita e efeito externo não declarado são vedados.
 
-> Think of it as a `querySelector` for APIs — with identical behavior in any language.
+## 3. Taxonomia e raízes
 
----
+- **contrato canônico**: semântica independente de linguagem definida neste RCF e nos schemas;
+- **implementação**: realização do contrato em uma linguagem;
+- **binding**: projeção idiomática da API canônica;
+- **adaptador**: integração segregada com ambiente ou recurso não pertencente ao núcleo;
+- **wrapper**: fachada que preserva o contrato e altera somente forma de consumo;
+- **hook**: extensão tipada acionada em ponto de ciclo de vida declarado;
+- **build**: artefato derivado para consumidor e runtime definidos;
+- **código gerado**: arquivo reproduzível cuja fonte e gerador são declarados;
+- **pacote**: unidade distribuível por canal específico;
+- **protocolo de interoperabilidade**: representação comum de entrada, resultado, falha e metadados.
 
-## 🎯 Objective
+A raiz do repositório DEVE conter governança, documentação, manifestos e automação transversal. Implementações DEVEM residir em `./src/<família>/`. Artefatos publicados DEVEM residir em raiz de distribuição declarada e NÃO DEVEM expor `./src`, testes, cache ou configuração de desenvolvimento.
 
-Enable resolution of dynamic URLs via a declarative DSL, eliminating:
+## 4. Famílias e estado
 
-- ❌ HTML parsing
-- ❌ scraping
-- ❌ fragile heuristics
-- ❌ arbitrary code execution
+As famílias são: PowerShell histórica, Python experimental, TypeScript/JavaScript planejada e futuras implementações justificadas. Cada família DEVE possuir perfil de capacidade e matriz de conformidade.
 
-And ensuring:
+Estado documental em 2026-07-16:
 
-- ✅ absolute determinism
-- ✅ idempotency (GET-only)
-- ✅ pure declarative navigation
-- ✅ cross-language portability
+| Família | Estado | Evidência | Autoridade |
+|---|---|---|---|
+| PowerShell | existente, referência histórica | `./src/ps/dsl.ps1` | comportamento legado sujeito a este RCF |
+| Python | experimental, não certificado | `./src/py/dsl.py` | NÃO DEVE definir contrato comum |
+| TypeScript/JavaScript | planejada | ausente | `./docs/rcf/typescript-javascript.md` |
+| demais | futura | ausente | sub-RCF futuro obrigatório |
 
----
+Recurso futuro NÃO DEVE ser anunciado como implementado. Implementação anterior NÃO DEVE ser alterada, depreciada ou promovida a referência única sem decisão explícita e vetores de conformidade.
 
-## 🌍 Multi-Language Nature (Project Contract)
+## 5. Gramática e semântica canônicas
 
-DSLens is **not just a library** — it is an **implementable specification**.
+### 5.1 Forma mínima
 
-Each implementation (Python, JS, PHP, etc.) must be considered:
-
-> An _equivalent instance_ of the same logical system.
-
-### Mandatory requirements
-
-All implementations MUST:
-
-- Preserve **identical DSL semantics**
-- Produce the **same output for the same input**
-- Respect **all constraints (hard rules)**
-- Implement the same **resolution pipeline**
-- Maintain **deterministic and idempotent** behavior
-
-Any divergence between languages is considered a **contract violation**.
-
----
-
-## 🧠 Core Concept
-
-```text
-${"https://api.example.com/data"}.items[0].download.url
+```ebnf
+expression = "${", quote, source, quote, "}", path ;
+quote      = "\"" | "'" ;
+path       = { member | index | filter } ;
+member     = ".", identifier ;
+index      = "[", non-negative-integer, "]" ;
+filter     = "[@", identifier, "=", quote, literal, quote, "]" ;
 ```
 
-**Note:** The content inside `${"..."}`
+O perfil canônico v1 DEVE aceitar exatamente uma expressão por entrada. `source` DEVE ser URL absoluta HTTP(S). `member` DEVE selecionar membro pelo nome literal; `index` DEVE ser base zero; `filter` DEVE selecionar a primeira ocorrência cujo atributo ou membro tenha igualdade textual exata. Ausência, tipo incompatível, índice fora do limite, expressão malformada ou fonte inválida DEVEM falhar sem fallback heurístico.
 
-- may be a URL (default case)
-- may be the structured content itself (JSON / YAML / XML)
-- may be a path to a local or network file
+Texto sem expressão DEVE ser devolvido sem alteração. Texto que contenha abertura `${` malformada DEVE falhar. Conteúdo externo combinado com expressão, múltiplas expressões, resultado que contenha nova expressão e encadeamento recursivo NÃO DEVEM integrar o perfil canônico v1.
 
-Supported Quotation Marks:
+Crases, origem inline, arquivo local/remoto, objeto de opções, wildcard, `.find()`, interpolação parcial e método HTTP diferente de GET são capacidades propostas não implementadas. Elas NÃO DEVEM ser aceitas como estáveis até extensão de gramática, modelo de segurança, vetores comuns e decisão normativa explícita.
 
-- The quotation marks can be double quotes (`"`), single quotes (`'`), or backticks (`` ` ``).
+### 5.2 Pipeline
 
-Logical pipeline:
+O pipeline DEVE executar, em ordem: detecção → validação da expressão e da fonte → obtenção autorizada → interpretação estrutural → navegação determinística → normalização textual → resultado. Implementações DEVEM preservar a ordem semântica mesmo quando otimizarem etapas internas.
 
-1. Remote fetch (when applicable)
-2. Structural interpretation (JSON/YAML/XML)
-3. Deterministic navigation
-4. Mandatory conversion → `string`
+JSON e XML DEVEM possuir suporte no perfil base certificado. YAML PODE integrar perfil adicional quando parser seguro e compatível estiver disponível; ausência do parser DEVE ser distinguível no perfil de capacidade e NÃO DEVE mudar silenciosamente a interpretação para outro formato. HTML NÃO DEVE ser interpretado.
 
----
+## 6. Entradas, saídas, falhas e telemetria
 
-## 🔎 DSL Syntax
+A entrada pública canônica é texto. Sucesso DEVE retornar representação textual determinística do valor terminal. Falha esperada DEVE retornar ausência (`null`, `None` ou equivalente idiomático mapeado a `null` no protocolo) e NÃO DEVE propagar exceção ao consumidor da fachada fail-safe.
 
-### Base structure
+O protocolo de resultado estruturado para adaptadores, async e interoperabilidade DEVE conter `ok`, `value`, `error`, `metadata`; `value` DEVE ser texto ou `null`; `error` DEVE conter código estável, etapa e mensagem segura; `metadata` PODE conter implementação, versão, cache e duração. Mensagem NÃO DEVE expor segredo, credencial, conteúdo sensível ou path local.
 
-```text
-${"SOURCE"}.path.to.field[index].value
-```
+Códigos mínimos: `INVALID_EXPRESSION`, `INVALID_SOURCE`, `FETCH_FAILED`, `TIMEOUT`, `PARSE_FAILED`, `INVALID_PATH`, `CHAIN_FORBIDDEN`, `BUSY`, `UNSUPPORTED_CAPABILITY`, `INTERNAL_FAILURE`.
 
-### Capabilities
+Telemetria opcional DEVE receber mensagem e severidade estável. Severidades legadas `t`, `l`, `i`, `w`, `e` PODEM ser preservadas por binding; o protocolo comum DEVE mapeá-las a `step`, `log`, `info`, `warning`, `error`. Falha de callback NÃO DEVE alterar o resultado da resolução.
 
-- Field navigation: `.field`
-- Indexing: `[0]`
-- Semantic filters: `[@name="release"]`
+## 7. Sincronismo, estado, cache e limites
 
----
+A API síncrona DEVE permanecer canônica quando o ambiente permitir obtenção síncrona. Ambientes que proíbam rede síncrona, inclusive navegador principal, DEVEM separar obtenção assíncrona de resolução síncrona: o núcleo síncrono DEVE aceitar dados já obtidos; a fachada assíncrona PODE obter e então invocar o mesmo núcleo. Consumidor síncrono NÃO DEVE ser obrigado a usar `Promise`, callback ou worker.
 
-## ⚙️ Resolution Pipeline (Normative)
+Fachada assíncrona DEVE preservar valor, erro, metadados e ordenação. Ela DEVE declarar timeout, cancelamento, concorrência, reentrância e efeitos; NÃO DEVE substituir nem alterar a API síncrona. Worker PODE encapsular operação sem mudar semântica.
 
-1. **Detection**
-   - `has_parser_expression`
+Cache DEVE ser opcional, limitado, invalidável e semanticamente transparente. Chave DEVE cobrir fonte normalizada, path e qualquer opção que altere resultado. Cache negativo PODE existir com TTL declarado. Cache persistente NÃO DEVE ser requisito do núcleo e DEVE permanecer em adaptador com privacidade, isolamento e política de expiração. Limites e defaults publicados DEVEM constar do manifesto; relaxamento NÃO DEVE ser silencioso.
 
-2. **Fetch**
-   - HTTP request (GET only, when applicable)
-   - Auto-detect: JSON / YAML / XML
+## 8. Extensibilidade e ambientes
 
-3. **Navigation**
-   - Deterministic traversal (no heuristic fallback)
+O núcleo DEVE permanecer independente de DOM, Node.js, framework, worker, sistema de arquivos, processo, binário, serviço externo e detecção heurística de ambiente. Dependência ambiental DEVE entrar por binding, adaptador, hook, subpath ou condição de exportação.
 
-4. **Conversion**
-   - Mandatory output: `string`
+Hook DEVE declarar nome, versão, ciclo, ordem, entrada congelada, retorno estruturado, sincronismo, reentrância, cancelamento, isolamento, erros e estabilidade. Ausência de hook opcional NÃO DEVE impedir o núcleo. Hook NÃO DEVE mutar estado gerenciado fora de ação autorizada nem absorver falha contratada. Aplicam-se `./.agents/core/contracts.md` CT-2 e CT-3.
 
-5. **Execution Control**
-   - Limits for:
-     - depth (`MAX_DSL_DEPTH`)
-     - chaining (`MAX_DSL_CHAINING`)
-     - time (`MAX_DSL_RESOLUTION_TIMEOUT`, `MAX_GLOBAL_TIMEOUT`)
+Perfis previstos: `core`, `browser`, `worker`, `node`, `server`, `ssr`, `build` e `test`. Cada build DEVE declarar exatamente os perfis incluídos; importar `browser` NÃO DEVE carregar código de Node.js ou servidor.
 
----
+Classes DEVERIAM representar estado, ciclo de vida ou estratégia substituível; composição e injeção DEVERIAM prevalecer sobre herança rígida. Funções puras DEVEM permanecer permitidas quando reduzirem estado e bundle. Orientação a objetos NÃO DEVE criar abstração sem função, estado global, herança profunda ou perda desproporcional de tree-shaking.
 
-## 🚀 Features
+## 9. Superfície pública e documentação de código
 
-- Deterministic execution
-- No side effects
-- In-memory cache with TTL
-- Runtime independence
-- Fail-safe (no exception propagation)
+Toda entidade pública DEVE constar no manifesto canônico com nome, categoria, linguagem, runtime, assinatura, parâmetros, retorno, efeitos, erros, sincronismo, estabilidade, importação, compatibilidade, extensão e referência normativa aplicáveis. Exportação acidental NÃO DEVE adquirir estabilidade.
 
----
+Método e função públicos ou internos DEVEM possuir documentação sucinta no formato idiomático da linguagem, cobrindo finalidade e, quando aplicável, parâmetros, retorno, efeitos, erros, pré/pós-condições, sincronismo, mutabilidade, estabilidade e hooks. Comentário NÃO DEVERIA repetir apenas o código. Documentação gerada DEVERIA derivar da fonte ou ser validada contra ela.
 
-## 🧱 Constraints (Hard Rules)
+## 10. Distribuição, paths e versionamento
 
-- ❌ HTML parsing forbidden
-- ❌ Scraping forbidden
-- ❌ `eval` / `exec` forbidden
-- ❌ Heuristic behavior forbidden
-- ❌ Side effects forbidden
-- ❌ Unlimited chaining forbidden
+Cada família DEVE suportar Git e os canais idiomáticos aprovados. TypeScript/JavaScript DEVE suportar npm, fonte TypeScript explícita, JavaScript executável, tipos, build client-side, CDN e importação direta. Consumidor NÃO DEVE precisar de toolchain de desenvolvimento, runtime alheio, módulos não usados ou paths internos.
 
----
+Uso como submódulo Git DEVE aceitar diretório configurável, monorepo, workspace e symlink. Resolução DEVE partir da localização do módulo ou configuração explícita, nunca de nome/profundidade fixos ou diretório corrente. Falha estrutural DEVE produzir diagnóstico acionável e NÃO DEVE ser ocultada por fallback.
 
-## 🧯 Error Handling
+O projeto DEVE usar versionamento semântico. Mudança de gramática, resultado, erro, ordenação, default, export público ou tipo incompatível DEVE ser major; adição compatível DEVE ser minor; correção que preserve contrato DEVE ser patch. Famílias publicadas DEVEM usar versão coordenada do contrato e declarar versão própria do artefato quando diferir.
 
-- Default return: `null` / `None`
-- No exception must escape
-- Errors are isolated and loggable
+## 11. Builds, dependências e cadeia de suprimentos
 
----
+Build DEVE possuir consumidor, runtime, formato, entry point, tipos, externalizações, carregamento, compatibilidade, minificação, source map e estabilidade declarados. Build distinto NÃO DEVE divergir semanticamente. Nenhum formato DEVE existir apenas por tradição.
 
-## 🧠 Cache Model
+Otimização DEVE preservar comportamento, efeitos necessários, nomes públicos, tipos, maps e licença; DEVE favorecer determinismo, tree-shaking, eliminação de código morto, deduplicação e ausência de dependência acidental. `sideEffects` DEVE refletir módulos puros, registro de hooks, inicialização, estilos e ordem real.
 
-- Scope: session memory
-- Key: `URL + path`
-- TTL: `CACHE_TTL`
+Dependência DEVE estar na categoria correspondente ao uso. Lockfile, licença, vulnerabilidade, script de instalação, proveniência e origem DEVEM ser auditáveis. Build NÃO DEVE depender de recurso remoto não fixado. Segredo NÃO DEVE integrar fonte, build, map, manifesto, pacote, log ou fixture publicada.
 
-Objective: reduce latency and traffic without compromising determinism.
+Artefatos relevantes DEVEM possuir medição reproduzível de tamanho bruto, minificado, gzip e Brotli, além de baseline. O orçamento do build client-side otimizado DEVE ser fixado após primeiro baseline real aprovado; alteração do limite exige causa, quantificação, alternativas e decisão explícita.
 
----
+## 12. Manifestos e schemas
 
-## 📁 Project Structure
+O manifesto canônico DEVE ser JSON UTF-8 com ordenação canônica, sem exemplos e validado por `./schemas/dslens-manifest.schema.json`. JSON é adotado por suporte nativo em browser/Node.js, schema consolidado e ausência de parser adicional; comparação de tokenização com YAML/TOML permanece pendente antes da primeira publicação.
 
-```text
-/src/
-  ├── py/
-  │    ├── dsl.py
-  │    └── dsl.test.py
-  ├── js/
-  │    ├── dsl.js
-  │    └── dsl.test.js
-  ├── ps1/
-  │    ├── dsl.ps1
-  │    └── dsl.test.ps1
-```
+Manifesto Markdown híbrido DEVE ser derivado ou validado contra o JSON e priorizar contratos, importação, compatibilidade, customização e exemplos mínimos. Informação normativa NÃO DEVE ser mantida manualmente em duas fontes independentes.
 
-### Structural rules
+O pipeline futuro DEVE detectar exportação sem contrato, contrato sem exportação, assinatura/path/tipo/build ausente, divergência entre linguagens e referência quebrada. Publicação com inconsistência é vedada.
 
-- Each language resides in: `./src/<language>/`
+## 13. Cabeçalhos e licença
 
-- `<language>` preferably follows the extension (`py`, `js`, `ps1`, etc.), but it is not mandatory
+Fonte e artefato textual que aceite comentário DEVEM conter somente cabeçalho autoral/licencial conforme `./AGENTS.md` §12, usando dados comprovados do repositório. Build minificado DEVE preservar banner ultrassucinto. Formato sem comentário DEVE usar metadado próprio ou sidecar. Gerado DEVE indicar fonte, gerador e vedação de edição manual.
 
-- Minimum structure per implementation:
-  - 1 main file (implementation)
-  - 1 test file
+Licença do projeto: Mozilla Public License 2.0, conforme `./LICENSE`. Autor primário comprovado: JeanCarloEM. Origem comprovada: `https://github.com/jcempro/DSLens`. Site comprovado: `https://jeancarloem.com`. E-mail e autor secundário não foram encontrados e NÃO DEVEM ser inferidos.
 
-- Preference for:
-  - **single file** containing all logic
-  - recommended limit: **≤ 1000 lines (including header)**
+## 14. Paridade e validação
 
-- Unique file are allowed when justifiable
+Matriz de capacidades DEVE classificar cada item como `required`, `supported`, `optional`, `experimental`, `unavailable` ou `environment-incompatible`. Contratos compartilhados DEVEM possuir vetores offline comuns com entrada, dados, resultado, erro e ordenação determinísticos.
 
----
+Validação DEVE comparar resultado, falha, normalização, ordenação, default, sincronismo e efeito. Também DEVE cobrir schema, exports, declarações, browser real, worker, Node.js, tree-shaking, headers, tamanho, build reproduzível, tarball, CDN, submódulo renomeado, monorepo, symlink, execução fora da raiz, licenças e segredos conforme aplicável. Teste não executado NÃO DEVE ser declarado executado.
 
-## 🧪 Example
+PowerShell NÃO DEVE ser evidência única quando este RCF corrigir ou tornar explícito o contrato. Divergências existentes DEVEM permanecer inventariadas até FT autorizada.
 
-```text
-${"https://api.github.com/repos/user/repo/releases"}
-  .assets[@name="app.exe"].browser_download_url
-```
+## 15. Especializações
 
----
+- PowerShell: `./docs/rcf/powershell.md`.
+- TypeScript, JavaScript, npm e ambientes JS: `./docs/rcf/typescript-javascript.md`.
+- Distribuição, builds e manifestos: `./docs/rcf/distribution.md`.
 
-## 📐 Design Principles
+## 16. Decisões pendentes
 
-- Deterministic > Intelligent
-- Explicit > Implicit
-- Declarative > Imperative
-- Immutability by default
-- Minimal surface
-- Diff-friendly evolution
+Antes da implementação, decisão humana DEVE resolver:
 
----
-
-## 🧑‍💻 Implementation Guidelines
-
-### Code
-
-- Indentation: **2 spaces** (when supported)
-- Avoid magic values
-- Centralize constants
-- Small and specialized functions
-- No logic duplication
-
-### Architecture
-
-- Low coupling
-- High predictability
-- Synchronous and controlled flow (explicitly and easily encapsulable as asynchronous by importers)
-- No implicit dependency on external state
-
----
-
-## 🤝 Contribution
-
-### Requirements
-
-- Preserve DSL semantics
-- Do not introduce heuristics
-- Do not alter behavior across languages
-- Maintain deterministic compatibility
-
-### Commits
-
-- Atomic
-- Intentional
-- With minimal diffs
-
----
-
-## 🔒 Security Model
-
-- Read-only operations
-- No code execution
-- No dynamic evaluation
-- Strict input and execution limits
-
----
-
-## 📜 License
-
-Mozilla Public License 2.0 (MPL-2.0)
-http://mozilla.org/MPL/2.0/
-
----
-
-## 👤 Author
-
-**JeanCarloEM** https://jeancarloem.com.
-
-This project is a segregation from https://github.com/jcempentools, also maintained by **JeanCarloEM** under MPL-2.
-
----
-
-## ⚠️ Status
-
-Project under active development.
-Breaking changes may occur.
-
----
-
-## 🧭 Final Note
-
-DSLens does not aim to be flexible.
-
-It aims to be:
-
-- predictable
-- auditable
-- portable
-- correct
-
-This rigidity is intentional — and fundamental to the project.
+1. **Gramática ampliada** — alternativas: manter v1 estrita; adicionar inline/arquivo; adicionar opções, wildcard e `.find`. Impacto: segurança, parser e paridade. Recomendação: implementar e certificar v1 antes de extensões.
+2. **Python existente** — alternativas: certificar após convergência; manter experimental; remover em major futura. Impacto: cache persistente, dependência YAML e fallback socket divergentes. Recomendação: manter experimental até vetores comuns.
+3. **Artefato global** — alternativas: IIFE ou UMD. Impacto: tamanho, namespace e compatibilidade. Recomendação: medir ESM e IIFE; publicar IIFE apenas com consumidor comprovado.
+4. **Orçamento client-side** — alternativas dependem do baseline real. Impacto: build e dependências. Recomendação: fixar limite na FT do primeiro build, sem estimativa documental.
+5. **Tokenização do manifesto** — alternativas: JSON, YAML ou TOML. Impacto: IA e toolchain. Recomendação: manter JSON por interoperabilidade e medir antes da publicação inicial.
