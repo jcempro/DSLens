@@ -16,6 +16,11 @@ export interface WorkerRequest {
 }
 
 /** Resolve uma mensagem de worker sem depender de estado global. */
-export function resolveWorkerRequest(request: WorkerRequest): Readonly<{ id: string; value: string | null }> {
-  return { id: request.id, value: resolveDslData(request.data, request.path) };
+export function resolveWorkerRequest(
+  request: WorkerRequest,
+): Readonly<{ id: string; value: string | null }> {
+  return {
+    id: request.id,
+    value: resolveDslData(request.data, request.path),
+  };
 }

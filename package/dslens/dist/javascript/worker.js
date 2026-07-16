@@ -28,7 +28,9 @@ function resolveDslData(data, path) {
         if (!Array.isArray(container)) return null;
         const attribute = filter[2] ?? "";
         const expected = filter[3] ?? "";
-        current = container.find((item) => String(getProperty(item, attribute)) === expected) ?? null;
+        current = container.find(
+          (item) => String(getProperty(item, attribute)) === expected
+        ) ?? null;
         continue;
       }
       current = getProperty(current, token);
@@ -39,16 +41,29 @@ function resolveDslData(data, path) {
   }
 }
 function toDslResult(value, code = "INVALID_PATH") {
-  return value === null ? { ok: false, value: null, error: { code, stage: "resolve", message: "DSL resolution failed" }, metadata: {} } : { ok: true, value, error: null, metadata: {} };
+  return value === null ? {
+    ok: false,
+    value: null,
+    error: {
+      code,
+      stage: "resolve",
+      message: "DSL resolution failed"
+    },
+    metadata: {}
+  } : { ok: true, value, error: null, metadata: {} };
 }
 function getProperty(value, key) {
-  if (typeof value !== "object" || value === null || !Object.prototype.hasOwnProperty.call(value, key)) return null;
+  if (typeof value !== "object" || value === null || !Object.prototype.hasOwnProperty.call(value, key))
+    return null;
   return value[key];
 }
 
 // src/ts/worker.ts
 function resolveWorkerRequest(request) {
-  return { id: request.id, value: resolveDslData(request.data, request.path) };
+  return {
+    id: request.id,
+    value: resolveDslData(request.data, request.path)
+  };
 }
 export {
   hasParserExpression,

@@ -28,7 +28,9 @@ function resolveDslData(data, path) {
         if (!Array.isArray(container)) return null;
         const attribute = filter[2] ?? "";
         const expected = filter[3] ?? "";
-        current = container.find((item) => String(getProperty(item, attribute)) === expected) ?? null;
+        current = container.find(
+          (item) => String(getProperty(item, attribute)) === expected
+        ) ?? null;
         continue;
       }
       current = getProperty(current, token);
@@ -39,10 +41,20 @@ function resolveDslData(data, path) {
   }
 }
 function toDslResult(value, code = "INVALID_PATH") {
-  return value === null ? { ok: false, value: null, error: { code, stage: "resolve", message: "DSL resolution failed" }, metadata: {} } : { ok: true, value, error: null, metadata: {} };
+  return value === null ? {
+    ok: false,
+    value: null,
+    error: {
+      code,
+      stage: "resolve",
+      message: "DSL resolution failed"
+    },
+    metadata: {}
+  } : { ok: true, value, error: null, metadata: {} };
 }
 function getProperty(value, key) {
-  if (typeof value !== "object" || value === null || !Object.prototype.hasOwnProperty.call(value, key)) return null;
+  if (typeof value !== "object" || value === null || !Object.prototype.hasOwnProperty.call(value, key))
+    return null;
   return value[key];
 }
 
@@ -54,10 +66,17 @@ async function resolveParserExpression(source, options = {}) {
   const path = match?.groups?.path;
   if (!url || !path || !/^https?:\/\//u.test(url)) return null;
   const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), options.timeoutMs ?? 3e4);
+  const timeout = setTimeout(
+    () => controller.abort(),
+    options.timeoutMs ?? 3e4
+  );
   const signal = options.signal ?? controller.signal;
   try {
-    const response = await (options.fetcher ?? fetch)(url, { method: "GET", signal, headers: { accept: "application/json" } });
+    const response = await (options.fetcher ?? fetch)(url, {
+      method: "GET",
+      signal,
+      headers: { accept: "application/json" }
+    });
     if (!response.ok) return null;
     return resolveDslData(await response.json(), path);
   } catch {

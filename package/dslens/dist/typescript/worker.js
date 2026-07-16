@@ -8,6 +8,9 @@ export * from './core.js';
 import { resolveDslData } from './core.js';
 /** Resolve uma mensagem de worker sem depender de estado global. */
 export function resolveWorkerRequest(request) {
-    return { id: request.id, value: resolveDslData(request.data, request.path) };
+    return {
+        id: request.id,
+        value: resolveDslData(request.data, request.path),
+    };
 }
 //# sourceMappingURL=worker.js.map

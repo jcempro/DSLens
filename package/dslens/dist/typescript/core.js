@@ -26,7 +26,8 @@ export function resolveDslData(data, path) {
                 if (!Array.isArray(container))
                     return null;
                 const position = Number(index[2]);
-                current = position < container.length ? container[position] : null;
+                current =
+                    position < container.length ? container[position] : null;
                 continue;
             }
             const filter = token.match(FILTER);
@@ -36,12 +37,15 @@ export function resolveDslData(data, path) {
                     return null;
                 const attribute = filter[2] ?? '';
                 const expected = filter[3] ?? '';
-                current = container.find((item) => String(getProperty(item, attribute)) === expected) ?? null;
+                current =
+                    container.find((item) => String(getProperty(item, attribute)) === expected) ?? null;
                 continue;
             }
             current = getProperty(current, token);
         }
-        return current === null || current === undefined ? null : String(current);
+        return current === null || current === undefined ?
+            null
+            : String(current);
     }
     catch {
         return null;
@@ -49,13 +53,24 @@ export function resolveDslData(data, path) {
 }
 /** Constrói resultado estruturado para integrações e transportes assíncronos. */
 export function toDslResult(value, code = 'INVALID_PATH') {
-    return value === null
-        ? { ok: false, value: null, error: { code, stage: 'resolve', message: 'DSL resolution failed' }, metadata: {} }
+    return value === null ?
+        {
+            ok: false,
+            value: null,
+            error: {
+                code,
+                stage: 'resolve',
+                message: 'DSL resolution failed',
+            },
+            metadata: {},
+        }
         : { ok: true, value, error: null, metadata: {} };
 }
 /** Lê propriedade própria sem permitir acesso à cadeia de protótipos. */
 function getProperty(value, key) {
-    if (typeof value !== 'object' || value === null || !Object.prototype.hasOwnProperty.call(value, key))
+    if (typeof value !== 'object' ||
+        value === null ||
+        !Object.prototype.hasOwnProperty.call(value, key))
         return null;
     return value[key];
 }

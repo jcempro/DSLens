@@ -31,7 +31,10 @@ export function hasParserExpression(source: string): boolean {
 }
 
 /** Resolve sincronamente um path canônico sobre dado estruturado carregado. */
-export function resolveDslData(data: unknown, path: string): string | null {
+export function resolveDslData(
+  data: unknown,
+  path: string,
+): string | null {
   try {
     let current: unknown = data;
     const tokens = path.replace(/^\./u, '').match(TOKEN) ?? [];
@@ -44,7 +47,8 @@ export function resolveDslData(data: unknown, path: string): string | null {
         const container = getProperty(current, index[1] ?? '');
         if (!Array.isArray(container)) return null;
         const position = Number(index[2]);
-        current = position < container.length ? container[position] : null;
+        current =
+          position < container.length ? container[position] : null;
         continue;
       }
 
@@ -54,28 +58,51 @@ export function resolveDslData(data: unknown, path: string): string | null {
         if (!Array.isArray(container)) return null;
         const attribute = filter[2] ?? '';
         const expected = filter[3] ?? '';
-        current = container.find((item) => String(getProperty(item, attribute)) === expected) ?? null;
+        current =
+          container.find(
+            (item) =>
+              String(getProperty(item, attribute)) === expected,
+          ) ?? null;
         continue;
       }
 
       current = getProperty(current, token);
     }
 
-    return current === null || current === undefined ? null : String(current);
+    return current === null || current === undefined ?
+        null
+      : String(current);
   } catch {
     return null;
   }
 }
 
 /** Constrói resultado estruturado para integrações e transportes assíncronos. */
-export function toDslResult(value: string | null, code = 'INVALID_PATH'): DslResult {
-  return value === null
-    ? { ok: false, value: null, error: { code, stage: 'resolve', message: 'DSL resolution failed' }, metadata: {} }
+export function toDslResult(
+  value: string | null,
+  code = 'INVALID_PATH',
+): DslResult {
+  return value === null ?
+      {
+        ok: false,
+        value: null,
+        error: {
+          code,
+          stage: 'resolve',
+          message: 'DSL resolution failed',
+        },
+        metadata: {},
+      }
     : { ok: true, value, error: null, metadata: {} };
 }
 
 /** Lê propriedade própria sem permitir acesso à cadeia de protótipos. */
 function getProperty(value: unknown, key: string): unknown {
-  if (typeof value !== 'object' || value === null || !Object.prototype.hasOwnProperty.call(value, key)) return null;
+  if (
+    typeof value !== 'object' ||
+    value === null ||
+    !Object.prototype.hasOwnProperty.call(value, key)
+  )
+    return null;
   return (value as Record<string, unknown>)[key];
 }

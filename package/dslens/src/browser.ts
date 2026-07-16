@@ -15,20 +15,31 @@ export interface ResolveSourceOptions {
   readonly fetcher?: typeof fetch;
 }
 
-const EXPRESSION = /^\$\{\s*(["'])(?<source>.*?)\1\s*\}(?<path>[.\[].*)$/u;
+const EXPRESSION =
+  /^\$\{\s*(["'])(?<source>.*?)\1\s*\}(?<path>[.\[].*)$/u;
 
 /** Obtém JSON por GET e resolve o path com o núcleo síncrono. */
-export async function resolveParserExpression(source: string, options: ResolveSourceOptions = {}): Promise<string | null> {
+export async function resolveParserExpression(
+  source: string,
+  options: ResolveSourceOptions = {},
+): Promise<string | null> {
   const match = source.match(EXPRESSION);
   const url = match?.groups?.source;
   const path = match?.groups?.path;
   if (!url || !path || !/^https?:\/\//u.test(url)) return null;
 
   const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), options.timeoutMs ?? 30_000);
+  const timeout = setTimeout(
+    () => controller.abort(),
+    options.timeoutMs ?? 30_000,
+  );
   const signal = options.signal ?? controller.signal;
   try {
-    const response = await (options.fetcher ?? fetch)(url, { method: 'GET', signal, headers: { accept: 'application/json' } });
+    const response = await (options.fetcher ?? fetch)(url, {
+      method: 'GET',
+      signal,
+      headers: { accept: 'application/json' },
+    });
     if (!response.ok) return null;
     return resolveDslData(await response.json(), path);
   } catch {

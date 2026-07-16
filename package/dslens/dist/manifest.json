@@ -7,27 +7,169 @@
   },
   "contractVersion": "1.0.0",
   "implementations": [
-    { "id": "powershell", "language": "PowerShell", "runtime": "5.1 ou 7.4+", "version": "1.0.0", "status": "supported", "capabilities": ["detect", "resolve-data", "resolve-source"] },
-    { "id": "python", "language": "Python", "runtime": "3.11+", "version": "1.0.0", "status": "supported", "capabilities": ["detect", "resolve-data", "resolve-source"] },
-    { "id": "typescript", "language": "TypeScript", "runtime": "5.8+", "version": "1.0.0", "status": "supported", "capabilities": ["detect", "resolve-data"] },
-    { "id": "javascript-browser", "language": "JavaScript", "runtime": "ES2020 browser", "version": "1.0.0", "status": "supported", "capabilities": ["detect", "resolve-data", "resolve-source"] },
-    { "id": "javascript-server", "language": "JavaScript", "runtime": "Node.js 20.19+", "version": "1.0.0", "status": "supported", "capabilities": ["detect", "resolve-data", "resolve-source"] }
+    {
+      "id": "powershell",
+      "language": "PowerShell",
+      "runtime": "5.1 ou 7.4+",
+      "version": "1.0.0",
+      "status": "supported",
+      "capabilities": ["detect", "resolve-data", "resolve-source"]
+    },
+    {
+      "id": "python",
+      "language": "Python",
+      "runtime": "3.11+",
+      "version": "1.0.0",
+      "status": "supported",
+      "capabilities": ["detect", "resolve-data", "resolve-source"]
+    },
+    {
+      "id": "typescript",
+      "language": "TypeScript",
+      "runtime": "5.8+",
+      "version": "1.0.0",
+      "status": "supported",
+      "capabilities": ["detect", "resolve-data"]
+    },
+    {
+      "id": "javascript-browser",
+      "language": "JavaScript",
+      "runtime": "ES2020 browser",
+      "version": "1.0.0",
+      "status": "supported",
+      "capabilities": ["detect", "resolve-data", "resolve-source"]
+    },
+    {
+      "id": "javascript-server",
+      "language": "JavaScript",
+      "runtime": "Node.js 20.19+",
+      "version": "1.0.0",
+      "status": "supported",
+      "capabilities": ["detect", "resolve-data", "resolve-source"]
+    }
   ],
   "capabilities": [
-    { "id": "detect", "status": "required", "normativeReference": "RCF.md#6-entradas-saídas-falhas-e-telemetria" },
-    { "id": "resolve-data", "status": "required", "normativeReference": "RCF.md#7-sincronismo-estado-cache-e-limites" },
-    { "id": "resolve-source", "status": "required", "normativeReference": "RCF.md#52-pipeline" }
+    {
+      "id": "detect",
+      "status": "required",
+      "normativeReference": "RCF.md#6-entradas-saídas-falhas-e-telemetria"
+    },
+    {
+      "id": "resolve-data",
+      "status": "required",
+      "normativeReference": "RCF.md#7-sincronismo-estado-cache-e-limites"
+    },
+    {
+      "id": "resolve-source",
+      "status": "required",
+      "normativeReference": "RCF.md#52-pipeline"
+    }
   ],
   "publicSurface": [
-    { "id": "detect", "category": "function", "language": "all", "runtime": "all", "signature": "detect(source: string): boolean", "synchronism": "sync", "stability": "stable", "import": "implementation root", "normativeReference": "RCF.md#6-entradas-saídas-falhas-e-telemetria" },
-    { "id": "resolve-data", "category": "function", "language": "all", "runtime": "all", "signature": "resolveData(data, path): string|null", "synchronism": "sync", "stability": "stable", "import": "implementation root", "normativeReference": "RCF.md#7-sincronismo-estado-cache-e-limites" },
-    { "id": "resolve-source", "category": "function", "language": "all", "runtime": "profile", "signature": "resolveSource(expression, options?): string|null|Promise<string|null>", "synchronism": "both", "stability": "stable", "import": "environment entry point", "normativeReference": "RCF.md#7-sincronismo-estado-cache-e-limites" }
+    {
+      "id": "detect",
+      "category": "function",
+      "language": "all",
+      "runtime": "all",
+      "signature": "detect(source: string): boolean",
+      "synchronism": "sync",
+      "stability": "stable",
+      "import": "implementation root",
+      "normativeReference": "RCF.md#6-entradas-saídas-falhas-e-telemetria"
+    },
+    {
+      "id": "resolve-data",
+      "category": "function",
+      "language": "all",
+      "runtime": "all",
+      "signature": "resolveData(data, path): string|null",
+      "synchronism": "sync",
+      "stability": "stable",
+      "import": "implementation root",
+      "normativeReference": "RCF.md#7-sincronismo-estado-cache-e-limites"
+    },
+    {
+      "id": "resolve-source",
+      "category": "function",
+      "language": "all",
+      "runtime": "profile",
+      "signature": "resolveSource(expression, options?): string|null|Promise<string|null>",
+      "synchronism": "both",
+      "stability": "stable",
+      "import": "environment entry point",
+      "normativeReference": "RCF.md#7-sincronismo-estado-cache-e-limites"
+    }
   ],
   "artifacts": [
-    { "id": "javascript-core", "implementation": "typescript", "consumer": "browser, bundler or server", "runtime": "ES2020", "format": "ESM", "entryPoint": "package/dslens/dist/javascript/index.js", "types": "package/dslens/dist/typescript/index.d.ts", "externalDependencies": [], "minified": false, "sourceMap": true, "stability": "stable", "budgetBytes": null },
-    { "id": "javascript-browser", "implementation": "javascript-browser", "consumer": "browser, CDN or bundler", "runtime": "ES2020 browser", "format": "ESM", "entryPoint": "package/dslens/dist/javascript/browser.js", "types": "package/dslens/dist/typescript/browser.d.ts", "externalDependencies": [], "minified": false, "sourceMap": true, "stability": "stable", "budgetBytes": null },
-    { "id": "javascript-browser-min", "implementation": "javascript-browser", "consumer": "browser or CDN", "runtime": "ES2020 browser", "format": "ESM", "entryPoint": "package/dslens/dist/javascript/browser.min.js", "types": "package/dslens/dist/typescript/browser.d.ts", "externalDependencies": [], "minified": true, "sourceMap": true, "stability": "stable", "budgetBytes": 2048 },
-    { "id": "javascript-worker", "implementation": "javascript-browser", "consumer": "Web Worker", "runtime": "ES2020 worker", "format": "ESM", "entryPoint": "package/dslens/dist/javascript/worker.js", "types": "package/dslens/dist/typescript/worker.d.ts", "externalDependencies": [], "minified": false, "sourceMap": true, "stability": "stable", "budgetBytes": null },
-    { "id": "javascript-server", "implementation": "javascript-server", "consumer": "Node.js", "runtime": "Node.js 20.19+", "format": "ESM", "entryPoint": "package/dslens/dist/javascript/server.js", "types": "package/dslens/dist/typescript/server.d.ts", "externalDependencies": [], "minified": false, "sourceMap": true, "stability": "stable", "budgetBytes": null }
+    {
+      "id": "javascript-core",
+      "implementation": "typescript",
+      "consumer": "browser, bundler or server",
+      "runtime": "ES2020",
+      "format": "ESM",
+      "entryPoint": "package/dslens/dist/javascript/index.js",
+      "types": "package/dslens/dist/typescript/index.d.ts",
+      "externalDependencies": [],
+      "minified": false,
+      "sourceMap": true,
+      "stability": "stable",
+      "budgetBytes": null
+    },
+    {
+      "id": "javascript-browser",
+      "implementation": "javascript-browser",
+      "consumer": "browser, CDN or bundler",
+      "runtime": "ES2020 browser",
+      "format": "ESM",
+      "entryPoint": "package/dslens/dist/javascript/browser.js",
+      "types": "package/dslens/dist/typescript/browser.d.ts",
+      "externalDependencies": [],
+      "minified": false,
+      "sourceMap": true,
+      "stability": "stable",
+      "budgetBytes": null
+    },
+    {
+      "id": "javascript-browser-min",
+      "implementation": "javascript-browser",
+      "consumer": "browser or CDN",
+      "runtime": "ES2020 browser",
+      "format": "ESM",
+      "entryPoint": "package/dslens/dist/javascript/browser.min.js",
+      "types": "package/dslens/dist/typescript/browser.d.ts",
+      "externalDependencies": [],
+      "minified": true,
+      "sourceMap": true,
+      "stability": "stable",
+      "budgetBytes": 2048
+    },
+    {
+      "id": "javascript-worker",
+      "implementation": "javascript-browser",
+      "consumer": "Web Worker",
+      "runtime": "ES2020 worker",
+      "format": "ESM",
+      "entryPoint": "package/dslens/dist/javascript/worker.js",
+      "types": "package/dslens/dist/typescript/worker.d.ts",
+      "externalDependencies": [],
+      "minified": false,
+      "sourceMap": true,
+      "stability": "stable",
+      "budgetBytes": null
+    },
+    {
+      "id": "javascript-server",
+      "implementation": "javascript-server",
+      "consumer": "Node.js",
+      "runtime": "Node.js 20.19+",
+      "format": "ESM",
+      "entryPoint": "package/dslens/dist/javascript/server.js",
+      "types": "package/dslens/dist/typescript/server.d.ts",
+      "externalDependencies": [],
+      "minified": false,
+      "sourceMap": true,
+      "stability": "stable",
+      "budgetBytes": null
+    }
   ]
 }

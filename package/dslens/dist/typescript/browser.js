@@ -18,7 +18,11 @@ export async function resolveParserExpression(source, options = {}) {
     const timeout = setTimeout(() => controller.abort(), options.timeoutMs ?? 30000);
     const signal = options.signal ?? controller.signal;
     try {
-        const response = await (options.fetcher ?? fetch)(url, { method: 'GET', signal, headers: { accept: 'application/json' } });
+        const response = await (options.fetcher ?? fetch)(url, {
+            method: 'GET',
+            signal,
+            headers: { accept: 'application/json' },
+        });
         if (!response.ok)
             return null;
         return resolveDslData(await response.json(), path);
