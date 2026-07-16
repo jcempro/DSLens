@@ -72,5 +72,5 @@ aceite=npm test cobre todos os níveis; mocks/fixtures dinâmicos; API real opt-
   3/3 Atualizar memória, handoff e documentação [concluído]
 
 DECISOES=20260716: sintaxe/semântica são canônicas; linguagens equivalentes; PowerShell/Python convergem; TypeScript opcional e JavaScript transpilado cliente/servidor; API real opt-in.
-VERIFICACOES=20260716 npm test 9 etapas; test:real 10 etapas; browser real PASS sem console; npm pack/instalação/imports PASS; audit 0; GitHub Actions 29471167293 success.
-PROXIMO=Integrar dev em main por fast-forward e publicar ambas as branches.
+VERIFICACOES=20260716 npm test 9 etapas; test:real 10 etapas; browser real PASS sem console; npm pack/instalação/imports PASS; audit 0; GitHub Actions 29471167293 e 29471237832 success; actions Node 24 em revalidação.
+PROXIMO=Validar actions v6 sem avisos, publicar dev e integrar correção final em main.
