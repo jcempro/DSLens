@@ -31,18 +31,19 @@ A raiz do repositório DEVE conter governança, documentação, manifestos e aut
 
 ## 4. Famílias e estado
 
-As famílias são: PowerShell histórica, Python experimental, TypeScript/JavaScript planejada e futuras implementações justificadas. Cada família DEVE possuir perfil de capacidade e matriz de conformidade.
+O contrato canônico é a sintaxe e sua semântica. Linguagem, runtime e formato de distribuição são implementações equivalentes e nenhum deles DEVE receber precedência funcional. As famílias iniciais são PowerShell, Python, TypeScript e JavaScript; novas linguagens DEVEM ser adicionadas sempre que houver implementação sustentável, testes de conformidade e canal de distribuição aplicável.
 
 Estado documental em 2026-07-16:
 
 | Família | Estado | Evidência | Autoridade |
 |---|---|---|---|
-| PowerShell | existente, referência histórica | `./src/ps/dsl.ps1` | comportamento legado sujeito a este RCF |
-| Python | experimental, não certificado | `./src/py/dsl.py` | NÃO DEVE definir contrato comum |
-| TypeScript/JavaScript | planejada | ausente | `./docs/rcf/typescript-javascript.md` |
+| PowerShell | existente, convergência obrigatória | `./src/ps/dsl.ps1` | implementação equivalente |
+| Python | existente, convergência obrigatória | `./src/py/dsl.py` | implementação equivalente |
+| TypeScript | implementação autorizada | inicialmente ausente | fonte importável opcionalmente |
+| JavaScript | implementação autorizada | inicialmente ausente | transpilação para cliente e servidor |
 | demais | futura | ausente | sub-RCF futuro obrigatório |
 
-Recurso futuro NÃO DEVE ser anunciado como implementado. Implementação anterior NÃO DEVE ser alterada, depreciada ou promovida a referência única sem decisão explícita e vetores de conformidade.
+Recurso futuro NÃO DEVE ser anunciado como implementado. PowerShell e Python DEVEM ser atualizados até aderirem ao contrato canônico e aos vetores comuns; compatibilidade pública válida DEVE ser preservada durante a convergência. Nenhuma implementação DEVE ser promovida a referência semântica única.
 
 ## 5. Gramática e semântica canônicas
 
@@ -141,11 +142,20 @@ Matriz de capacidades DEVE classificar cada item como `required`, `supported`, `
 
 Validação DEVE comparar resultado, falha, normalização, ordenação, default, sincronismo e efeito. Também DEVE cobrir schema, exports, declarações, browser real, worker, Node.js, tree-shaking, headers, tamanho, build reproduzível, tarball, CDN, submódulo renomeado, monorepo, symlink, execução fora da raiz, licenças e segredos conforme aplicável. Teste não executado NÃO DEVE ser declarado executado.
 
-PowerShell NÃO DEVE ser evidência única quando este RCF corrigir ou tornar explícito o contrato. Divergências existentes DEVEM permanecer inventariadas até FT autorizada.
+PowerShell, Python, TypeScript e JavaScript DEVEM demonstrar a mesma semântica pelos vetores comuns. Divergência existente DEVE ser corrigida na implementação divergente; nenhuma linguagem DEVE servir como evidência única do contrato.
+
+### 14.1 Testes automatizados e CI
+
+`npm test` DEVE orquestrar testes unitários, integração, conformidade multilinguagem e E2E. O conjunto determinístico obrigatório DEVE usar mocks e fixtures locais geradas; testes contra APIs reais DEVEM residir em perfil opt-in separado e falha externa NÃO DEVE invalidar o conjunto determinístico sem diagnóstico de causa local.
+
+O testador DEVE detectar CI por sinal explícito do ambiente. Execução local DEVE oferecer saída compacta, amigável e colorida quando o terminal suportar ANSI; execução CI DEVE desativar cor e animação. Ambas DEVEM preservar estrutura estável, severidade, caso, linguagem, duração e erro sem inundação de logs, permitindo leitura humana e parsing por IA.
+
+Workflow de testes DEVE executar em `push` quando houver alteração de runtime, teste, fixture, manifesto, dependência, configuração lógica ou próprio workflow; alteração restrita a documentação NÃO DEVE dispará-lo. `workflow_dispatch` DEVE permitir execução manual. A matriz DEVE validar os runtimes homologados e publicar somente status derivado de execução real.
 
 ## 15. Especializações
 
 - PowerShell: `./docs/rcf/powershell.md`.
+- Python: `./docs/rcf/python.md`.
 - TypeScript, JavaScript, npm e ambientes JS: `./docs/rcf/typescript-javascript.md`.
 - Distribuição, builds e manifestos: `./docs/rcf/distribution.md`.
 
@@ -154,7 +164,6 @@ PowerShell NÃO DEVE ser evidência única quando este RCF corrigir ou tornar ex
 Antes da implementação, decisão humana DEVE resolver:
 
 1. **Gramática ampliada** — alternativas: manter v1 estrita; adicionar inline/arquivo; adicionar opções, wildcard e `.find`. Impacto: segurança, parser e paridade. Recomendação: implementar e certificar v1 antes de extensões.
-2. **Python existente** — alternativas: certificar após convergência; manter experimental; remover em major futura. Impacto: cache persistente, dependência YAML e fallback socket divergentes. Recomendação: manter experimental até vetores comuns.
-3. **Artefato global** — alternativas: IIFE ou UMD. Impacto: tamanho, namespace e compatibilidade. Recomendação: medir ESM e IIFE; publicar IIFE apenas com consumidor comprovado.
-4. **Orçamento client-side** — alternativas dependem do baseline real. Impacto: build e dependências. Recomendação: fixar limite na FT do primeiro build, sem estimativa documental.
-5. **Tokenização do manifesto** — alternativas: JSON, YAML ou TOML. Impacto: IA e toolchain. Recomendação: manter JSON por interoperabilidade e medir antes da publicação inicial.
+2. **Artefato global** — alternativas: IIFE ou UMD. Impacto: tamanho, namespace e compatibilidade. Recomendação: medir ESM e IIFE; publicar IIFE apenas com consumidor comprovado.
+3. **Orçamento client-side** — alternativas dependem do baseline real. Impacto: build e dependências. Recomendação: fixar limite na FT do primeiro build, sem estimativa documental.
+4. **Tokenização do manifesto** — alternativas: JSON, YAML ou TOML. Impacto: IA e toolchain. Recomendação: manter JSON por interoperabilidade e medir antes da publicação inicial.

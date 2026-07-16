@@ -2,11 +2,11 @@
 
 ## 1. Escopo e estado
 
-Este arquivo especializa `../../RCF.md` para a família planejada TypeScript/JavaScript, browser, worker, Node.js e npm. Nenhum item aqui DEVE ser apresentado como implementado antes de artefato e validação correspondentes.
+Este arquivo especializa `../../RCF.md` para TypeScript, JavaScript, browser, worker, Node.js e npm. A implementação está autorizada, mas nenhum item DEVE ser apresentado como concluído antes de artefato e validação correspondentes.
 
 ## 2. Baseline TypeScript
 
-TypeScript DEVE ser a fonte principal da família. Versão mínima normativa: TypeScript 5.8; `strict`, `noImplicitOverride`, `noUncheckedIndexedAccess`, `exactOptionalPropertyTypes`, `useUnknownInCatchVariables`, `isolatedModules` e emissão de declarações DEVEM permanecer ativos, salvo incompatibilidade objetiva registrada.
+TypeScript DEVE constituir uma implementação equivalente e a fonte de transpilação dos artefatos JavaScript desta família, sem precedência sobre outra linguagem. Versão mínima normativa: TypeScript 5.8; `strict`, `noImplicitOverride`, `noUncheckedIndexedAccess`, `exactOptionalPropertyTypes`, `useUnknownInCatchVariables`, `isolatedModules` e emissão de declarações DEVEM permanecer ativos, salvo incompatibilidade objetiva registrada.
 
 Configuração DEVE usar base compartilhada e projetos referenciados por perfil quando isso reduzir builds repetidos. Target mínimo DEVE ser ES2020 para módulos e browser; bibliotecas de tipos DEVEM ser segregadas (`ES2020`, DOM e WebWorker somente nos projetos aplicáveis). Resolução DEVE usar `Bundler` para fonte destinada a bundlers/browser e `NodeNext` somente para adaptadores Node.js.
 
@@ -16,7 +16,7 @@ Aliases internos DEVEM ser eliminados ou resolvidos nos artefatos. `declaration`
 
 O núcleo DEVE ser funcional, síncrono e livre de I/O: detectar, compilar/validar expressão, interpretar dados já fornecidos e navegar. Classes DEVERIAM encapsular parser compilado, cache ou ciclo de vida; funções puras PODEM realizar tokenização e navegação.
 
-API pública mínima planejada DEVE incluir equivalentes tipados de detecção e resolução síncrona, além de resultado estruturado. Nomes finais DEVEM ser fixados no manifesto antes da implementação. Fetch DEVE residir em adaptador assíncrono; a fachada async DEVE aceitar `AbortSignal`, timeout e fornecedor de fetch injetável.
+API pública DEVE incluir equivalentes tipados de detecção e resolução síncrona, além de resultado estruturado. TypeScript DEVE ser importável por subpath explícito e OPCIONAL; JavaScript transpilado DEVE ser a entrada executável padrão. Nomes finais DEVEM ser fixados no manifesto antes da implementação. Fetch DEVE residir em adaptador assíncrono; a fachada async DEVE aceitar `AbortSignal`, timeout e fornecedor de fetch injetável.
 
 ## 4. Browser e workers
 
@@ -28,11 +28,11 @@ O artefato client-side ultraotimizado DEVE ser JavaScript sem TypeScript, carreg
 
 ## 5. Node.js
 
-Adaptador Node.js DEVE usar subpath e condição próprios. Baseline mínimo planejado: Node.js 20.19.0. Código Node.js NÃO DEVE integrar o core/browser. CommonJS somente PODE ser publicado diante de consumidor comprovado e teste contra dual-package hazard; ESM DEVE ser padrão.
+JavaScript server-side DEVE ser publicado por subpath e condição próprios. Baseline mínimo: Node.js 20.19.0. Código server-side NÃO DEVE integrar o core/browser. CommonJS somente PODE ser publicado diante de consumidor comprovado e teste contra dual-package hazard; ESM DEVE ser padrão.
 
 ## 6. npm e exports
 
-O pacote do produto DEVE possuir manifesto distinto do manifesto operacional de governança atualmente existente na raiz; desenho físico DEVE ser decidido na FT sem alterar o `package.json` atual nesta fase.
+O pacote do produto DEVE possuir manifesto distinto do manifesto operacional de governança atualmente existente na raiz; a estrutura física DEVE preservar essa segregação.
 
 O futuro `package.json` publicável DEVE declarar `name`, `version`, `description`, `license`, `author`, `repository`, `homepage`, `bugs`, `keywords`, `type`, `types`, `exports`, `files`, `engines`, `sideEffects`, dependências e scripts aplicáveis. `main`, `module`, `browser`, `imports`, `bin` e `workspaces` somente DEVEM existir quando houver consumidor ou função comprovada.
 
@@ -49,3 +49,5 @@ Runtime core DEVERIA possuir zero dependência. Parser YAML, XML ou fetch auxili
 ## 8. Validação futura
 
 Validação DEVE cobrir TypeScript, JavaScript emitido, declarações, maps, ESM, browser real, worker, Node.js, async/cancelamento, tree-shaking, side effects, importação isolada, CDN/local, tamanho, headers, `npm pack`, conteúdo do tarball e instalação em projeto limpo. Nenhum build DEVE ser publicado antes de paridade com vetores canônicos.
+
+O testador npm DEVE compor níveis unitário, integração, conformidade e E2E. Mocks e fixtures geradas DEVEM ser reproduzíveis; API real DEVE ser opt-in. Saída local PODE usar ANSI sem alterar conteúdo semântico; CI DEVE emitir texto estável sem ANSI. Dependência visual somente PODE ser adotada quando proporcional e isolada ao desenvolvimento.

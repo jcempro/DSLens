@@ -2,9 +2,9 @@
 
 ## 1. Escopo e precedência
 
-Este arquivo especializa `../../RCF.md` para `./src/ps/dsl.ps1`. O RCF global prevalece. A implementação existente DEVE ser preservada até FT e autorização explícitas; divergência aqui inventariada NÃO constitui autorização de correção.
+Este arquivo especializa `../../RCF.md` para `./src/ps/dsl.ps1`. O RCF global prevalece. A implementação existente DEVE ser atualizada até plena conformidade, preservando compatibilidade pública válida e correções defensivas.
 
-## 2. Runtime e superfície histórica
+## 2. Runtime e superfície pública
 
 O binding PowerShell DEVE suportar Windows PowerShell 5.1 e PowerShell 7.4 ou superior enquanto esses runtimes permanecerem declarados. Superfície pública histórica comprovada: `has_parser_expression`, `resolve_parser_expression` e `main`; execução direta PODE receber o primeiro argumento ou `DSL_INPUT`; dot-source NÃO DEVE autoexecutar.
 
@@ -12,7 +12,7 @@ O binding PowerShell DEVE suportar Windows PowerShell 5.1 e PowerShell 7.4 ou su
 
 ## 3. Comportamento preservado
 
-O perfil legado atual DEVE preservar: aspas simples ou duplas; URL HTTP(S); GET; tentativas por `Invoke-RestMethod`, `Invoke-WebRequest` e `WebClient`; JSON, XML e YAML condicionado a `ConvertFrom-Yaml`; campo, índice base zero e filtro textual exato; conversão final para `[string]`; retorno `$null` em falha; cache em memória por URL e path com TTL de 60 s; rejeição de múltiplas expressões e resultado aninhado.
+O perfil atual DEVE preservar: aspas simples ou duplas; URL HTTP(S); GET; tentativas por `Invoke-RestMethod`, `Invoke-WebRequest` e `WebClient`; JSON, XML e YAML condicionado a `ConvertFrom-Yaml`; campo, índice base zero e filtro textual exato; conversão final para `[string]`; retorno `$null` em falha; cache em memória por URL e path com TTL de 60 s; rejeição de múltiplas expressões e resultado aninhado.
 
 Defaults legados comprovados: profundidade 5, chaining 3, execução 90 s, rede 30 s, demanda DSL 45 s, global 300 s, cache máximo declarado 512, três tentativas, backoff declarado 200–2000 ms e espera de mutex 5 s. Constante declarada mas não aplicada integralmente DEVE ser tratada como divergência, não como comportamento garantido.
 
@@ -20,7 +20,7 @@ Defaults legados comprovados: profundidade 5, chaining 3, execução 90 s, rede 
 
 TLS, `ExecutionPolicy`, mutex global Windows, tipos XML do .NET e estratégias de fetch são detalhes do binding e NÃO DEVEM contaminar o contrato comum.
 
-O código declara crases, fonte inline/arquivo, opções, `.find`, wildcard, preservação de texto externo, profundidade/chain efetivos e cache máximo, mas não os implementa integralmente. O timeout de fetch usa 15 s por tentativa; `MAX_NETWORK_TIMEOUT`, `MAX_EXECUTION_TIMEOUT`, códigos de erro, limites de backoff e `CACHE_MAX_ENTRIES` não governam todos os caminhos. Testes atuais dependem de rede e validam principalmente URL resultante. Essas diferenças DEVEM integrar a futura FT de conformidade; NÃO DEVEM ser ocultadas no manifesto.
+O código declara crases, fonte inline/arquivo, opções, `.find`, wildcard, preservação de texto externo, profundidade/chain efetivos e cache máximo, mas não os implementa integralmente. O timeout de fetch usa 15 s por tentativa; `MAX_NETWORK_TIMEOUT`, `MAX_EXECUTION_TIMEOUT`, códigos de erro, limites de backoff e `CACHE_MAX_ENTRIES` não governam todos os caminhos. Testes atuais dependem de rede e validam principalmente URL resultante. Essas diferenças DEVEM ser corrigidas ou removidas da superfície declarada conforme o perfil canônico e DEVEM ser cobertas por testes offline comuns.
 
 ## 5. Empacotamento e documentação
 

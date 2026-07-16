@@ -1,21 +1,27 @@
 # DSLens
 
+[![Linguagens](https://img.shields.io/badge/linguagens-PowerShell%20%7C%20Python%20%7C%20TypeScript%20%7C%20JavaScript-3178c6)](RCF.md)
+[![Runtimes](https://img.shields.io/badge/runtimes-PowerShell%205.1%2B%20%7C%20Python%203.11%2B%20%7C%20Node.js%2020.19%2B-43853d)](RCF.md)
+[![Ambientes](https://img.shields.io/badge/ambientes-Windows%20%7C%20Linux%20%7C%20Browser%20%7C%20Worker-blue)](docs/rcf/typescript-javascript.md)
+[![Licença](https://img.shields.io/badge/licen%C3%A7a-MPL--2.0-brightgreen)](LICENSE)
+[![Build](https://github.com/jcempro/DSLens/actions/workflows/tests.yml/badge.svg?branch=main)](https://github.com/jcempro/DSLens/actions/workflows/tests.yml)
+
 DSLens é uma especificação e uma família de bibliotecas para localizar valores em JSON, XML e, quando disponível, YAML por meio de uma expressão declarativa. A proposta se parece com um seletor para APIs estruturadas: entrada explícita, navegação previsível e o mesmo resultado semântico em cada linguagem certificada.
 
 ```text
 ${"https://api.example.com/data"}.items[0].download.url
 ```
 
-O projeto está em desenvolvimento. A implementação PowerShell existe; a implementação Python é experimental e ainda não está certificada; TypeScript/JavaScript, npm, browser e workers estão planejados e ainda não foram implementados.
+O projeto está em desenvolvimento. PowerShell e Python existem e estão em convergência obrigatória com o contrato comum. TypeScript e JavaScript foram autorizados: TypeScript será importável opcionalmente e será transpilado para JavaScript destinado a cliente e servidor.
 
 ## O que existe hoje
 
 - PowerShell 5.1 e 7.4+: [src/ps/dsl.ps1](src/ps/dsl.ps1), com detecção, fetch HTTP(S) por GET, JSON/XML/YAML condicionado, navegação, cache em memória e retorno fail-safe.
 - Teste PowerShell dependente de rede: [src/ps/dsl.test.ps1](src/ps/dsl.test.ps1).
-- Python experimental: [src/py/dsl.py](src/py/dsl.py). Ele contém diferenças conhecidas em relação ao PowerShell e não define sozinho o contrato.
+- Python: [src/py/dsl.py](src/py/dsl.py), atualmente com diferenças que serão corrigidas pelos mesmos vetores de conformidade aplicados às demais linguagens.
 - Vetores ainda incompletos: [tests/expected.json](tests/expected.json).
 
-Não existem nesta revisão pacote npm do produto, build JavaScript, declarações TypeScript, bundle CDN ou artefato para browser. O `package.json` atual pertence à governança operacional e não representa um pacote DSLens publicável.
+O trabalho autorizado adicionará pacote do produto, TypeScript importável, JavaScript de cliente e servidor, declarações, bundle e manifestos. O `package.json` atual pertence à governança operacional e não representa o pacote DSLens publicável; a segregação será preservada.
 
 ## Sintaxe estável documentada
 
@@ -73,7 +79,7 @@ O contrato síncrono continuará canônico para parsing e navegação sobre dado
 - vetores comuns para comparar resultados e falhas;
 - builds produzidos somente para consumidores comprovados.
 
-TypeScript será a fonte principal da nova família. O núcleo browser não dependerá de Node.js, DOM, bundler ou serviço externo para ser importado. O pacote npm futuro deverá oferecer JavaScript executável e tipos; fonte TypeScript poderá existir em subpath explícito.
+Nenhuma linguagem é principal: a sintaxe e a semântica são canônicas. TypeScript será uma implementação importável opcionalmente e a fonte de transpilação dos artefatos JavaScript dessa família. O núcleo browser não dependerá de Node.js, DOM, bundler ou serviço externo para ser importado. O pacote oferecerá JavaScript executável, tipos e fonte TypeScript por subpath explícito.
 
 ## Distribuição planejada
 
@@ -85,9 +91,11 @@ Artefatos planejados incluem ESM core, browser, worker, adaptador Node.js, decla
 
 - [RCF global](RCF.md): semântica, invariantes, compatibilidade e decisões.
 - [PowerShell](docs/rcf/powershell.md): binding histórico e divergências conhecidas.
+- [Python](docs/rcf/python.md): runtime, distribuição e convergência ao contrato comum.
 - [TypeScript/JavaScript](docs/rcf/typescript-javascript.md): browser, workers, Node.js e npm.
 - [Distribuição](docs/rcf/distribution.md): artefatos, paths e publicação.
 - [Schema do manifesto](schemas/dslens-manifest.schema.json): formato público voltado a máquinas.
+- [Implementações em andamento](handoff.md): projeção gerada da memória operacional canônica.
 
 O manifesto de instância será criado junto da implementação e validado contra o schema. Recurso ausente não será anunciado como disponível.
 
@@ -95,13 +103,19 @@ O manifesto de instância será criado junto da implementação e validado contr
 
 O núcleo proíbe HTML, scraping, `eval`, execução arbitrária, heurística e mutação remota. Rede é HTTP(S) por GET. Falhas esperadas retornam ausência e telemetria segura; nenhum diagnóstico deve expor segredo.
 
-A paridade futura abrangerá resultado, erro, normalização, ordenação, defaults, sincronismo e efeitos. PowerShell é origem histórica, mas não é evidência exclusiva quando o RCF corrige ou explicita o contrato.
+A paridade obrigatória abrange resultado, erro, normalização, ordenação, defaults, sincronismo e efeitos. A sintaxe e a semântica do RCF são a autoridade; nenhuma linguagem constitui evidência exclusiva.
 
 ## Desenvolvimento e contribuição
 
 Antes de alterar comportamento, leia [AGENTS.md](AGENTS.md), [RCF.md](RCF.md) e o sub-RCF aplicável. Mudança pública deve sincronizar contrato, implementação, manifesto, documentação e testes. Recursos novos precisam de vetores comuns e não podem introduzir heurística ou divergência silenciosa entre linguagens.
 
-As FTs de implementação ainda não foram criadas. Elas somente serão planejadas após aprovação explícita desta documentação e autorização explícita para implementar.
+As FTs de convergência e implementação são mantidas na memória operacional canônica e governam a execução incremental.
+
+## Testes e integração contínua
+
+`npm test` será o ponto único para unidades, integração, conformidade multilinguagem e E2E. O perfil determinístico usará mocks e fixtures locais geradas; APIs públicas reais integrarão um perfil opt-in separado, pois disponibilidade externa não pode definir o resultado obrigatório do CI.
+
+Em terminal local, a saída será compacta, colorida quando suportada e legível por pessoas. Em CI, cores serão desativadas e o mesmo resultado manterá estrutura estável para parsing por automações e agentes. O workflow será executado em mudanças de runtime ou configuração e poderá ser acionado manualmente; commits exclusivamente documentais não iniciarão testes.
 
 ## Licença e autoria
 

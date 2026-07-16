@@ -1,0 +1,75 @@
+SCHEMA=1
+MACHINE_ID=JEAN-DESKTOP
+DATA_REF=20260716.000000
+CONTRATO=./RCF.md
+CACHE=documentos lidos e estado Git validos em 20260716; reler somente arquivos alterados
+BLOQUEIO_NAO_REPETIR=agent:verify procura src/.agents incorretamente; repetir somente apos correcao ou evidencia nova
+
+FT-001|nome=Contrato canônico e paridade PowerShell/Python|escopo=Técnico|prioridade=alta|status=em_andamento|inicio=20260716.000000
+objetivo=Fixar vetores comuns e convergir PowerShell e Python sem linguagem principal nem perda de compatibilidade pública válida.
+nao_escopo=Publicação e novas linguagens além de TypeScript/JavaScript.
+dependencias=RCF global e sub-RCFs aprovados.
+riscos=Semântica histórica contraditória; rede externa; cache persistente Python; PowerShell 5.1.
+arquivos_previstos=RCF.md; docs/rcf/*; tests/conformance/*; src/ps/*; src/py/*; schemas/*.
+aceite=Vetores offline idênticos em PowerShell e Python; APIs documentadas; divergências removidas; testes locais aprovados.
+1/3 Marco documental [em andamento]
+  1/3 Corrigir neutralidade entre linguagens e especializações [concluído]
+  2/3 Validar documentação e schema [concluído]
+  3/3 Compactar e registrar commit documental [em andamento]
+2/3 Contrato executável [pendente]
+  1/3 Criar fixtures e vetores comuns determinísticos [pendente]
+  2/3 Criar protocolo de resultado e matriz de capacidades [pendente]
+  3/3 Validar schemas e referências [pendente]
+3/3 Convergência existente [pendente]
+  1/3 Atualizar PowerShell e seus testes [pendente]
+  2/3 Atualizar Python e seus testes [pendente]
+  3/3 Comprovar paridade e compatibilidade [pendente]
+
+FT-002|nome=TypeScript e JavaScript cliente/servidor|escopo=Técnico|prioridade=alta|status=pendente|inicio=20260716.000000
+objetivo=Implementar TypeScript importável opcionalmente e transpilar JavaScript ESM para cliente, worker e servidor com paridade integral.
+nao_escopo=CommonJS, UMD ou IIFE sem consumidor comprovado; publicação remota.
+dependencias=FT-001 contrato executável.
+riscos=Dual package hazard; APIs browser/Node acopladas; tipos divergentes; bundle excessivo.
+arquivos_previstos=src/ts/*; package/dslens/package.json; tsconfig*.json; scripts/build/*; dist/*; manifests/*.
+aceite=Typecheck estrito; JS client/server carregável; TypeScript por subpath opcional; declarações corretas; zero Node no browser; pacote instalável.
+1/4 Estrutura e superfícies [pendente]
+  1/3 Segregar pacote do produto da governança [pendente]
+  2/3 Implementar núcleo TypeScript síncrono [pendente]
+  3/3 Implementar tipos e exports [pendente]
+2/4 Ambientes [pendente]
+  1/3 Implementar adaptador client-side assíncrono [pendente]
+  2/3 Implementar worker [pendente]
+  3/3 Implementar server-side Node.js [pendente]
+3/4 Builds e distribuição [pendente]
+  1/4 Transpilar ESM cliente e servidor [pendente]
+  2/4 Gerar declarações e maps [pendente]
+  3/4 Gerar artefato client-side otimizado [pendente]
+  4/4 Validar npm, Git e submódulo [pendente]
+4/4 Paridade [pendente]
+  1/3 Executar vetores comuns [pendente]
+  2/3 Validar browser real e Node [pendente]
+  3/3 Fixar baseline e orçamento [pendente]
+
+FT-003|nome=Testes multinível CI e metadados|escopo=Técnico|prioridade=alta|status=pendente|inicio=20260716.000000
+objetivo=Orquestrar npm test unitário, integração, conformidade e E2E; criar CI seletivo e badges verificáveis.
+nao_escopo=Transformar APIs reais em requisito determinístico do CI; publicação de release.
+dependencias=FT-001 vetores; FT-002 pacote e builds.
+riscos=Flakiness externa; ANSI quebrando parsing; workflow legado alheio; matriz lenta.
+arquivos_previstos=package.json; scripts/test/*; tests/*; .github/workflows/tests.yml; README.md.
+aceite=npm test cobre todos os níveis; mocks/fixtures dinâmicos; API real opt-in; saída local/CI adequada; workflow ignora somente documentação; badge reflete workflow real.
+1/3 Testador npm [pendente]
+  1/4 Criar orquestrador e detecção local/CI [pendente]
+  2/4 Criar unidades e integração [pendente]
+  3/4 Criar E2E mock/fixture e real opt-in [pendente]
+  4/4 Garantir saída humana e parseável [pendente]
+2/3 CI/CD [pendente]
+  1/3 Criar workflow e matriz homologada [pendente]
+  2/3 Configurar paths e workflow_dispatch [pendente]
+  3/3 Validar sintaxe e seleção documental [pendente]
+3/3 Metadados e aceite global [pendente]
+  1/3 Validar badges, runtimes e ambientes [pendente]
+  2/3 Executar suíte global e pacote limpo [pendente]
+  3/3 Atualizar memória, handoff e documentação [pendente]
+
+DECISOES=20260716: sintaxe/semântica são canônicas; linguagens equivalentes; PowerShell/Python convergem; TypeScript opcional e JavaScript transpilado cliente/servidor; API real opt-in.
+PROXIMO=Concluir etapa 1/3 da FT-001, compactar, commitar marco documental e iniciar vetores comuns.
