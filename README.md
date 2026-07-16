@@ -193,9 +193,9 @@ Objective: reduce latency and traffic without compromising determinism.
 
 - Preference for:
   - **single file** containing all logic
-  - recommended limit: **≤ 1800 lines (including header)**
+  - recommended limit: **≤ 1000 lines (including header)**
 
-- Multiple files are allowed when justifiable
+- Unique file are allowed when justifiable
 
 ---
 
@@ -233,7 +233,7 @@ ${"https://api.github.com/repos/user/repo/releases"}
 
 - Low coupling
 - High predictability
-- Synchronous and controlled flow
+- Synchronous and controlled flow (explicitly and easily encapsulable as asynchronous by importers)
 - No implicit dependency on external state
 
 ---
