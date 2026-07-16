@@ -18,7 +18,7 @@ Aliases internos DEVEM ser eliminados ou resolvidos nos artefatos. `declaration`
 
 O núcleo DEVE ser funcional, síncrono e livre de I/O: detectar, compilar/validar expressão, interpretar dados já fornecidos e navegar. Classes DEVERIAM encapsular parser compilado, cache ou ciclo de vida; funções puras PODEM realizar tokenização e navegação.
 
-API pública DEVE incluir `hasParserExpression` (`detect`), `resolveDslData` (`resolveData`) e `resolveParserExpression` (`resolveSource`), além de resultado estruturado. TypeScript DEVE ser importável por subpath explícito e OPCIONAL; JavaScript transpilado DEVE ser a entrada executável padrão. Fetch DEVE residir em adaptador assíncrono; a fachada async DEVE aceitar `AbortSignal`, timeout e fornecedor de fetch injetável.
+API pública DEVE incluir `hasParserExpression(source: string)`, `resolveDslData(data: unknown, path: string, callback?: DslCallback)` e `resolveParserExpression(source: string, options?: ResolveSourceOptions, callback?: DslCallback)`, nessa ordem, além de resultado estruturado. TypeScript DEVE ser importável por subpath explícito e OPCIONAL; JavaScript transpilado DEVE ser a entrada executável padrão. Fetch DEVE residir em adaptador assíncrono; a fachada async DEVE aceitar `AbortSignal`, timeout e fornecedor de fetch injetável.
 
 ## 4. Browser e workers
 

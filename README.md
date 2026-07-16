@@ -58,7 +58,7 @@ Importação:
 
 ```powershell
 . ./src/ps/dsl.ps1
-$value = resolve_parser_expression '${"https://api.github.com"}.current_user_url'
+$value = resolveParserExpression '${"https://api.github.com"}.current_user_url'
 ```
 
 Execução direta:
@@ -71,8 +71,10 @@ A variável de ambiente `DSL_INPUT` também pode fornecer a entrada quando não 
 
 ```powershell
 $callback = { param($message, $type) Write-Host "[$type] $message" }
-resolve_parser_expression '${"https://api.github.com"}.current_user_url' $callback
+resolveParserExpression '${"https://api.github.com"}.current_user_url' @{} $callback
 ```
+
+Os nomes canônicos são idênticos em todas as linguagens: `hasParserExpression(source)`, `resolveDslData(data, path, callback?)` e `resolveParserExpression(source, options?, callback?)`. Os nomes snake_case históricos de PowerShell e Python permanecem aliases compatíveis.
 
 Os exemplos de rede dependem do serviço remoto e não substituem os futuros vetores offline de conformidade.
 
