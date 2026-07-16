@@ -46,6 +46,7 @@
       "import": "./dist/javascript/server.js"
     },
     "./typescript": "./src/index.ts",
-    "./manifest": "./dist/manifest.json"
+    "./manifest": "./dist/manifest.json",
+    "./build-target": "./dist/build-target.json"
   }
 }

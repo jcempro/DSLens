@@ -15,7 +15,7 @@ export async function resolveParserExpression(source, options = {}) {
     if (!url || !path || !/^https?:\/\//u.test(url))
         return null;
     const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), options.timeoutMs ?? 30000);
+    const timeout = setTimeout(() => controller.abort(), options.timeoutMs ?? 30_000);
     const signal = options.signal ?? controller.signal;
     try {
         const response = await (options.fetcher ?? fetch)(url, {

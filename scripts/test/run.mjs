@@ -14,6 +14,10 @@ import process from 'node:process';
 import Ajv2020 from 'ajv/dist/2020.js';
 import addFormats from 'ajv-formats';
 import { parse as parseYaml } from 'yaml';
+import {
+  MODULE_TARGET,
+  resolveEcmascriptPolicy,
+} from '../build/ecmascript-target.mjs';
 
 const isCi = Boolean(process.env.CI);
 const useColor =
@@ -48,12 +52,7 @@ async function stage(name, task) {
 }
 
 try {
-  run('typecheck', process.execPath, [
-    'node_modules/typescript/bin/tsc',
-    '-p',
-    'tsconfig.json',
-    '--noEmit',
-  ]);
+  run('typecheck', process.execPath, ['scripts/build/typecheck.mjs']);
   run('build', process.execPath, ['scripts/build/build.mjs']);
   run('powershell-conformance', 'pwsh', [
     '-NoProfile',
@@ -77,6 +76,49 @@ try {
     addFormats(ajv);
     if (!ajv.validate(schema, manifest))
       throw new Error(ajv.errorsText(ajv.errors));
+  });
+
+  await stage('ecmascript-target-policy', async () => {
+    const cases = [
+      [2024, 'ES2020'],
+      [2025, 'ES2020'],
+      [2026, 'ES2021'],
+      [2027, 'ES2022'],
+      [2030, 'ES2025'],
+    ];
+    for (const [year, expected] of cases) {
+      const policy = resolveEcmascriptPolicy(year);
+      if (
+        policy.target !== expected ||
+        policy.lib[0] !== expected ||
+        policy.module !== MODULE_TARGET
+      )
+        throw new Error(
+          `ano=${year} esperado=${expected}/${MODULE_TARGET} obtido=${policy.target}/${policy.module}`,
+        );
+    }
+    const artifact = JSON.parse(
+      await readFile('package/dslens/dist/build-target.json', 'utf8'),
+    );
+    const current = resolveEcmascriptPolicy(
+      new Date().getUTCFullYear(),
+    );
+    if (JSON.stringify(artifact) !== JSON.stringify(current))
+      throw new Error('metadado do artefato diverge do target atual');
+    const packageManifest = JSON.parse(
+      await readFile('package/dslens/package.json', 'utf8'),
+    );
+    if (
+      packageManifest.exports?.['./build-target'] !==
+      './dist/build-target.json'
+    )
+      throw new Error('subpath build-target não publicado');
+    try {
+      resolveEcmascriptPolicy(Number.NaN);
+      throw new Error('ano inválido foi aceito');
+    } catch (error) {
+      if (!(error instanceof TypeError)) throw error;
+    }
   });
 
   await stage('client-size-budget', async () => {

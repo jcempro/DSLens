@@ -3,7 +3,7 @@ MACHINE_ID=JEAN-DESKTOP
 DATA_REF=20260716.044500
 CONTRATO=./RCF.md
 CACHE=documentos lidos e estado Git validos em 20260716; reler somente arquivos alterados
-BLOQUEIO_NAO_REPETIR=agent:verify procura src/.agents incorretamente; repetir somente apos correcao ou evidencia nova
+BLOQUEIO_NAO_REPETIR=agent:verify e agent:test procuram src/.agents incorretamente; repetir somente apos correcao ou evidencia nova
 
 FT-004|nome=Baseline ECMAScript anual|escopo=Técnico|prioridade=alta|status=em andamento|inicio=20260716.012936
 objetivo=Derivar target e lib TypeScript a cada build pelo ano UTC atual menos cinco, preservando ES2020 como piso e module ES2020 fixo.
@@ -15,14 +15,16 @@ aceite=Em 2026 target e lib resolvem ES2021; module permanece ES2020; transiçõ
 1/3 Contrato anual [concluído]
   1/2 Registrar fórmula, piso e exceção de module [concluído]
   2/2 Sincronizar README e memória operacional [concluído]
-2/3 Implementação derivada [pendente]
-  1/3 Gerar configuração TypeScript por build [pendente]
-  2/3 Aplicar o mesmo target ao esbuild e typecheck [pendente]
-  3/3 Publicar metadado determinístico do target efetivo [pendente]
-3/3 Validação e conclusão [pendente]
-  1/3 Testar anos-limite e anos futuros [pendente]
-  2/3 Executar matriz determinística e verificar artefato [pendente]
+2/3 Implementação derivada [concluído]
+  1/3 Gerar configuração TypeScript por build [concluído]
+  2/3 Aplicar o mesmo target ao esbuild e typecheck [concluído]
+  3/3 Publicar metadado determinístico do target efetivo [concluído]
+3/3 Validação e conclusão [em andamento]
+  1/3 Testar anos-limite e anos futuros [concluído]
+  2/3 Executar matriz determinística e verificar artefato [concluído]
   3/3 Gerar handoff, commits, push e convergir branches [pendente]
+falha=agent:test retornou ENOENT ao procurar src/.agents/core/concepts/microconceitos.md e alterou metadados antes da falha; alterações incidentais foram removidas e npm test foi usado conforme dispensa por comando noncompliant.
+verificacao_parcial=npm test local e CI aprovado com 10 etapas; política simulada para 2024, 2025, 2026, 2027 e 2030; artefato 2026 registrou target/lib ES2021 e module ES2020; dois builds consecutivos reproduziram 32 arquivos; npm pack incluiu build-target.json.
 
 FT-001|nome=Contrato canônico e paridade PowerShell/Python|escopo=Técnico|prioridade=alta|status=concluído|inicio=20260716.000000|fim=20260716.043000
 objetivo=Fixar vetores comuns e convergir PowerShell e Python sem linguagem principal nem perda de compatibilidade pública válida.

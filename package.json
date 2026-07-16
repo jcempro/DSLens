@@ -21,7 +21,7 @@
     "test": "node scripts/test/run.mjs",
     "test:real": "node scripts/test/run.mjs --real",
     "build:dslens": "node scripts/build/build.mjs",
-    "typecheck:dslens": "tsc -p tsconfig.json --noEmit",
+    "typecheck:dslens": "node scripts/build/typecheck.mjs",
     "agents:update": "node .agents/core/runtime/scripts/repo-tools.js agent:agents",
     "agent:agents": "node .agents/core/runtime/scripts/repo-tools.js agent:agents",
     "agent:upstream:check": "node .agents/core/runtime/scripts/repo-tools.js agent:upstream:check",

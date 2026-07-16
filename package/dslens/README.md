@@ -23,6 +23,8 @@ O projeto está em desenvolvimento. PowerShell, Python, TypeScript e JavaScript 
 
 O pacote do produto reside em `package/dslens`, segregado do `package.json` operacional da raiz. Ele inclui TypeScript importável, JavaScript de cliente e servidor, declarações, source maps, build minificado e manifesto público.
 
+A configuração TypeScript versionada mantém `target`, `module` e biblioteca-base em `ES2020`. A cada build, `target` e biblioteca ECMAScript são derivados automaticamente como `ES(max(2020, ano UTC atual - 5))`, enquanto `module` permanece `ES2020`; em 2026, o target efetivo é `ES2021`. O metadado resolvido é distribuído pelo subpath `@jcempro/dslens/build-target`.
+
 ## Sintaxe estável documentada
 
 O perfil canônico v1 usa exatamente uma expressão com fonte HTTP(S):
