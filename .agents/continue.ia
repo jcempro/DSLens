@@ -53,10 +53,11 @@ aceite=Forma nomeada e posicional equivalentes; v1 GET inalterado; POST/query/he
   1/3 Aplicar query, método, headers e body [concluído]
   2/3 Injetar ambiente sem leitura implícita no núcleo [concluído]
   3/3 Preservar cache e segurança por identidade completa [concluído]
-4/4 Validação e conclusão [pendente]
-  1/3 Executar vetores e E2E mock POST [pendente]
-  2/3 Validar builds, pacote e matriz CI [pendente]
+4/4 Validação e conclusão [em andamento]
+  1/3 Executar vetores e E2E mock POST [concluído]
+  2/3 Validar builds, pacote e matriz CI [em andamento]
   3/3 Gerar handoff, commits, push e convergir branches [pendente]
+verificacao_parcial=npm test 12 etapas; test:real 13 etapas; parser comum com 4 casos válidos e 4 rejeições; E2E POST TypeScript/JavaScript e Python; PowerShell 19 casos offline.
 
 FT-004|nome=Baseline ECMAScript anual|escopo=Técnico|prioridade=alta|status=concluído|inicio=20260716.012936|fim=20260716.013710
 objetivo=Derivar target e lib TypeScript a cada build pelo ano UTC atual menos cinco, preservando ES2020 como piso e module ES2020 fixo.
