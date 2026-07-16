@@ -108,7 +108,7 @@ Método e função públicos ou internos DEVEM possuir documentação sucinta no
 
 ## 10. Distribuição, paths e versionamento
 
-Cada família DEVE suportar Git e os canais idiomáticos aprovados. TypeScript/JavaScript DEVE suportar npm, fonte TypeScript explícita, JavaScript executável, tipos, build client-side, CDN e importação direta. Consumidor NÃO DEVE precisar de toolchain de desenvolvimento, runtime alheio, módulos não usados ou paths internos.
+Cada família DEVE suportar Git e os canais idiomáticos aprovados. TypeScript/JavaScript DEVE suportar npm sob o nome minúsculo `@jeancarloem/dslens`, fonte TypeScript explícita, JavaScript executável ESM e CommonJS, tipos, build client-side, CDN e importação direta. Consumidor NÃO DEVE precisar de toolchain de desenvolvimento, runtime alheio, módulos não usados ou paths internos.
 
 Uso como submódulo Git DEVE aceitar diretório configurável, monorepo, workspace e symlink. Resolução DEVE partir da localização do módulo ou configuração explícita, nunca de nome/profundidade fixos ou diretório corrente. Falha estrutural DEVE produzir diagnóstico acionável e NÃO DEVE ser ocultada por fallback.
 
@@ -171,3 +171,4 @@ Antes da implementação, decisão humana DEVE resolver:
 2. **Artefato global** — alternativas: IIFE ou UMD. Impacto: tamanho, namespace e compatibilidade. Recomendação: medir ESM e IIFE; publicar IIFE apenas com consumidor comprovado.
 3. **Orçamento client-side** — alternativas dependem do baseline real. Impacto: build e dependências. Recomendação: fixar limite na FT do primeiro build, sem estimativa documental.
 4. **Tokenização do manifesto** — alternativas: JSON, YAML ou TOML. Impacto: IA e toolchain. Recomendação: manter JSON por interoperabilidade e medir antes da publicação inicial.
+5. **Condição de runtime para worker** — `worker` ainda é condição customizada e nem todo resolvedor npm a ativa automaticamente. Impacto: importação pela raiz PODE cair no core neutro. Recomendação: manter `./worker` como subpath normativo, testar `--conditions=worker` e acompanhar padronização sem heurística de ambiente.

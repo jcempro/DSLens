@@ -21,7 +21,7 @@ O projeto está em desenvolvimento. PowerShell, Python, TypeScript e JavaScript 
 - Python: [src/py/dsl.py](src/py/dsl.py), atualmente com diferenças que serão corrigidas pelos mesmos vetores de conformidade aplicados às demais linguagens.
 - Vetores ainda incompletos: [tests/expected.json](tests/expected.json).
 
-O pacote do produto reside em `package/dslens`, segregado do `package.json` operacional da raiz. Ele inclui TypeScript importável, JavaScript de cliente e servidor, declarações, source maps, build minificado e manifesto público.
+O pacote npm `@jeancarloem/dslens` é montado em `package/dslens` a partir do manifesto raiz. Ele inclui TypeScript importável, JavaScript ESM e CommonJS para browser, worker e servidor, declarações, source maps, build minificado e manifesto público, sem levar a governança ou dependências de desenvolvimento ao consumidor.
 
 A configuração TypeScript versionada mantém `target`, `module` e biblioteca-base em `ES2020`. A cada build, `target` e biblioteca ECMAScript são derivados automaticamente como `ES(max(2020, ano UTC atual - 5))`, enquanto `module` permanece `ES2020`; em 2026, o target efetivo é `ES2021`. O metadado resolvido é distribuído pelo subpath `@jcempro/dslens/build-target`.
 
@@ -87,7 +87,7 @@ Nenhuma linguagem é principal: a sintaxe e a semântica são canônicas. TypeSc
 
 Os canais implementados são Git, submódulo Git, pacote npm montável, importação ESM, TypeScript explícito e arquivo JavaScript para cliente/CDN. O checkout como submódulo pode ocupar path arbitrário; nenhuma implementação depende do nome da pasta ou do diretório corrente.
 
-Os artefatos incluem ESM core, browser e server, declarações, source maps e JavaScript client-side otimizado. CommonJS, IIFE, UMD e worker permanecem condicionados a consumidor e implementação comprovados.
+Os artefatos incluem ESM e CommonJS para core, browser, worker e servidor, declarações, source maps e JavaScript client-side otimizado. IIFE e UMD permanecem condicionados a consumidor e implementação comprovados.
 
 ## Contratos e manifestos
 

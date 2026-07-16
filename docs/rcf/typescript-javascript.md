@@ -30,15 +30,15 @@ O artefato client-side ultraotimizado DEVE ser JavaScript sem TypeScript, carreg
 
 ## 5. Node.js
 
-JavaScript server-side DEVE ser publicado por subpath e condição próprios. Baseline mínimo: Node.js 20.19.0. Código server-side NÃO DEVE integrar o core/browser. CommonJS somente PODE ser publicado diante de consumidor comprovado e teste contra dual-package hazard; ESM DEVE ser padrão.
+JavaScript server-side DEVE ser publicado por subpath e condição próprios. Baseline mínimo: Node.js 20.19.0. Código server-side NÃO DEVE integrar o core/browser. CommonJS DEVE ser publicado para consumidores npm que usam `require`, em arquivo `.cjs` segregado e testado contra dual-package hazard; ESM DEVE permanecer padrão.
 
 ## 6. npm e exports
 
-O pacote do produto DEVE possuir manifesto distinto do manifesto operacional de governança atualmente existente na raiz; a estrutura física DEVE preservar essa segregação.
+O manifesto raiz DEVE identificar o produto e conservar os scripts operacionais exigidos por `../../AGENTS.md`. O staging publicável em `../../package/dslens/` DEVE ser derivado, conter somente metadados e arquivos do consumidor e excluir governança, dependências de desenvolvimento e automação interna.
 
-O futuro `package.json` publicável DEVE declarar `name`, `version`, `description`, `license`, `author`, `repository`, `homepage`, `bugs`, `keywords`, `type`, `types`, `exports`, `files`, `engines`, `sideEffects`, dependências e scripts aplicáveis. `main`, `module`, `browser`, `imports`, `bin` e `workspaces` somente DEVEM existir quando houver consumidor ou função comprovada.
+O `package.json` DEVE declarar nome `@jeancarloem/dslens`, versão `0.0.1`, licença MPL-2.0, autoria e URLs aprovadas, descrição concisa, `main: README.md`, `types`, `exports`, `files`, `engines`, `sideEffects` e scripts aplicáveis. `module`, `browser`, `imports`, `bin` e `workspaces` somente DEVEM existir quando houver consumidor ou função comprovada.
 
-`exports` DEVE fechar paths internos e declarar condições `types` antes das condições de runtime. Subpaths mínimos previstos: `.`, `./browser`, `./worker`, `./node`, `./async`, `./manifest`; somente os realmente gerados DEVEM ser publicados. Fonte TypeScript PODE ser exposta por subpath experimental explícito; NÃO DEVE ser entrada padrão.
+`exports` DEVE fechar paths internos, declarar `types` antes das condições de runtime e rotear `browser`, `worker`, `node`, `import`, `require` e `default` sem detecção heurística. Subpaths mínimos: `.`, `./browser`, `./worker`, `./server`, `./typescript`, `./manifest` e `./build-target`; somente os realmente gerados DEVEM ser publicados. Fonte TypeScript PODE ser exposta por subpath experimental explícito; NÃO DEVE ser entrada padrão.
 
 JavaScript compilado DEVE ser entrada padrão. Consumidor DEVE poder instalar tarball e importar cada entry point sem TypeScript, bundler ou dependência de desenvolvimento. `files` DEVE incluir somente runtime, tipos, maps aprovados, licença, README e manifestos públicos.
 
