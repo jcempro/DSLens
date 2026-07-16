@@ -118,6 +118,8 @@ O projeto DEVE usar versionamento semântico. Mudança de gramática, resultado,
 
 Build DEVE possuir consumidor, runtime, formato, entry point, tipos, externalizações, carregamento, compatibilidade, minificação, source map e estabilidade declarados. Build distinto NÃO DEVE divergir semanticamente. Nenhum formato DEVE existir apenas por tradição.
 
+Build TypeScript/JavaScript DEVE resolver anualmente a compatibilidade ECMAScript pelo ano civil UTC da execução menos cinco, com ES2020 como piso. O target do compilador, a biblioteca ECMAScript de tipos e o target do transpilador DEVEM usar o mesmo valor resolvido; o formato de módulo DEVE permanecer ES2020 enquanto esta for a modalidade publicada. A configuração-base versionada DEVE conservar ES2020, e cada build DEVE gerar configuração derivada e metadado determinístico com ano, fórmula e valor efetivo. Target ainda não reconhecido pela toolchain DEVE falhar explicitamente, sem rebaixamento silencioso.
+
 Otimização DEVE preservar comportamento, efeitos necessários, nomes públicos, tipos, maps e licença; DEVE favorecer determinismo, tree-shaking, eliminação de código morto, deduplicação e ausência de dependência acidental. `sideEffects` DEVE refletir módulos puros, registro de hooks, inicialização, estilos e ordem real.
 
 Dependência DEVE estar na categoria correspondente ao uso. Lockfile, licença, vulnerabilidade, script de instalação, proveniência e origem DEVEM ser auditáveis. Build NÃO DEVE depender de recurso remoto não fixado. Segredo NÃO DEVE integrar fonte, build, map, manifesto, pacote, log ou fixture publicada.

@@ -5,6 +5,25 @@ CONTRATO=./RCF.md
 CACHE=documentos lidos e estado Git validos em 20260716; reler somente arquivos alterados
 BLOQUEIO_NAO_REPETIR=agent:verify procura src/.agents incorretamente; repetir somente apos correcao ou evidencia nova
 
+FT-004|nome=Baseline ECMAScript anual|escopo=Técnico|prioridade=alta|status=em andamento|inicio=20260716.012936
+objetivo=Derivar target e lib TypeScript a cada build pelo ano UTC atual menos cinco, preservando ES2020 como piso e module ES2020 fixo.
+nao_escopo=Alterar semântica DSL, baseline Node.js ou formatos de módulo publicados.
+dependencias=RCF global §§11 e 14; docs/rcf/typescript-javascript.md §§2 e 7.
+riscos=Relógio inválido; target futuro ainda não suportado pela toolchain; divergência entre tsc e esbuild.
+arquivos_previstos=RCF.md; docs/rcf/typescript-javascript.md; README.md; tsconfig.json; scripts/build/*; scripts/test/run.mjs; package.json; package/dslens/dist/*.
+aceite=Em 2026 target e lib resolvem ES2021; module permanece ES2020; transições anuais são testadas sem depender do relógio real; npm test aprovado.
+1/3 Contrato anual [concluído]
+  1/2 Registrar fórmula, piso e exceção de module [concluído]
+  2/2 Sincronizar README e memória operacional [concluído]
+2/3 Implementação derivada [pendente]
+  1/3 Gerar configuração TypeScript por build [pendente]
+  2/3 Aplicar o mesmo target ao esbuild e typecheck [pendente]
+  3/3 Publicar metadado determinístico do target efetivo [pendente]
+3/3 Validação e conclusão [pendente]
+  1/3 Testar anos-limite e anos futuros [pendente]
+  2/3 Executar matriz determinística e verificar artefato [pendente]
+  3/3 Gerar handoff, commits, push e convergir branches [pendente]
+
 FT-001|nome=Contrato canônico e paridade PowerShell/Python|escopo=Técnico|prioridade=alta|status=concluído|inicio=20260716.000000|fim=20260716.043000
 objetivo=Fixar vetores comuns e convergir PowerShell e Python sem linguagem principal nem perda de compatibilidade pública válida.
 nao_escopo=Publicação e novas linguagens além de TypeScript/JavaScript.
