@@ -237,32 +237,49 @@ function has_parser_expression {
 function _extract_dsl {
   param([string]$source)
 
-  # captura estrita da URL
-  if ($source -notmatch '\$\{\s*(["''])(?<url>.*?)\1\s*\}') {
+  if ($source -notmatch '^\$\{\s*(["''])(?<url>.*?)\1') {
     return $null
   }
-
   $url = $matches['url']
-
-  # extrai path APENAS após fechamento da DSL
-  $after = $source.Substring($matches[0].Length)
-
-  $path = ""
-  if ($after) {
-    $tmp = $after.Trim()
-
-    # aceita apenas path válido (começa com . ou [)
-    if ($tmp -match '^[\.\[]') {
-      # remove qualquer lixo após pipe (segurança)
-      $tmp = ($tmp -split '\|')[0].Trim()
-      $path = $tmp
+  $cursor = $matches[0].Length
+  while ($cursor -lt $source.Length -and [char]::IsWhiteSpace($source[$cursor])) { $cursor++ }
+  $request = $null
+  if ($cursor -lt $source.Length -and $source[$cursor] -eq ';') {
+    $depth = 1; $quote = [char]0; $escaped = $false; $close = -1
+    for ($i = $cursor + 1; $i -lt $source.Length; $i++) {
+      $char = $source[$i]
+      if ($quote -ne [char]0) {
+        if ($escaped) { $escaped = $false }
+        elseif ($char -eq '\') { $escaped = $true }
+        elseif ($char -eq $quote) { $quote = [char]0 }
+      }
+      elseif ($char -eq '"') { $quote = $char }
+      elseif ($char -eq '{') { $depth++ }
+      elseif ($char -eq '}') { $depth--; if ($depth -eq 0) { $close = $i; break } }
     }
+    if ($close -lt 0) { return $null }
+    $parameter = $source.Substring($cursor + 1, $close - $cursor - 1).Trim()
+    if ($parameter.StartsWith('request=')) { $parameter = $parameter.Substring(8).Trim() }
+    elseif (-not $parameter.StartsWith('{')) { return $null }
+    try { $request = $parameter | ConvertFrom-Json -ErrorAction Stop } catch { return $null }
+    $allowed = @('method', 'query', 'headers', 'body')
+    if (@($request.PSObject.Properties.Name | Where-Object { $_ -notin $allowed }).Count -gt 0) { return $null }
+    if (-not $request.method) { $request | Add-Member -NotePropertyName method -NotePropertyValue 'GET' }
+    if ($request.method -notin @('GET', 'POST')) { return $null }
+    if ($request.body -and $request.method -ne 'POST') { return $null }
+    if ($request.body -and $request.body.encoding -notin @('json', 'form', 'text')) { return $null }
+    if ($request.headers) {
+      foreach ($header in @($request.headers.PSObject.Properties)) {
+        if ($header.Name.ToLowerInvariant() -in @('host', 'content-length', 'connection', 'transfer-encoding')) { return $null }
+        if ($header.Value -isnot [string] -and -not $header.Value.env) { return $null }
+      }
+    }
+    $cursor = $close
   }
-
-  return @{
-    url  = $url
-    path = $path
-  }
+  if ($cursor -ge $source.Length -or $source[$cursor] -ne '}') { return $null }
+  $path = $source.Substring($cursor + 1)
+  if ($path -notmatch '^[\.\[]') { return $null }
+  return @{ url = $url; path = $path; request = $request }
 }
 
 # =========================
@@ -308,16 +325,31 @@ function _cache_set {
 function _fetch_raw {
   param(
     [string]$url,
-    [ScriptBlock]$callback
+    [ScriptBlock]$callback,
+    $requestOptions,
+    [hashtable]$envValues
   )
 
-  $methods = @(
-    { Invoke-RestMethod -Uri $url -Method GET -TimeoutSec 15 `
-        -Headers @{ 
-        "User-Agent" = "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"
-        "Accept"     = "application/json"
-      } `
-        -ErrorAction Stop },
+  $methodName = if ($requestOptions.method) { $requestOptions.method } else { 'GET' }
+  $headers = @{ "User-Agent" = "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"; "Accept" = "application/json" }
+  foreach ($header in @($requestOptions.headers.PSObject.Properties)) {
+    if ($header.Value -is [string]) { $headers[$header.Name] = $header.Value }
+    elseif ($envValues -and $envValues.ContainsKey($header.Value.env)) { $headers[$header.Name] = $envValues[$header.Value.env] }
+    else { return $null }
+  }
+  if ($requestOptions.query) {
+    $pairs = @($requestOptions.query.PSObject.Properties | ForEach-Object { "$([uri]::EscapeDataString($_.Name))=$([uri]::EscapeDataString([string]$_.Value))" })
+    if ($pairs.Count) { $url += $(if ($url.Contains('?')) { '&' } else { '?' }) + ($pairs -join '&') }
+  }
+  $bodyValue = $null; $contentType = $null
+  if ($requestOptions.body) {
+    if ($requestOptions.body.encoding -eq 'json') { $bodyValue = $requestOptions.body.value | ConvertTo-Json -Compress -Depth 20; $contentType = 'application/json' }
+    elseif ($requestOptions.body.encoding -eq 'form') { $bodyValue = @($requestOptions.body.value.PSObject.Properties | ForEach-Object { "$([uri]::EscapeDataString($_.Name))=$([uri]::EscapeDataString([string]$_.Value))" }) -join '&'; $contentType = 'application/x-www-form-urlencoded' }
+    else { $bodyValue = [string]$requestOptions.body.value }
+  }
+  $primary = { Invoke-RestMethod -Uri $url -Method $methodName -TimeoutSec 15 -Headers $headers -Body $bodyValue -ContentType $contentType -ErrorAction Stop }
+  $methods = @($primary)
+  if ($methodName -eq 'GET' -and -not $requestOptions) { $methods += @(
     {
       if ($PSVersionTable.PSVersion.Major -lt 6) {
         Invoke-WebRequest -Uri $url -Method GET -TimeoutSec 15 -UseBasicParsing -Headers @{ "User-Agent" = "Mozilla/5.0 (Windows NT; DSLParser)" } -ErrorAction Stop | Select-Object -ExpandProperty Content
@@ -334,8 +366,8 @@ function _fetch_raw {
       finally {
         $wc.Dispose()
       }
-    }
-  )
+    })
+  }
 
   # sanitização + validação resiliente
   try {
@@ -612,7 +644,8 @@ function resolve_parser_expression {
     [ScriptBlock]$callback,
 
     [int]$__depth = 0,
-    [int]$__chain = 0
+    [int]$__chain = 0,
+    [hashtable]$envValues
   )
 
   # init runtime garantido (TLS / ambiente) - proteção contra chamada direta
@@ -664,7 +697,7 @@ function resolve_parser_expression {
   if (-not $dsl) { return $null }
 
   $key = [Convert]::ToBase64String(
-    [Text.Encoding]::UTF8.GetBytes("$($dsl.url)::__::$($dsl.path)")
+    [Text.Encoding]::UTF8.GetBytes("$($dsl.url)::__::$($dsl.path)::__::$($dsl.request | ConvertTo-Json -Compress -Depth 20)")
   )
 
   if (((_now) - $script:__DSL_RUNTIME_START).TotalSeconds -gt $script:MAX_GLOBAL_TIMEOUT) {
@@ -680,7 +713,7 @@ function resolve_parser_expression {
     return [string]$cached
   }
 
-  $raw = _fetch_raw -url $dsl.url -callback $callback
+  $raw = _fetch_raw -url $dsl.url -callback $callback -requestOptions $dsl.request -envValues $envValues
   if (-not $raw) {
     _cache_set $key $null  # negative cache
     return $null

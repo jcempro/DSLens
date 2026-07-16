@@ -10,6 +10,8 @@ Python 3.11 ou superior DEVE ser homologado. Superfície pública: `has_parser_e
 
 A API DEVE permanecer síncrona e fail-safe. Callback opcional DEVE receber `(message, type)`. Função e método DEVEM possuir docstring sucinta conforme `../../RCF.md` §9.
 
+O provedor `env` opcional DEVE ser mapeamento injetado em `resolve_parser_expression`; a implementação NÃO DEVE consultar `os.environ` implicitamente para resolver headers. O transporte v2 DEVE aplicar `query`, `GET`/`POST`, headers e body pelas APIs nativas de `urllib`.
+
 ## 3. Convergência obrigatória
 
 A implementação mantém cache de sessão e dependência YAML opcional. Cache persistente e fallback socket foram removidos do núcleo para eliminar efeitos e respostas divergentes. YAML indisponível DEVE ser capacidade diagnosticável; tokenização e normalização DEVEM permanecer cobertas pelos vetores comuns.

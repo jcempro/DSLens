@@ -173,7 +173,7 @@ import time
 import xml.etree.ElementTree as ET
 from collections.abc import Iterable
 from datetime import datetime, timedelta
-from urllib.parse import urlparse
+from urllib.parse import urlencode, urlparse
 from urllib.request import Request, urlopen
 
 try:
@@ -228,21 +228,93 @@ def has_parser_expression(source):
 
 
 def _extract_dsl(source):
-    m = re.search(r'\$\{\s*(["\'])(?P<url>.*?)\1\s*\}', source)
+    m = re.match(r'^\$\{\s*(["\'])(?P<url>.*?)\1', source)
     if not m:
         return None
-
     url = m.group('url')
-    after = source[m.end() :]
+    cursor = m.end()
+    while cursor < len(source) and source[cursor].isspace():
+        cursor += 1
+    request = None
+    if cursor < len(source) and source[cursor] == ';':
+        close = _find_expression_close(source, cursor + 1)
+        if close < 0:
+            return None
+        parameter = source[cursor + 1 : close].strip()
+        if parameter.startswith('request='):
+            parameter = parameter[len('request=') :].strip()
+        elif not parameter.startswith('{'):
+            return None
+        try:
+            request = _validate_request(json.loads(parameter))
+        except Exception:
+            return None
+        cursor = close
+    if cursor >= len(source) or source[cursor] != '}':
+        return None
+    path = source[cursor + 1 :]
+    if not path.startswith(('.', '[')):
+        return None
+    return {'url': url, 'path': path, 'request': request}
 
-    path = ''
-    if after:
-        tmp = after.strip()
-        if tmp.startswith('.') or tmp.startswith('['):
-            tmp = tmp.split('|')[0].strip()
-            path = tmp
 
-    return {'url': url, 'path': path}
+def _find_expression_close(source, start):
+    depth, quote, escaped = 1, '', False
+    for index in range(start, len(source)):
+        character = source[index]
+        if quote:
+            if escaped:
+                escaped = False
+            elif character == '\\':
+                escaped = True
+            elif character == quote:
+                quote = ''
+        elif character == '"':
+            quote = character
+        elif character == '{':
+            depth += 1
+        elif character == '}':
+            depth -= 1
+            if depth == 0:
+                return index
+    return -1
+
+
+def _validate_request(value):
+    if not isinstance(value, dict) or set(value) - {
+        'method', 'query', 'headers', 'body'
+    }:
+        raise ValueError('invalid request')
+    method = value.get('method', 'GET')
+    if method not in ('GET', 'POST'):
+        raise ValueError('invalid method')
+    query = value.get('query', {})
+    headers = value.get('headers', {})
+    if not isinstance(query, dict) or not all(
+        isinstance(item, (str, int, float, bool))
+        for item in query.values()
+    ):
+        raise ValueError('invalid query')
+    if not isinstance(headers, dict):
+        raise ValueError('invalid headers')
+    for name, item in headers.items():
+        if name.lower() in {
+            'host', 'content-length', 'connection', 'transfer-encoding'
+        }:
+            raise ValueError('blocked header')
+        if not isinstance(item, str) and not (
+            isinstance(item, dict)
+            and set(item) == {'env'}
+            and isinstance(item['env'], str)
+        ):
+            raise ValueError('invalid header')
+    body = value.get('body')
+    if body is not None:
+        if method != 'POST' or not isinstance(body, dict):
+            raise ValueError('invalid body')
+        if body.get('encoding') not in ('json', 'form', 'text') or 'value' not in body:
+            raise ValueError('invalid body')
+    return {'method': method, 'query': query, 'headers': headers, 'body': body}
 
 
 # =========================
@@ -298,20 +370,46 @@ def _sanitize_url(url, callback):
         return None
 
 
-def _fetch_raw(url, callback):
+def _fetch_raw(url, callback, request_options=None, env=None):
     url = _sanitize_url(url, callback)
     if not url:
         return None
 
     start = _now()
 
+    request_options = request_options or {
+        'method': 'GET', 'query': {}, 'headers': {}, 'body': None
+    }
+    query = urlencode(request_options['query'])
+    if query:
+        url = f'{url}{"&" if "?" in url else "?"}{query}'
+
     def _method_urllib():
+        headers = {'User-Agent': 'Mozilla/5.0', 'Accept': 'application/json'}
+        for name, item in request_options['headers'].items():
+            if isinstance(item, dict):
+                resolved = (env or {}).get(item['env'])
+                if resolved is None:
+                    raise ValueError('missing environment value')
+                headers[name] = resolved
+            else:
+                headers[name] = item
+        data = None
+        body = request_options.get('body')
+        if body:
+            if body['encoding'] == 'json':
+                data = json.dumps(body['value'], separators=(',', ':')).encode()
+                headers.setdefault('Content-Type', 'application/json')
+            elif body['encoding'] == 'form':
+                data = urlencode(body['value']).encode()
+                headers.setdefault('Content-Type', 'application/x-www-form-urlencoded')
+            else:
+                data = str(body['value']).encode()
         req = Request(
             url,
-            headers={
-                'User-Agent': 'Mozilla/5.0',
-                'Accept': 'application/json',
-            },
+            data=data,
+            headers=headers,
+            method=request_options['method'],
         )
         with urlopen(req, timeout=MAX_NETWORK_TIMEOUT) as resp:
             return resp.read().decode('utf-8', errors='replace')
@@ -501,7 +599,7 @@ def resolve_dsl_data(data, path, callback=None):
 
 
 def resolve_parser_expression(
-    source, callback=None, __depth=0, __chain=0
+    source, callback=None, __depth=0, __chain=0, env=None
 ):
     global __DSL_RUNTIME_START
 
@@ -534,7 +632,7 @@ def resolve_parser_expression(
         return None
 
     key = base64.b64encode(
-        f'{dsl["url"]}::__::{dsl["path"]}'.encode()
+        f'{dsl["url"]}::__::{dsl["path"]}::__::{json.dumps(dsl.get("request"), sort_keys=True)}'.encode()
     ).decode()
 
     if (
@@ -547,7 +645,7 @@ def resolve_parser_expression(
     if found:
         return str(cached) if cached is not None else None
 
-    raw = _fetch_raw(dsl['url'], callback)
+    raw = _fetch_raw(dsl['url'], callback, dsl.get('request'), env)
     if not raw:
         _cache_set(key, None)
         return None

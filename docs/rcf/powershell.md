@@ -10,9 +10,11 @@ O binding PowerShell DEVE suportar Windows PowerShell 5.1 e PowerShell 7.4 ou su
 
 `resolve_parser_expression` DEVE permanecer síncrona e fail-safe. Callback opcional DEVE receber `($msg, $type)`. `main` DEVE serializar execução por mutex, reiniciar o relógio global da demanda e liberar recurso mesmo em falha.
 
+O provedor `envValues` opcional DEVE ser `hashtable` injetada; a implementação NÃO DEVE consultar `$env:` implicitamente para resolver headers. O transporte v2 DEVE aplicar `query`, `GET`/`POST`, headers e body pelas APIs HTTP nativas.
+
 ## 3. Comportamento preservado
 
-O perfil atual DEVE preservar: aspas simples ou duplas; URL HTTP(S); GET; tentativas por `Invoke-RestMethod`, `Invoke-WebRequest` e `WebClient`; JSON, XML e YAML condicionado a `ConvertFrom-Yaml`; campo, índice base zero e filtro textual exato; conversão final para `[string]`; retorno `$null` em falha; cache em memória por URL e path com TTL de 60 s; rejeição de múltiplas expressões e resultado aninhado.
+O perfil atual DEVE preservar: aspas simples ou duplas; URL HTTP(S); GET como default; tentativas GET por `Invoke-RestMethod`, `Invoke-WebRequest` e `WebClient`; request v2 por `Invoke-RestMethod`; JSON, XML e YAML condicionado a `ConvertFrom-Yaml`; campo, índice base zero e filtro textual exato; conversão final para `[string]`; retorno `$null` em falha; cache em memória pela identidade integral com TTL de 60 s; rejeição de múltiplas expressões e resultado aninhado.
 
 Defaults legados comprovados: profundidade 5, chaining 3, execução 90 s, rede 30 s, demanda DSL 45 s, global 300 s, cache máximo declarado 512, três tentativas, backoff declarado 200–2000 ms e espera de mutex 5 s. Constante declarada mas não aplicada integralmente DEVE ser tratada como divergência, não como comportamento garantido.
 
