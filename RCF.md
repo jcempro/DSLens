@@ -56,13 +56,19 @@ path       = { member | index | filter } ;
 member     = ".", identifier ;
 index      = "[", non-negative-integer, "]" ;
 filter     = "[@", identifier, "=", quote, literal, quote, "]" ;
+request-expression = "${", quote, source, quote, ";", [ "request", "=" ], request-object, "}", path ;
+request-object = JSON-object ;
 ```
 
 O perfil canônico v1 DEVE aceitar exatamente uma expressão por entrada. `source` DEVE ser URL absoluta HTTP(S). `member` DEVE selecionar membro pelo nome literal; `index` DEVE ser base zero; `filter` DEVE selecionar a primeira ocorrência cujo atributo ou membro tenha igualdade textual exata. Ausência, tipo incompatível, índice fora do limite, expressão malformada ou fonte inválida DEVEM falhar sem fallback heurístico.
 
 Texto sem expressão DEVE ser devolvido sem alteração. Texto que contenha abertura `${` malformada DEVE falhar. Conteúdo externo combinado com expressão, múltiplas expressões, resultado que contenha nova expressão e encadeamento recursivo NÃO DEVEM integrar o perfil canônico v1.
 
-Crases, origem inline, arquivo local/remoto, objeto de opções, wildcard, `.find()`, interpolação parcial e método HTTP diferente de GET são capacidades propostas não implementadas. Elas NÃO DEVEM ser aceitas como estáveis até extensão de gramática, modelo de segurança, vetores comuns e decisão normativa explícita.
+Crases, origem inline, arquivo local/remoto, wildcard, `.find()`, interpolação parcial e método HTTP diferente de GET/POST são capacidades propostas não implementadas. Elas NÃO DEVEM ser aceitas como estáveis até extensão de gramática, modelo de segurança, vetores comuns e decisão normativa explícita.
+
+O perfil v2 adiciona exatamente um segundo parâmetro opcional `request`, nas formas equivalentes `; request={...}` e `; {...}`. O segundo parâmetro posicional DEVE significar `request`; outro parâmetro futuro DEVE ser nomeado. Forma posicional e nomeada juntas, nome desconhecido, objeto não JSON ou parâmetro adicional DEVEM falhar. Ausência de `request` preserva integralmente o perfil v1: `GET`, sem body e sem cabeçalho customizado.
+
+`request` PODE conter `method`, `query`, `headers` e `body`. `method` aceita somente `GET` ou `POST`, com `GET` default. `query` DEVE ser objeto de escalares serializados de forma determinística. `headers` DEVE ser objeto de strings ou referências `{ "env": "NOME" }`; `Host`, `Content-Length`, `Connection` e equivalentes controlados pelo runtime DEVEM ser rejeitados. `body` somente PODE existir em `POST` e declara `encoding` (`json`, `form` ou `text`) e `value`. Referência de ambiente DEVE ser resolvida por provedor injetado; browser e worker NÃO DEVEM ler ambiente global implicitamente. Valor ausente falha sem expor nome ou conteúdo sensível. Cabeçalho sensível NÃO DEVE atravessar redirecionamento entre origens.
 
 ### 5.2 Pipeline
 

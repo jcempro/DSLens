@@ -41,6 +41,15 @@ Operadores documentados:
 
 Aspas simples e duplas são aceitas no perfil histórico. Texto sem DSL é preservado. Expressão malformada, path ausente, tipo incompatível, múltiplas expressões ou resultado aninhado produzem falha normalizada.
 
+O perfil v2 aceita um `request` opcional, nomeado ou como segundo parâmetro posicional equivalente:
+
+```text
+${"https://api.example.com"; request={"method":"POST","headers":{"Authorization":{"env":"TOKEN"}},"body":{"encoding":"json","value":{"id":1}}}}.result
+${"https://api.example.com"; {"method":"POST","body":{"encoding":"json","value":{"id":1}}}}.result
+```
+
+Sem o segundo parâmetro, permanece `GET` sem body nem cabeçalho customizado. Parâmetro futuro diferente de `request` precisará ser nomeado explicitamente.
+
 Crases, conteúdo inline, arquivos, opções de requisição, `.find()`, wildcards e interpolação parcial aparecem em documentação histórica do código, mas não estão implementados de forma contratual. Consulte as decisões pendentes no RCF antes de depender desses recursos.
 
 ## Uso atual em PowerShell

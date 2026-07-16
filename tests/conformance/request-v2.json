@@ -1,0 +1,31 @@
+{
+  "schemaVersion": 1,
+  "cases": [
+    {
+      "id": "default-get",
+      "input": "${\"https://example.test/data\"}.value",
+      "expected": { "method": "GET", "path": ".value", "request": null }
+    },
+    {
+      "id": "named-post",
+      "input": "${\"https://example.test/data\"; request={\"method\":\"POST\",\"headers\":{\"X-Key\":{\"env\":\"TOKEN\"}},\"body\":{\"encoding\":\"json\",\"value\":{\"id\":1}}}}.value",
+      "expected": { "method": "POST", "path": ".value", "request": "request" }
+    },
+    {
+      "id": "positional-post",
+      "input": "${\"https://example.test/data\"; {\"method\":\"POST\",\"body\":{\"encoding\":\"form\",\"value\":{\"id\":1}}}}.value",
+      "expected": { "method": "POST", "path": ".value", "request": "request" }
+    },
+    {
+      "id": "query-get",
+      "input": "${\"https://example.test/data\"; {\"query\":{\"page\":1,\"active\":true}}}.value",
+      "expected": { "method": "GET", "path": ".value", "request": "request" }
+    }
+  ],
+  "invalid": [
+    "${\"https://example.test\"; other={}}.value",
+    "${\"https://example.test\"; request={\"method\":\"PUT\"}}.value",
+    "${\"https://example.test\"; {\"method\":\"GET\",\"body\":{\"encoding\":\"json\",\"value\":{}}}}.value",
+    "${\"https://example.test\"; {\"headers\":{\"Host\":\"evil.test\"}}}.value"
+  ]
+}

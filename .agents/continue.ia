@@ -34,6 +34,30 @@ verificacao_remota=GitHub Actions 29472978688 aprovado em Node 20.19/22 e Python
 regressao=type module no manifesto raiz tornou scripts .agents/*.js CommonJS inexequíveis; FT reaberta para preservar governança com type commonjs na raiz e type module somente no staging.
 correcao_regressao=npm test e agent:handoff aprovados após segregar type commonjs raiz e type module staging; teste automático impede recorrência.
 
+FT-006|nome=Request opcional na linguagem DSLens|escopo=Técnico|prioridade=alta|status=em andamento|inicio=20260716.020500
+objetivo=Adicionar request opcional posicional ou nomeado com query, POST, headers, body e ambiente injetável, preservando GET sem customização como padrão.
+nao_escopo=Métodos além de GET/POST; acesso implícito a ambiente no browser/worker; alteração do path de navegação.
+dependencias=RCF global §§5-8 e 14; decisão humana pela opção request com shorthand posicional.
+riscos=segredos em logs; cabeçalhos proibidos; parsing de JSON aninhado; divergência entre linguagens; cache de POST.
+arquivos_previstos=RCF.md; docs/rcf/*; README.md; tests/conformance/*; src/ps/dsl.ps1; src/py/dsl.py; src/ts/*; manifests/*; package/dslens/*.
+aceite=Forma nomeada e posicional equivalentes; v1 GET inalterado; POST/query/headers/body e env testados em todas as linguagens; cabeçalhos perigosos e request inválido rejeitados.
+1/4 Contrato v2 [concluído]
+  1/3 Formalizar gramática e equivalência das duas formas [concluído]
+  2/3 Definir validação, segurança, ambiente e defaults [concluído]
+  3/3 Criar vetores comuns de request [concluído]
+2/4 Parser multilinguagem [pendente]
+  1/3 Implementar TypeScript/JavaScript [pendente]
+  2/3 Implementar Python [pendente]
+  3/3 Implementar PowerShell [pendente]
+3/4 Transporte [pendente]
+  1/3 Aplicar query, método, headers e body [pendente]
+  2/3 Injetar ambiente sem leitura implícita no núcleo [pendente]
+  3/3 Preservar cache e segurança por identidade completa [pendente]
+4/4 Validação e conclusão [pendente]
+  1/3 Executar vetores e E2E mock POST [pendente]
+  2/3 Validar builds, pacote e matriz CI [pendente]
+  3/3 Gerar handoff, commits, push e convergir branches [pendente]
+
 FT-004|nome=Baseline ECMAScript anual|escopo=Técnico|prioridade=alta|status=concluído|inicio=20260716.012936|fim=20260716.013710
 objetivo=Derivar target e lib TypeScript a cada build pelo ano UTC atual menos cinco, preservando ES2020 como piso e module ES2020 fixo.
 nao_escopo=Alterar semântica DSL, baseline Node.js ou formatos de módulo publicados.
