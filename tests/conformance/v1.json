@@ -1,0 +1,28 @@
+{
+  "schemaVersion": 1,
+  "data": {
+    "name": "DSLens",
+    "count": 3,
+    "enabled": true,
+    "nested": { "url": "https://example.test/release" },
+    "items": [
+      { "name": "alpha", "value": "A" },
+      { "name": "release", "value": "B", "assets": [{ "id": 10 }, { "id": 20 }] }
+    ]
+  },
+  "cases": [
+    { "id": "root-field", "path": ".name", "expected": "DSLens" },
+    { "id": "number-string", "path": ".count", "expected": "3" },
+    { "id": "nested-field", "path": ".nested.url", "expected": "https://example.test/release" },
+    { "id": "numeric-index", "path": ".items[1].assets[0].id", "expected": "10" },
+    { "id": "semantic-filter", "path": ".items[@name=\"release\"].value", "expected": "B" },
+    { "id": "missing-field", "path": ".absent", "expected": null },
+    { "id": "index-out-of-range", "path": ".items[9].value", "expected": null },
+    { "id": "filter-not-found", "path": ".items[@name=\"none\"].value", "expected": null }
+  ],
+  "detection": [
+    { "input": "${\"https://example.test/data\"}.name", "expected": true },
+    { "input": "plain text", "expected": false },
+    { "input": "${broken", "expected": false }
+  ]
+}

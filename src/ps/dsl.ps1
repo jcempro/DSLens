@@ -291,6 +291,11 @@ function _cache_get {
 function _cache_set {
   param($key, $value)
 
+  # PROTECAO: limita o estado de sessão conforme o contrato publicado.
+  if ($script:__PARSER_CACHE.Count -ge $script:CACHE_MAX_ENTRIES) {
+    $script:__PARSER_CACHE.Clear()
+  }
+
   $script:__PARSER_CACHE[$key] = @{
     value  = $value
     expire = (_now).AddSeconds($script:CACHE_TTL_SECONDS) # FIX-BUG: respeita constante global
@@ -557,6 +562,44 @@ function _navigate {
 }
 
 # =========================
+# RESOLUÇÃO SÍNCRONA DE DADOS
+# =========================
+function resolve_dsl_data {
+  <#
+  .SYNOPSIS
+    Resolve um path DSL sobre dado estruturado já carregado.
+  .PARAMETER data
+    Objeto JSON, XML ou equivalente do binding.
+  .PARAMETER path
+    Path canônico iniciado por ponto ou colchete.
+  .OUTPUTS
+    String determinística ou $null em falha esperada.
+  #>
+  [CmdletBinding()]
+  param(
+    [Parameter(Mandatory = $true, Position = 0)]
+    $data,
+
+    [Parameter(Mandatory = $true, Position = 1)]
+    [string]$path,
+
+    [Parameter(Position = 2)]
+    [ScriptBlock]$callback
+  )
+
+  try {
+    $value = _navigate -obj $data -path $path -callback $callback
+    if ($null -eq $value) { return $null }
+    return [string]$value
+  }
+  catch {
+    # PROTECAO: a fachada fail-safe não propaga exceção de navegação.
+    _emit "invalid path" "e" $callback
+    return $null
+  }
+}
+
+# =========================
 # RESOLVER DSL
 # =========================
 function resolve_parser_expression {
@@ -649,14 +692,12 @@ function resolve_parser_expression {
     return $null
   }
 
-  $value = _navigate -obj $parsed -path $dsl.path -callback $callback
+  $value = resolve_dsl_data -data $parsed -path $dsl.path -callback $callback
   if ($null -eq $value) {
     _cache_set $key $null
     return $null
   }
 
-  $value = [string]$value
-  
   # HARD RULE: encadeamento proibido
   if (has_parser_expression $value) {
     _emit "nested DSL not allowed" "e" $callback

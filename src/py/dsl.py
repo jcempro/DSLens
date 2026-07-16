@@ -193,56 +193,6 @@ __CACHE_LOCK = threading.Lock()
 __MUTEX = threading.Lock()
 
 # =========================
-# DISK CACHE (OFFLINE-FIRST)
-# =========================
-
-import os
-import tempfile
-
-__DISK_CACHE_DIR = os.path.join(
-    tempfile.gettempdir(), 'dsl_parser_cache'
-)
-
-
-def _disk_cache_path(key):
-    return os.path.join(__DISK_CACHE_DIR, key + '.cache')
-
-
-def _disk_cache_get(key):
-    try:
-        path = _disk_cache_path(key)
-        if not os.path.exists(path):
-            return None
-
-        # TTL respeitado
-        if time.time() - os.path.getmtime(path) > CACHE_TTL_SECONDS:
-            try:
-                os.remove(path)
-            except Exception:
-                pass
-            return None
-
-        with open(path, 'r', encoding='utf-8') as f:
-            data = f.read()
-            return data if data != '__NULL__' else None
-
-    except Exception:
-        return None
-
-
-def _disk_cache_set(key, value):
-    try:
-        os.makedirs(__DISK_CACHE_DIR, exist_ok=True)
-        path = _disk_cache_path(key)
-
-        with open(path, 'w', encoding='utf-8') as f:
-            f.write(value if value is not None else '__NULL__')
-
-    except Exception:
-        pass
-
-
-# =========================
 # UTIL
 # =========================
 
@@ -366,24 +316,7 @@ def _fetch_raw(url, callback):
         with urlopen(req, timeout=MAX_NETWORK_TIMEOUT) as resp:
             return resp.read().decode('utf-8', errors='replace')
 
-    def _method_raw_socket():  # FIX-BUG: fallback alternativo sem urllib alto nível
-        import socket
-
-        parsed = urlparse(url)
-        host = parsed.hostname
-        port = parsed.port or (
-            443 if parsed.scheme == 'https' else 80
-        )
-
-        with socket.create_connection(
-            (host, port), timeout=MAX_NETWORK_TIMEOUT
-        ) as sock:
-            req = f'GET {parsed.path or "/"} HTTP/1.0\r\nHost: {host}\r\n\r\n'
-            sock.sendall(req.encode())
-            data = sock.recv(65536)
-            return data.decode(errors='ignore')
-
-    methods = [_method_urllib, _method_raw_socket]
+    methods = [_method_urllib]
 
     for method in methods:
         for i in range(RETRY_MAX_ATTEMPTS):
@@ -551,6 +484,17 @@ def _navigate(obj, path, callback):
     return current
 
 
+def resolve_dsl_data(data, path, callback=None):
+    """Resolve um path canônico sobre dado carregado e retorna texto ou None."""
+    try:
+        value = _navigate(data, path, callback)
+        return None if value is None else str(value)
+    except Exception:
+        # PROTECAO: a fachada fail-safe não propaga exceção de navegação.
+        _emit('invalid path', 'e', callback)
+        return None
+
+
 # =========================
 # RESOLVE DSL
 # =========================
@@ -603,57 +547,26 @@ def resolve_parser_expression(
     if found:
         return str(cached) if cached is not None else None
 
-    # =========================
-    # OFFLINE-FIRST (DISK CACHE)
-    # =========================
-    try:
-        local_value = _disk_cache_get(key)
-        if local_value is not None:
-            _emit('offline cache hit', 'i', callback)
-            _cache_set(key, local_value)  # reidrata memória
-            return str(local_value)
-    except Exception:
-        pass  # isolamento total (fail-safe)
-
     raw = _fetch_raw(dsl['url'], callback)
     if not raw:
         _cache_set(key, None)
-        try:
-            _disk_cache_set(key, None)
-        except Exception:
-            pass
         return None
 
     parsed = _parse_content(raw, callback)
     if not parsed:
         _cache_set(key, None)
-        try:
-            _disk_cache_set(key, None)
-        except Exception:
-            pass
         return None
 
-    value = _navigate(parsed, dsl['path'], callback)
+    value = resolve_dsl_data(parsed, dsl['path'], callback)
     if value is None:
         _cache_set(key, None)
-        try:
-            _disk_cache_set(key, None)
-        except Exception:
-            pass
         return None
-
-    value = str(value)
 
     if has_parser_expression(value):
         _emit('nested DSL not allowed', 'e', callback)
         return None
 
     _cache_set(key, value)
-
-    try:
-        _disk_cache_set(key, value)
-    except Exception:
-        pass  # não pode quebrar fluxo
 
     return value
 

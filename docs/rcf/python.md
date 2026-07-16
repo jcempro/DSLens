@@ -6,13 +6,13 @@ Este arquivo especializa `../../RCF.md` para `./src/py/dsl.py`. O RCF global pre
 
 ## 2. Runtime e superfície pública
 
-Python 3.11 ou superior DEVE ser homologado. Superfície pública inicial: `has_parser_expression`, `resolve_parser_expression` e `main`; execução direta PODE receber o primeiro argumento ou `DSL_INPUT` e importação NÃO DEVE autoexecutar.
+Python 3.11 ou superior DEVE ser homologado. Superfície pública: `has_parser_expression` (`detect`), `resolve_dsl_data` (`resolveData`), `resolve_parser_expression` (`resolveSource`) e `main`; execução direta PODE receber o primeiro argumento ou `DSL_INPUT` e importação NÃO DEVE autoexecutar.
 
 A API DEVE permanecer síncrona e fail-safe. Callback opcional DEVE receber `(message, type)`. Função e método DEVEM possuir docstring sucinta conforme `../../RCF.md` §9.
 
 ## 3. Convergência obrigatória
 
-A implementação atual possui cache persistente em diretório temporário, fallback por socket, dependência YAML opcional e diferenças de tokenização. Esses mecanismos NÃO DEVEM produzir semântica diferente do contrato. Cache persistente DEVE ser segregado como adaptador opcional; fallback HTTP DEVE preservar resposta completa, TLS e validação ou ser removido; YAML indisponível DEVE ser capacidade diagnosticável.
+A implementação mantém cache de sessão e dependência YAML opcional. Cache persistente e fallback socket foram removidos do núcleo para eliminar efeitos e respostas divergentes. YAML indisponível DEVE ser capacidade diagnosticável; tokenização e normalização DEVEM permanecer cobertas pelos vetores comuns.
 
 Defaults compartilhados DEVEM corresponder ao manifesto e aos vetores comuns. Resultado, erro, normalização textual, ordenação, filtros, índices, limites e rejeições DEVEM ser equivalentes a PowerShell, TypeScript e JavaScript.
 

@@ -6,7 +6,7 @@ Este arquivo especializa `../../RCF.md` para `./src/ps/dsl.ps1`. O RCF global pr
 
 ## 2. Runtime e superfície pública
 
-O binding PowerShell DEVE suportar Windows PowerShell 5.1 e PowerShell 7.4 ou superior enquanto esses runtimes permanecerem declarados. Superfície pública histórica comprovada: `has_parser_expression`, `resolve_parser_expression` e `main`; execução direta PODE receber o primeiro argumento ou `DSL_INPUT`; dot-source NÃO DEVE autoexecutar.
+O binding PowerShell DEVE suportar Windows PowerShell 5.1 e PowerShell 7.4 ou superior enquanto esses runtimes permanecerem declarados. Superfície pública: `has_parser_expression` (`detect`), `resolve_dsl_data` (`resolveData`), `resolve_parser_expression` (`resolveSource`) e `main`; execução direta PODE receber o primeiro argumento ou `DSL_INPUT`; dot-source NÃO DEVE autoexecutar.
 
 `resolve_parser_expression` DEVE permanecer síncrona e fail-safe. Callback opcional DEVE receber `($msg, $type)`. `main` DEVE serializar execução por mutex, reiniciar o relógio global da demanda e liberar recurso mesmo em falha.
 

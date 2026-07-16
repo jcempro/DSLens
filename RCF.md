@@ -74,6 +74,8 @@ JSON e XML DEVEM possuir suporte no perfil base certificado. YAML PODE integrar 
 
 A entrada pública canônica é texto. Sucesso DEVE retornar representação textual determinística do valor terminal. Falha esperada DEVE retornar ausência (`null`, `None` ou equivalente idiomático mapeado a `null` no protocolo) e NÃO DEVE propagar exceção ao consumidor da fachada fail-safe.
 
+Cada implementação DEVE expor detecção de expressão, resolução síncrona sobre dado estruturado já carregado e fachada de resolução de fonte conforme capacidade do ambiente. O binding PODE adotar convenção idiomática de nomes, mas o manifesto DEVE mapear as três operações a `detect`, `resolveData` e `resolveSource`.
+
 O protocolo de resultado estruturado para adaptadores, async e interoperabilidade DEVE conter `ok`, `value`, `error`, `metadata`; `value` DEVE ser texto ou `null`; `error` DEVE conter código estável, etapa e mensagem segura; `metadata` PODE conter implementação, versão, cache e duração. Mensagem NÃO DEVE expor segredo, credencial, conteúdo sensível ou path local.
 
 Códigos mínimos: `INVALID_EXPRESSION`, `INVALID_SOURCE`, `FETCH_FAILED`, `TIMEOUT`, `PARSE_FAILED`, `INVALID_PATH`, `CHAIN_FORBIDDEN`, `BUSY`, `UNSUPPORTED_CAPABILITY`, `INTERNAL_FAILURE`.
