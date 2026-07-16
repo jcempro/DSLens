@@ -1,6 +1,6 @@
 SCHEMA=1
 MACHINE_ID=JEAN-DESKTOP
-DATA_REF=20260716.020355
+DATA_REF=20260716.022056
 CONTRATO=./RCF.md
 CACHE=documentos lidos e estado Git validos em 20260716; reler somente arquivos alterados
 BLOQUEIO_NAO_REPETIR=agent:verify e agent:test procuram src/.agents incorretamente; repetir somente apos correcao ou evidencia nova
@@ -34,7 +34,7 @@ verificacao_remota=GitHub Actions 29472978688 aprovado em Node 20.19/22 e Python
 regressao=type module no manifesto raiz tornou scripts .agents/*.js CommonJS inexequíveis; FT reaberta para preservar governança com type commonjs na raiz e type module somente no staging.
 correcao_regressao=npm test e agent:handoff aprovados após segregar type commonjs raiz e type module staging; teste automático impede recorrência.
 
-FT-006|nome=Request opcional na linguagem DSLens|escopo=Técnico|prioridade=alta|status=em andamento|inicio=20260716.020500
+FT-006|nome=Request opcional na linguagem DSLens|escopo=Técnico|prioridade=alta|status=concluído|inicio=20260716.020500|fim=20260716.022056
 objetivo=Adicionar request opcional posicional ou nomeado com query, POST, headers, body e ambiente injetável, preservando GET sem customização como padrão.
 nao_escopo=Métodos além de GET/POST; acesso implícito a ambiente no browser/worker; alteração do path de navegação.
 dependencias=RCF global §§5-8 e 14; decisão humana pela opção request com shorthand posicional.
@@ -53,11 +53,12 @@ aceite=Forma nomeada e posicional equivalentes; v1 GET inalterado; POST/query/he
   1/3 Aplicar query, método, headers e body [concluído]
   2/3 Injetar ambiente sem leitura implícita no núcleo [concluído]
   3/3 Preservar cache e segurança por identidade completa [concluído]
-4/4 Validação e conclusão [em andamento]
+4/4 Validação e conclusão [concluído]
   1/3 Executar vetores e E2E mock POST [concluído]
-  2/3 Validar builds, pacote e matriz CI [em andamento]
-  3/3 Gerar handoff, commits, push e convergir branches [pendente]
+  2/3 Validar builds, pacote e matriz CI [concluído]
+  3/3 Gerar handoff, commits e validar dev [concluído]
 verificacao_parcial=npm test 12 etapas; test:real 13 etapas; parser comum com 4 casos válidos e 4 rejeições; E2E POST TypeScript/JavaScript e Python; PowerShell 19 casos offline.
+verificacao_remota=GitHub Actions 29473722399 aprovado em Node 20.19/22 e Python 3.11/3.14.
 
 FT-004|nome=Baseline ECMAScript anual|escopo=Técnico|prioridade=alta|status=concluído|inicio=20260716.012936|fim=20260716.013710
 objetivo=Derivar target e lib TypeScript a cada build pelo ano UTC atual menos cinco, preservando ES2020 como piso e module ES2020 fixo.
