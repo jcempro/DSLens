@@ -143,10 +143,15 @@ try {
   });
 
   await stage('npm-package-contract', async () => {
+    const rootManifest = JSON.parse(
+      await readFile('package.json', 'utf8'),
+    );
     const manifest = JSON.parse(
       await readFile('package/dslens/package.json', 'utf8'),
     );
     if (
+      rootManifest.type !== 'commonjs' ||
+      manifest.type !== 'module' ||
       manifest.name !== '@jeancarloem/dslens' ||
       manifest.version !== '0.0.1' ||
       manifest.main !== 'README.md'

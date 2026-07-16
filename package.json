@@ -12,7 +12,7 @@
   "bugs": "https://github.com/jcempro/DSLens/issues",
   "description": "Orquestra e valida contextos estruturados e arquiteturas normativas para fluxos de IA.",
   "main": "README.md",
-  "type": "module",
+  "type": "commonjs",
   "types": "./package/dslens/dist/typescript/index.d.ts",
   "sideEffects": false,
   "engines": {

@@ -31,6 +31,8 @@ aceite=Pacote 0.0.1 empacota ESM/CJS/tipos; exports segregam browser/worker/serv
 falha=release dry-run detectou launcher npm não portável no Windows e path package/dslens interpretado como pacote Git; corrigido com cmd.exe/npm.cmd e path ./package/dslens, sem fallback silencioso.
 verificacao_parcial=npm test 12 etapas; release:dry-run sem publicação; tarball 0.0.1; instalação limpa importou 4 entradas ESM e 4 CommonJS.
 verificacao_remota=GitHub Actions 29472978688 aprovado em Node 20.19/22 e Python 3.11/3.14.
+regressao=type module no manifesto raiz tornou scripts .agents/*.js CommonJS inexequíveis; FT reaberta para preservar governança com type commonjs na raiz e type module somente no staging.
+correcao_regressao=npm test e agent:handoff aprovados após segregar type commonjs raiz e type module staging; teste automático impede recorrência.
 
 FT-004|nome=Baseline ECMAScript anual|escopo=Técnico|prioridade=alta|status=concluído|inicio=20260716.012936|fim=20260716.013710
 objetivo=Derivar target e lib TypeScript a cada build pelo ano UTC atual menos cinco, preservando ES2020 como piso e module ES2020 fixo.
