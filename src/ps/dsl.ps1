@@ -344,6 +344,7 @@ function _fetch_raw {
     if ($pairs.Count) { $url += $(if ($url.Contains('?')) { '&' } else { '?' }) + ($pairs -join '&') }
   }
   $bodyValue = $null; $contentType = $null
+  $hasSensitiveHeader = @($headers.Keys | Where-Object { $_ -match '^(?i:Authorization|Cookie|Proxy-Authorization)$' }).Count -gt 0
   if ($requestOptions.body) {
     if ($requestOptions.body.encoding -eq 'json') { $bodyValue = $requestOptions.body.value | ConvertTo-Json -Compress -Depth 20; $contentType = 'application/json' }
     elseif ($requestOptions.body.encoding -eq 'form') { $bodyValue = @($requestOptions.body.value.PSObject.Properties | ForEach-Object { "$([uri]::EscapeDataString($_.Name))=$([uri]::EscapeDataString([string]$_.Value))" }) -join '&'; $contentType = 'application/x-www-form-urlencoded' }
@@ -351,6 +352,7 @@ function _fetch_raw {
   }
   $primary = {
     $parameters = @{ Uri = $url; Method = $methodName; TimeoutSec = 15; Headers = $headers; ErrorAction = 'Stop' }
+    if ($hasSensitiveHeader) { $parameters.MaximumRedirection = 0 }
     if ($null -ne $bodyValue) { $parameters.Body = $bodyValue }
     if ($contentType) { $parameters.ContentType = $contentType }
     Invoke-RestMethod @parameters

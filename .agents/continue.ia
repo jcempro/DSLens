@@ -59,6 +59,7 @@ aceite=Forma nomeada e posicional equivalentes; v1 GET inalterado; POST/query/he
   3/3 Gerar handoff, commits e validar dev [concluído]
 verificacao_parcial=npm test 12 etapas; test:real 13 etapas; parser comum com 4 casos válidos e 4 rejeições; E2E POST TypeScript/JavaScript e Python; PowerShell 19 casos offline.
 verificacao_remota=GitHub Actions 29473722399 aprovado em Node 20.19/22 e Python 3.11/3.14.
+protecao_final=Python, PowerShell e JavaScript bloqueiam redirecionamento quando headers sensíveis estão presentes, impedindo propagação entre origens.
 
 FT-004|nome=Baseline ECMAScript anual|escopo=Técnico|prioridade=alta|status=concluído|inicio=20260716.012936|fim=20260716.013710
 objetivo=Derivar target e lib TypeScript a cada build pelo ano UTC atual menos cinco, preservando ES2020 como piso e module ES2020 fixo.

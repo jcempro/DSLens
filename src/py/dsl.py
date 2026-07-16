@@ -174,7 +174,7 @@ import xml.etree.ElementTree as ET
 from collections.abc import Iterable
 from datetime import datetime, timedelta
 from urllib.parse import urlencode, urlparse
-from urllib.request import Request, urlopen
+from urllib.request import HTTPRedirectHandler, Request, build_opener, urlopen
 
 try:
     import yaml
@@ -411,7 +411,21 @@ def _fetch_raw(url, callback, request_options=None, env=None):
             headers=headers,
             method=request_options['method'],
         )
-        with urlopen(req, timeout=MAX_NETWORK_TIMEOUT) as resp:
+        sensitive = any(
+            name.lower() in ('authorization', 'cookie', 'proxy-authorization')
+            for name in headers
+        )
+        if sensitive:
+            class _NoRedirect(HTTPRedirectHandler):
+                def redirect_request(self, *_args, **_kwargs):
+                    return None
+
+            response = build_opener(_NoRedirect()).open(
+                req, timeout=MAX_NETWORK_TIMEOUT
+            )
+        else:
+            response = urlopen(req, timeout=MAX_NETWORK_TIMEOUT)
+        with response as resp:
             return resp.read().decode('utf-8', errors='replace')
 
     methods = [_method_urllib]
