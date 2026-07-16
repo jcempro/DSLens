@@ -11,6 +11,8 @@ export interface DslError {
     readonly stage: string;
     readonly message: string;
 }
+/** Callback opcional comum aos bindings para telemetria segura. */
+export type DslCallback = (message: string, type: string) => void;
 export interface DslEnvReference {
     readonly env: string;
 }
@@ -33,7 +35,7 @@ export declare function parseDslExpression(source: string): ParsedDslExpression 
 /** Detecta uma expressão DSL canônica sem executar I/O. */
 export declare function hasParserExpression(source: string): boolean;
 /** Resolve sincronamente um path canônico sobre dado estruturado carregado. */
-export declare function resolveDslData(data: unknown, path: string): string | null;
+export declare function resolveDslData(data: unknown, path: string, _callback?: DslCallback): string | null;
 /** Constrói resultado estruturado para integrações e transportes assíncronos. */
 export declare function toDslResult(value: string | null, code?: string): DslResult;
 //# sourceMappingURL=core.d.ts.map

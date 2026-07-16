@@ -173,6 +173,7 @@ import time
 import xml.etree.ElementTree as ET
 from collections.abc import Iterable
 from datetime import datetime, timedelta
+from typing import Any, Callable, Mapping
 from urllib.parse import urlencode, urlparse
 from urllib.request import HTTPRedirectHandler, Request, build_opener, urlopen
 
@@ -681,6 +682,44 @@ def resolve_parser_expression(
     _cache_set(key, value)
 
     return value
+
+
+# =========================
+# SUPERFÍCIE CANÔNICA MULTILINGUAGEM
+# =========================
+
+
+def hasParserExpression(source: str) -> bool:
+    """Detecta DSL pela mesma assinatura pública dos demais bindings."""
+    return has_parser_expression(source)
+
+
+def resolveDslData(
+    data: Any,
+    path: str,
+    callback: Callable[[str, str], None] | None = None,
+) -> str | None:
+    """Resolve dados pela ordem canônica data, path e callback opcional."""
+    return resolve_dsl_data(data, path, callback)
+
+
+def resolveParserExpression(
+    source: str,
+    options: Mapping[str, Any] | None = None,
+    callback: Callable[[str, str], None] | None = None,
+) -> str | None:
+    """Resolve fonte pela ordem canônica source, options e callback."""
+    normalized = dict(options or {})
+    if set(normalized) - {'env'}:
+        return None
+    env = normalized.get('env')
+    if env is not None and not isinstance(env, Mapping):
+        return None
+    return resolve_parser_expression(
+        source,
+        callback,
+        env=dict(env) if env is not None else None,
+    )
 
 
 # =========================

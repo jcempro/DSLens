@@ -118,7 +118,7 @@ function validateHeaders(value) {
 function hasParserExpression(source) {
   return source.length > 0 && DSL_EXPRESSION.test(source);
 }
-function resolveDslData(data, path) {
+function resolveDslData(data, path, _callback) {
   try {
     let current = data;
     const tokens = path.replace(/^\./u, "").match(TOKEN) ?? [];
@@ -169,9 +169,12 @@ function getProperty(value, key) {
 }
 
 // src/ts/browser.ts
-async function resolveParserExpression(source, options = {}) {
+async function resolveParserExpression(source, options = {}, callback) {
   const expression = parseDslExpression(source);
-  if (!expression) return null;
+  if (!expression) {
+    callback?.("Invalid DSL expression", "error");
+    return null;
+  }
   const request = expression.request;
   const url = new URL(expression.url);
   for (const [key, value] of Object.entries(request?.query ?? {}))
@@ -183,7 +186,10 @@ async function resolveParserExpression(source, options = {}) {
     if (typeof value === "string") headers[key] = value;
     else {
       const resolved = options.env?.[value.env];
-      if (resolved === void 0) return null;
+      if (resolved === void 0) {
+        callback?.("Environment value unavailable", "error");
+        return null;
+      }
       headers[key] = resolved;
     }
   }
@@ -221,9 +227,17 @@ async function resolveParserExpression(source, options = {}) {
         )
       ) ? "error" : "follow"
     });
-    if (!response.ok) return null;
-    return resolveDslData(await response.json(), expression.path);
+    if (!response.ok) {
+      callback?.("Source request failed", "error");
+      return null;
+    }
+    return resolveDslData(
+      await response.json(),
+      expression.path,
+      callback
+    );
   } catch {
+    callback?.("Source resolution failed", "error");
     return null;
   } finally {
     clearTimeout(timeout);

@@ -1,4 +1,5 @@
 export * from './core.js';
+import { type DslCallback } from './core.js';
 /** Opções da fachada assíncrona client-side. */
 export interface ResolveSourceOptions {
     readonly signal?: AbortSignal;
@@ -7,5 +8,5 @@ export interface ResolveSourceOptions {
     readonly env?: Readonly<Record<string, string | undefined>>;
 }
 /** Obtém JSON por GET e resolve o path com o núcleo síncrono. */
-export declare function resolveParserExpression(source: string, options?: ResolveSourceOptions): Promise<string | null>;
+export declare function resolveParserExpression(source: string, options?: ResolveSourceOptions, callback?: DslCallback): Promise<string | null>;
 //# sourceMappingURL=browser.d.ts.map

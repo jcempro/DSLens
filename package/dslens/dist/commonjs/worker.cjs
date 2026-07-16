@@ -147,7 +147,7 @@ function validateHeaders(value) {
 function hasParserExpression(source) {
   return source.length > 0 && DSL_EXPRESSION.test(source);
 }
-function resolveDslData(data, path) {
+function resolveDslData(data, path, _callback) {
   try {
     let current = data;
     const tokens = path.replace(/^\./u, "").match(TOKEN) ?? [];
