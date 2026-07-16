@@ -127,9 +127,9 @@ try {
     const bytes = (
       await stat('package/dslens/dist/javascript/browser.min.js')
     ).size;
-    if (bytes > 2048)
+    if (bytes > 5120)
       throw new Error(
-        `browser.min.js excedeu orçamento: ${bytes} > 2048`,
+        `browser.min.js excedeu orçamento: ${bytes} > 5120`,
       );
   });
 
@@ -189,9 +189,11 @@ try {
     const vectors = JSON.parse(
       await readFile('tests/conformance/v1.json', 'utf8'),
     );
-    const { hasParserExpression, resolveDslData } = await import(
-      '../../package/dslens/dist/javascript/index.js'
-    );
+    const {
+      hasParserExpression,
+      parseDslExpression,
+      resolveDslData,
+    } = await import('../../package/dslens/dist/javascript/index.js');
     for (const item of vectors.cases) {
       const actual = resolveDslData(vectors.data, item.path);
       if (actual !== item.expected)
@@ -203,6 +205,21 @@ try {
       if (hasParserExpression(item.input) !== item.expected)
         throw new Error(`detection: ${item.input}`);
     }
+    const requestVectors = JSON.parse(
+      await readFile('tests/conformance/request-v2.json', 'utf8'),
+    );
+    for (const item of requestVectors.cases) {
+      const parsed = parseDslExpression(item.input);
+      if (
+        !parsed ||
+        (parsed.request?.method ?? 'GET') !== item.expected.method ||
+        parsed.path !== item.expected.path
+      )
+        throw new Error(`request parser: ${item.id}`);
+    }
+    for (const input of requestVectors.invalid)
+      if (parseDslExpression(input) !== null)
+        throw new Error(`request inválido aceito: ${input}`);
   });
 
   await stage('commonjs-unit-conformance', async () => {
@@ -240,9 +257,22 @@ try {
       'utf8',
     );
     const body = await readFile(fixture);
-    const server = createServer((_request, response) => {
-      response.writeHead(200, { 'content-type': 'application/json' });
-      response.end(body);
+    let received = null;
+    const server = createServer((request, response) => {
+      const chunks = [];
+      request.on('data', (chunk) => chunks.push(chunk));
+      request.on('end', () => {
+        received = {
+          method: request.method,
+          query: request.url,
+          header: request.headers['x-token'],
+          body: Buffer.concat(chunks).toString('utf8'),
+        };
+        response.writeHead(200, {
+          'content-type': 'application/json',
+        });
+        response.end(body);
+      });
     });
     await new Promise((resolve) =>
       server.listen(0, '127.0.0.1', resolve),
@@ -259,6 +289,18 @@ try {
       );
       if (value !== 'https://example.test/app.zip')
         throw new Error(`resultado E2E divergente: ${value}`);
+      const postValue = await resolveParserExpression(
+        `\${"http://127.0.0.1:${address.port}/fixture"; {"method":"POST","query":{"page":1},"headers":{"X-Token":{"env":"TOKEN"}},"body":{"encoding":"json","value":{"id":7}}}}.releases[0].url`,
+        { env: { TOKEN: 'safe-test-token' } },
+      );
+      if (
+        postValue !== 'https://example.test/app.zip' ||
+        received?.method !== 'POST' ||
+        received?.query !== '/fixture?page=1' ||
+        received?.header !== 'safe-test-token' ||
+        received?.body !== '{"id":7}'
+      )
+        throw new Error('request POST posicional divergente');
     } finally {
       await new Promise((resolve, reject) =>
         server.close((error) => (error ? reject(error) : resolve())),

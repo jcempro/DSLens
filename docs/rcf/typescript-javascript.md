@@ -28,6 +28,8 @@ Rede síncrona na thread principal NÃO DEVE ser requisito. Resolução síncron
 
 O artefato client-side ultraotimizado DEVE ser JavaScript sem TypeScript, carregar e executar em navegador real, preservar API aplicável e banner, excluir código Node.js, permitir CDN/local e registrar tamanhos bruto, minificado, gzip e Brotli. Dependência externa DEVE ser resolvida ou declarada.
 
+Baseline minificado após o perfil request v2: 4.510 bytes; orçamento: 5.120 bytes. O aumento anterior de 1.590 bytes (+2.920; +184%) decorre do parser JSON seguro, validação, query, headers, ambiente e body `json`/`form`/`text`. Carregamento dinâmico foi descartado por quebrar uso direto e offline; nenhuma dependência foi adicionada.
+
 ## 5. Node.js
 
 JavaScript server-side DEVE ser publicado por subpath e condição próprios. Baseline mínimo: Node.js 20.19.0. Código server-side NÃO DEVE integrar o core/browser. CommonJS DEVE ser publicado para consumidores npm que usam `require`, em arquivo `.cjs` segregado e testado contra dual-package hazard; ESM DEVE permanecer padrão.

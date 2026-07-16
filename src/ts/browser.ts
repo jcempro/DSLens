@@ -6,27 +6,57 @@
  */
 
 export * from './core.js';
-import { resolveDslData } from './core.js';
+import { parseDslExpression, resolveDslData } from './core.js';
 
 /** Opções da fachada assíncrona client-side. */
 export interface ResolveSourceOptions {
   readonly signal?: AbortSignal;
   readonly timeoutMs?: number;
   readonly fetcher?: typeof fetch;
+  readonly env?: Readonly<Record<string, string | undefined>>;
 }
-
-const EXPRESSION =
-  /^\$\{\s*(["'])(?<source>.*?)\1\s*\}(?<path>[.\[].*)$/u;
 
 /** Obtém JSON por GET e resolve o path com o núcleo síncrono. */
 export async function resolveParserExpression(
   source: string,
   options: ResolveSourceOptions = {},
 ): Promise<string | null> {
-  const match = source.match(EXPRESSION);
-  const url = match?.groups?.source;
-  const path = match?.groups?.path;
-  if (!url || !path || !/^https?:\/\//u.test(url)) return null;
+  const expression = parseDslExpression(source);
+  if (!expression) return null;
+  const request = expression.request;
+  const url = new URL(expression.url);
+  for (const [key, value] of Object.entries(request?.query ?? {}))
+    url.searchParams.append(key, String(value));
+  const headers: Record<string, string> = {
+    accept: 'application/json',
+  };
+  for (const [key, value] of Object.entries(request?.headers ?? {})) {
+    if (typeof value === 'string') headers[key] = value;
+    else {
+      const resolved = options.env?.[value.env];
+      if (resolved === undefined) return null;
+      headers[key] = resolved;
+    }
+  }
+  let body: string | undefined;
+  if (request?.body) {
+    if (request.body.encoding === 'json') {
+      body = JSON.stringify(request.body.value);
+      headers['content-type'] ??= 'application/json';
+    } else if (request.body.encoding === 'form') {
+      if (
+        !request.body.value ||
+        typeof request.body.value !== 'object'
+      )
+        return null;
+      body = new URLSearchParams(
+        Object.entries(
+          request.body.value as Record<string, unknown>,
+        ).map(([key, value]) => [key, String(value)]),
+      ).toString();
+      headers['content-type'] ??= 'application/x-www-form-urlencoded';
+    } else body = String(request.body.value);
+  }
 
   const controller = new AbortController();
   const timeout = setTimeout(
@@ -36,12 +66,23 @@ export async function resolveParserExpression(
   const signal = options.signal ?? controller.signal;
   try {
     const response = await (options.fetcher ?? fetch)(url, {
-      method: 'GET',
+      method: request?.method ?? 'GET',
       signal,
-      headers: { accept: 'application/json' },
+      headers,
+      ...(body === undefined ? {} : { body }),
+      redirect:
+        (
+          Object.keys(headers).some((key) =>
+            /^(authorization|cookie|proxy-authorization)$/iu.test(
+              key,
+            ),
+          )
+        ) ?
+          'error'
+        : 'follow',
     });
     if (!response.ok) return null;
-    return resolveDslData(await response.json(), path);
+    return resolveDslData(await response.json(), expression.path);
   } catch {
     return null;
   } finally {

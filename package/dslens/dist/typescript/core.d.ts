@@ -11,6 +11,25 @@ export interface DslError {
     readonly stage: string;
     readonly message: string;
 }
+export interface DslEnvReference {
+    readonly env: string;
+}
+export interface DslRequest {
+    readonly method: 'GET' | 'POST';
+    readonly query: Readonly<Record<string, string | number | boolean>>;
+    readonly headers: Readonly<Record<string, string | DslEnvReference>>;
+    readonly body?: {
+        readonly encoding: 'json' | 'form' | 'text';
+        readonly value: unknown;
+    };
+}
+export interface ParsedDslExpression {
+    readonly url: string;
+    readonly path: string;
+    readonly request: DslRequest | null;
+}
+/** Interpreta a origem e o request opcional sem executar I/O. */
+export declare function parseDslExpression(source: string): ParsedDslExpression | null;
 /** Detecta uma expressão DSL canônica sem executar I/O. */
 export declare function hasParserExpression(source: string): boolean;
 /** Resolve sincronamente um path canônico sobre dado estruturado carregado. */

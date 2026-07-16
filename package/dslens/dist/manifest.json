@@ -141,7 +141,7 @@
       "minified": true,
       "sourceMap": true,
       "stability": "stable",
-      "budgetBytes": 2048
+      "budgetBytes": 5120
     },
     {
       "id": "javascript-worker",
