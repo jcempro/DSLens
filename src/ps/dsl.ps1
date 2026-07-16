@@ -332,10 +332,12 @@ function _fetch_raw {
 
   $methodName = if ($requestOptions.method) { $requestOptions.method } else { 'GET' }
   $headers = @{ "User-Agent" = "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"; "Accept" = "application/json" }
-  foreach ($header in @($requestOptions.headers.PSObject.Properties)) {
-    if ($header.Value -is [string]) { $headers[$header.Name] = $header.Value }
-    elseif ($envValues -and $envValues.ContainsKey($header.Value.env)) { $headers[$header.Name] = $envValues[$header.Value.env] }
-    else { return $null }
+  if ($requestOptions.headers) {
+    foreach ($header in @($requestOptions.headers.PSObject.Properties)) {
+      if ($header.Value -is [string]) { $headers[$header.Name] = $header.Value }
+      elseif ($envValues -and $envValues.ContainsKey($header.Value.env)) { $headers[$header.Name] = $envValues[$header.Value.env] }
+      else { return $null }
+    }
   }
   if ($requestOptions.query) {
     $pairs = @($requestOptions.query.PSObject.Properties | ForEach-Object { "$([uri]::EscapeDataString($_.Name))=$([uri]::EscapeDataString([string]$_.Value))" })
@@ -347,7 +349,12 @@ function _fetch_raw {
     elseif ($requestOptions.body.encoding -eq 'form') { $bodyValue = @($requestOptions.body.value.PSObject.Properties | ForEach-Object { "$([uri]::EscapeDataString($_.Name))=$([uri]::EscapeDataString([string]$_.Value))" }) -join '&'; $contentType = 'application/x-www-form-urlencoded' }
     else { $bodyValue = [string]$requestOptions.body.value }
   }
-  $primary = { Invoke-RestMethod -Uri $url -Method $methodName -TimeoutSec 15 -Headers $headers -Body $bodyValue -ContentType $contentType -ErrorAction Stop }
+  $primary = {
+    $parameters = @{ Uri = $url; Method = $methodName; TimeoutSec = 15; Headers = $headers; ErrorAction = 'Stop' }
+    if ($null -ne $bodyValue) { $parameters.Body = $bodyValue }
+    if ($contentType) { $parameters.ContentType = $contentType }
+    Invoke-RestMethod @parameters
+  }
   $methods = @($primary)
   if ($methodName -eq 'GET' -and -not $requestOptions) { $methods += @(
     {
