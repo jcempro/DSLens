@@ -8,6 +8,7 @@ import {
   writeFile,
 } from 'node:fs/promises';
 import { createServer } from 'node:http';
+import { createRequire } from 'node:module';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import process from 'node:process';
@@ -25,6 +26,7 @@ const useColor =
 const color = (code, value) =>
   useColor ? `\u001b[${code}m${value}\u001b[0m` : value;
 const stages = [];
+const require = createRequire(import.meta.url);
 
 /** Executa subprocesso e preserva saída compacta e parseável. */
 function run(name, command, args) {
@@ -133,6 +135,49 @@ try {
 
   await stage('workflow-syntax', async () => {
     parseYaml(await readFile('.github/workflows/tests.yml', 'utf8'));
+    const releaseWorkflow = parseYaml(
+      await readFile('.github/workflows/npm-release.yml', 'utf8'),
+    );
+    if (!releaseWorkflow.on?.release?.types?.includes('published'))
+      throw new Error('workflow npm não reage a release publicada');
+  });
+
+  await stage('npm-package-contract', async () => {
+    const manifest = JSON.parse(
+      await readFile('package/dslens/package.json', 'utf8'),
+    );
+    if (
+      manifest.name !== '@jeancarloem/dslens' ||
+      manifest.version !== '0.0.1' ||
+      manifest.main !== 'README.md'
+    )
+      throw new Error('metadados npm divergentes');
+    for (const subpath of [
+      '.',
+      './browser',
+      './worker',
+      './server',
+    ]) {
+      const exported = manifest.exports[subpath];
+      const requirePath =
+        subpath === '.' ? exported.require : exported.require;
+      if (!requirePath?.endsWith('.cjs'))
+        throw new Error(`${subpath} não possui condição require`);
+    }
+    const source = await readFile(
+      'scripts/release/npm-release.mjs',
+      'utf8',
+    );
+    for (const expected of [
+      '--auth-type=web',
+      'NPM_TOKEN',
+      '--provenance',
+      'PUBLICAÇÃO NPM BLOQUEADA',
+    ])
+      if (!source.includes(expected))
+        throw new Error(
+          `diagnóstico de release ausente: ${expected}`,
+        );
   });
 
   await stage('javascript-unit-conformance', async () => {
@@ -153,6 +198,28 @@ try {
       if (hasParserExpression(item.input) !== item.expected)
         throw new Error(`detection: ${item.input}`);
     }
+  });
+
+  await stage('commonjs-unit-conformance', async () => {
+    for (const entry of ['index', 'browser', 'worker', 'server']) {
+      const module = require(
+        `../../package/dslens/dist/commonjs/${entry}.cjs`,
+      );
+      if (typeof module.resolveDslData !== 'function')
+        throw new Error(`${entry}: export CommonJS ausente`);
+    }
+    const browserSource = await readFile(
+      'package/dslens/dist/commonjs/browser.cjs',
+      'utf8',
+    );
+    const workerSource = await readFile(
+      'package/dslens/dist/commonjs/worker.cjs',
+      'utf8',
+    );
+    if (/node:|require\(["'](?:fs|path|process)/u.test(browserSource))
+      throw new Error('CommonJS browser incorporou API Node.js');
+    if (/document\.|window\.|node:/u.test(workerSource))
+      throw new Error('CommonJS worker incorporou DOM ou Node.js');
   });
 
   await stage('e2e-mock-generated-fixture', async () => {
