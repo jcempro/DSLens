@@ -12,10 +12,21 @@ $failures = [System.Collections.Generic.List[string]]::new()
 foreach ($case in $vectors.cases) {
   $actual = resolve_dsl_data -data $vectors.data -path $case.path
   if ($actual -ne $case.expected) { $failures.Add("$($case.id): esperado=$($case.expected) obtido=$actual") }
+  if ((resolveDslData $vectors.data $case.path) -ne $actual) { $failures.Add("alias resolveDslData divergente: $($case.id)") }
 }
 foreach ($case in $vectors.detection) {
   $actual = has_parser_expression $case.input
   if ($actual -ne $case.expected) { $failures.Add("detect: esperado=$($case.expected) obtido=$actual") }
+  if ((hasParserExpression $case.input) -ne $actual) { $failures.Add('alias hasParserExpression divergente') }
+}
+$expectedParameters = @{
+  hasParserExpression = @('source')
+  resolveDslData = @('data', 'path', 'callback')
+  resolveParserExpression = @('source', 'options', 'callback')
+}
+foreach ($name in $expectedParameters.Keys) {
+  $actualNames = @((Get-Command $name).Parameters.Values | Where-Object { $_.Attributes.Position -ge 0 } | Sort-Object { $_.Attributes.Position } | Select-Object -ExpandProperty Name)
+  if (($actualNames -join ',') -ne ($expectedParameters[$name] -join ',')) { $failures.Add("assinatura ${name}: $($actualNames -join ',')") }
 }
 foreach ($case in $requestVectors.cases) {
   $actual = _extract_dsl $case.input

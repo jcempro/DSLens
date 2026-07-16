@@ -145,7 +145,7 @@ export function hasParserExpression(source) {
     return source.length > 0 && DSL_EXPRESSION.test(source);
 }
 /** Resolve sincronamente um path canônico sobre dado estruturado carregado. */
-export function resolveDslData(data, path) {
+export function resolveDslData(data, path, _callback) {
     try {
         let current = data;
         const tokens = path.replace(/^\./u, '').match(TOKEN) ?? [];

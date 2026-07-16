@@ -6,6 +6,7 @@
 """Executa os vetores canônicos offline contra a implementação Python."""
 
 import importlib.util
+import inspect
 import json
 import threading
 from http.server import BaseHTTPRequestHandler, HTTPServer
@@ -26,11 +27,26 @@ for case in vectors['cases']:
     actual = module.resolve_dsl_data(vectors['data'], case['path'])
     if actual != case['expected']:
         failures.append(f"{case['id']}: esperado={case['expected']!r} obtido={actual!r}")
+    canonical = module.resolveDslData(vectors['data'], case['path'])
+    if canonical != actual:
+        failures.append(f"alias resolveDslData divergente: {case['id']}")
 
 for case in vectors['detection']:
     actual = module.has_parser_expression(case['input'])
     if actual != case['expected']:
         failures.append(f"detect: esperado={case['expected']!r} obtido={actual!r}")
+    if module.hasParserExpression(case['input']) != actual:
+        failures.append('alias hasParserExpression divergente')
+
+expected_parameters = {
+    'hasParserExpression': ['source'],
+    'resolveDslData': ['data', 'path', 'callback'],
+    'resolveParserExpression': ['source', 'options', 'callback'],
+}
+for name, expected in expected_parameters.items():
+    actual = list(inspect.signature(getattr(module, name)).parameters)
+    if actual != expected:
+        failures.append(f"assinatura {name}: {actual}")
 
 for case in request_vectors['cases']:
     actual = module._extract_dsl(case['input'])
@@ -73,8 +89,8 @@ try:
         '"query":{"page":1},"headers":{"X-Token":{"env":"TOKEN"}},'
         '"body":{"encoding":"json","value":{"id":7}}}}.value'
     ) % server.server_port
-    actual = module.resolve_parser_expression(
-        expression, env={'TOKEN': 'safe-test-token'}
+    actual = module.resolveParserExpression(
+        expression, {'env': {'TOKEN': 'safe-test-token'}}
     )
     if actual != 'ok' or RequestHandler.received != {
         'path': '/fixture?page=1',

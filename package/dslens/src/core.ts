@@ -20,6 +20,9 @@ export interface DslError {
   readonly message: string;
 }
 
+/** Callback opcional comum aos bindings para telemetria segura. */
+export type DslCallback = (message: string, type: string) => void;
+
 const DSL_EXPRESSION = /\$\{\s*(["']).+?\1\s*\}/u;
 const TOKEN = /[^.\[\]]+(?:\[[^\]]+\])*/gu;
 const INDEX = /^(.+?)\[(\d+)\]$/u;
@@ -191,6 +194,7 @@ export function hasParserExpression(source: string): boolean {
 export function resolveDslData(
   data: unknown,
   path: string,
+  _callback?: DslCallback,
 ): string | null {
   try {
     let current: unknown = data;

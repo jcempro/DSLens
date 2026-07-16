@@ -1,9 +1,29 @@
 SCHEMA=1
 MACHINE_ID=JEAN-DESKTOP
-DATA_REF=20260716.022628
+DATA_REF=20260716.025946
 CONTRATO=./RCF.md
 CACHE=documentos lidos e estado Git validos em 20260716; reler somente arquivos alterados
 BLOQUEIO_NAO_REPETIR=agent:verify e agent:test procuram src/.agents incorretamente; repetir somente apos correcao ou evidencia nova
+
+FT-008|nome=Superfície pública multilinguagem padronizada|escopo=Técnico|prioridade=alta|status=concluído|inicio=20260716.025213|fim=20260716.025946
+objetivo=Expor os mesmos nomes camelCase, ordem de parâmetros e tipos equivalentes nas implementações, preservando aliases legados.
+nao_escopo=Renomear helpers internos; remover snake_case; forçar tipos inexistentes em determinado runtime.
+dependencias=RCF.md §§6 e 9; manifestos e sub-RCFs de cada linguagem.
+riscos=Quebra de consumidores legados; colisão case-insensitive PowerShell; options divergentes; tipos apenas documentais.
+arquivos_previstos=RCF.md; docs/rcf/*; manifests/dslens.json; src/ts/*; src/py/dsl.py; src/ps/dsl.ps1; tests/conformance/*; README.md; package/dslens/*.
+aceite=hasParserExpression(source), resolveDslData(data,path,callback?) e resolveParserExpression(source,options?,callback?) existem em todas as linguagens; aliases legados permanecem; testes comparam ambos.
+1/3 Contrato [concluído]
+  1/2 Auditar divergências e definir assinaturas [concluído]
+  2/2 Atualizar RCF, manifesto e documentação [concluído]
+2/3 Implementação [concluído]
+  1/3 Alinhar TypeScript/JavaScript [concluído]
+  2/3 Adicionar superfície canônica Python [concluído]
+  3/3 Adicionar superfície canônica PowerShell [concluído]
+3/3 Validação e conclusão [concluído]
+  1/3 Comparar nomes, ordem, aliases e retornos [concluído]
+  2/3 Validar builds, pacote e CI [concluído]
+  3/3 Gerar handoff, publicar e convergir branches [concluído]
+verificacao=npm test 12 etapas; aliases e assinaturas comparados em Python/PowerShell; typecheck e builds ESM/CJS aprovados; GitHub Actions 29475499541 aprovado nas quatro combinações.
 
 FT-007|nome=Descrição npm aderente ao produto|escopo=Técnico|prioridade=alta|status=concluído|inicio=20260716.022628|fim=20260716.022628
 objetivo=Corrigir a descrição npm para representar DSLens como biblioteca multilinguagem de resolução declarativa sobre dados remotos estruturados.

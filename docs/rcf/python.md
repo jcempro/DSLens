@@ -6,7 +6,7 @@ Este arquivo especializa `../../RCF.md` para `./src/py/dsl.py`. O RCF global pre
 
 ## 2. Runtime e superfície pública
 
-Python 3.11 ou superior DEVE ser homologado. Superfície pública: `has_parser_expression` (`detect`), `resolve_dsl_data` (`resolveData`), `resolve_parser_expression` (`resolveSource`) e `main`; execução direta PODE receber o primeiro argumento ou `DSL_INPUT` e importação NÃO DEVE autoexecutar.
+Python 3.11 ou superior DEVE ser homologado. Superfície canônica: `hasParserExpression(source: str)`, `resolveDslData(data: Any, path: str, callback: Callable | None)` e `resolveParserExpression(source: str, options: Mapping | None, callback: Callable | None)`. `has_parser_expression`, `resolve_dsl_data` e `resolve_parser_expression` DEVEM permanecer aliases legados compatíveis; `main` e execução direta PODEM receber o primeiro argumento ou `DSL_INPUT`, e importação NÃO DEVE autoexecutar.
 
 A API DEVE permanecer síncrona e fail-safe. Callback opcional DEVE receber `(message, type)`. Função e método DEVEM possuir docstring sucinta conforme `../../RCF.md` §9.
 

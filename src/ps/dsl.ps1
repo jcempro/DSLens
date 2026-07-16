@@ -752,6 +752,39 @@ function resolve_parser_expression {
 }
 
 # =========================
+# SUPERFÍCIE CANÔNICA MULTILINGUAGEM
+# =========================
+function hasParserExpression {
+  [CmdletBinding()]
+  param([Parameter(Mandatory = $true, Position = 0)][string]$source)
+  return has_parser_expression -source $source
+}
+
+function resolveDslData {
+  [CmdletBinding()]
+  param(
+    [Parameter(Mandatory = $true, Position = 0)][object]$data,
+    [Parameter(Mandatory = $true, Position = 1)][string]$path,
+    [Parameter(Position = 2)][ScriptBlock]$callback
+  )
+  return resolve_dsl_data -data $data -path $path -callback $callback
+}
+
+function resolveParserExpression {
+  [CmdletBinding()]
+  param(
+    [Parameter(Mandatory = $true, Position = 0)][string]$source,
+    [Parameter(Position = 1)][hashtable]$options = @{},
+    [Parameter(Position = 2)][ScriptBlock]$callback
+  )
+  $unknown = @($options.Keys | Where-Object { $_ -ne 'env' })
+  if ($unknown.Count -gt 0) { return $null }
+  $envValues = if ($options.ContainsKey('env')) { $options.env } else { $null }
+  if ($null -ne $envValues -and $envValues -isnot [hashtable]) { return $null }
+  return resolve_parser_expression -source $source -callback $callback -envValues $envValues
+}
+
+# =========================
 # MUTEX GLOBAL (ISOLAMENTO)
 # =========================
 function _acquire_mutex {

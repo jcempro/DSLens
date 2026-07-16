@@ -6,7 +6,11 @@
  */
 
 export * from './core.js';
-import { parseDslExpression, resolveDslData } from './core.js';
+import {
+  type DslCallback,
+  parseDslExpression,
+  resolveDslData,
+} from './core.js';
 
 /** Opções da fachada assíncrona client-side. */
 export interface ResolveSourceOptions {
@@ -20,9 +24,13 @@ export interface ResolveSourceOptions {
 export async function resolveParserExpression(
   source: string,
   options: ResolveSourceOptions = {},
+  callback?: DslCallback,
 ): Promise<string | null> {
   const expression = parseDslExpression(source);
-  if (!expression) return null;
+  if (!expression) {
+    callback?.('Invalid DSL expression', 'error');
+    return null;
+  }
   const request = expression.request;
   const url = new URL(expression.url);
   for (const [key, value] of Object.entries(request?.query ?? {}))
@@ -34,7 +42,10 @@ export async function resolveParserExpression(
     if (typeof value === 'string') headers[key] = value;
     else {
       const resolved = options.env?.[value.env];
-      if (resolved === undefined) return null;
+      if (resolved === undefined) {
+        callback?.('Environment value unavailable', 'error');
+        return null;
+      }
       headers[key] = resolved;
     }
   }
@@ -81,9 +92,17 @@ export async function resolveParserExpression(
           'error'
         : 'follow',
     });
-    if (!response.ok) return null;
-    return resolveDslData(await response.json(), expression.path);
+    if (!response.ok) {
+      callback?.('Source request failed', 'error');
+      return null;
+    }
+    return resolveDslData(
+      await response.json(),
+      expression.path,
+      callback,
+    );
   } catch {
+    callback?.('Source resolution failed', 'error');
     return null;
   } finally {
     clearTimeout(timeout);

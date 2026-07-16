@@ -5,12 +5,14 @@
  * Resumo: uso, cópia, modificação e distribuição conforme a MPL-2.0.
  */
 export * from './core.js';
-import { parseDslExpression, resolveDslData } from './core.js';
+import { parseDslExpression, resolveDslData, } from './core.js';
 /** Obtém JSON por GET e resolve o path com o núcleo síncrono. */
-export async function resolveParserExpression(source, options = {}) {
+export async function resolveParserExpression(source, options = {}, callback) {
     const expression = parseDslExpression(source);
-    if (!expression)
+    if (!expression) {
+        callback?.('Invalid DSL expression', 'error');
         return null;
+    }
     const request = expression.request;
     const url = new URL(expression.url);
     for (const [key, value] of Object.entries(request?.query ?? {}))
@@ -23,8 +25,10 @@ export async function resolveParserExpression(source, options = {}) {
             headers[key] = value;
         else {
             const resolved = options.env?.[value.env];
-            if (resolved === undefined)
+            if (resolved === undefined) {
+                callback?.('Environment value unavailable', 'error');
                 return null;
+            }
             headers[key] = resolved;
         }
     }
@@ -57,11 +61,14 @@ export async function resolveParserExpression(source, options = {}) {
                 'error'
                 : 'follow',
         });
-        if (!response.ok)
+        if (!response.ok) {
+            callback?.('Source request failed', 'error');
             return null;
-        return resolveDslData(await response.json(), expression.path);
+        }
+        return resolveDslData(await response.json(), expression.path, callback);
     }
     catch {
+        callback?.('Source resolution failed', 'error');
         return null;
     }
     finally {
