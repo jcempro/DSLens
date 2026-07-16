@@ -6,6 +6,8 @@
 [![Licença](https://img.shields.io/badge/licen%C3%A7a-MPL--2.0-brightgreen)](LICENSE)
 [![Build](https://github.com/jcempro/DSLens/actions/workflows/tests.yml/badge.svg?branch=main)](https://github.com/jcempro/DSLens/actions/workflows/tests.yml)
 
+> A Cross-language library for declaratively resolving dynamic endpoints and values through a navigation DSL over structured remote data.
+
 DSLens é uma especificação e uma família de bibliotecas para localizar valores em JSON, XML e, quando disponível, YAML por meio de uma expressão declarativa. A proposta se parece com um seletor para APIs estruturadas: entrada explícita, navegação previsível e o mesmo resultado semântico em cada linguagem certificada.
 
 ```text
