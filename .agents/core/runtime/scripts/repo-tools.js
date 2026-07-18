@@ -1,9 +1,10 @@
 // Autor: JeanCarloEM.com
 // Site do Autor: https://jeancarloem.com
+// Repositorio: https://github.com/jcempro/agents.md
 // Licenca: Mozilla Public License 2.0
 // Site da Licenca: https://www.mozilla.org/MPL/2.0/
 // Resumo da Licenca: uso, copia, modificacao e distribuicao permitidos conforme os termos da MPL-2.0.
-// Disclaimer: fornecido "AS IS", sem garantias de qualquer tipo.
+// Disclaimer: fornecido AS IS, sem garantias de qualquer tipo.
 
 const childProcess = require("child_process");
 const crypto = require("crypto");
@@ -11,18 +12,25 @@ const fs = require("fs");
 const path = require("path");
 
 const { createZipFromDirectory } = require("./archive");
+const { loadConfiguration } = require("./configuration");
 const { filterOutput } = require("./to-ia");
 const { runReleaseHook } = require("../../../scenarios/release/scripts/release-hooks");
 
 const ROOT_DIR = path.resolve(__dirname, "..", "..", "..", "..");
-const SRC_DIR = path.join(ROOT_DIR, "src");
-const DIST_DIR = path.join(ROOT_DIR, "dist");
-const INDEX_PATH = path.join(ROOT_DIR, "index.json");
+const CONFIGURATION = loadConfiguration(ROOT_DIR);
+const SRC_DIR = resolveConfiguredRoot("paths.source");
+const DIST_DIR = resolveConfiguredRoot("paths.artifact");
+const INDEX_PATH = path.join(ROOT_DIR, (CONFIGURATION.paths && CONFIGURATION.paths.index) || "index.json");
 const RELEASE_PATH = path.join(DIST_DIR, "release.json");
 const RELEASE_NOTE_PATH = path.join(DIST_DIR, "release-note.txt");
 const PACKAGE_PATH = path.join(ROOT_DIR, "package.json");
 const DISTRIBUTION_PACKAGE_PATH = path.join(DIST_DIR, "package.json");
 const UPDATE_FORMAT_PATH = path.join(ROOT_DIR, ".agents", "core", "update", "formats", "governance-manifest.v2.json");
+const UPDATE_HANDOFF_RUNTIME = [
+  ".agents/core/runtime/scripts/update-agents.js",
+  ".agents/core/runtime/scripts/archive.js",
+  ".agents/core/update/migrations/v1-to-v2.js",
+];
 const ALIEN_SCRIPT_TERMS = [
   "What" + "Send",
   "what" + "sender",
@@ -95,9 +103,14 @@ const COMMANDS = {
     run: compactOperationalContext,
     status: "available",
   },
+  "agent:autoupdate": {
+    description: "atualiza automaticamente a governanca operacional gerenciada",
+    run: (_args) => runNodeScript(path.join(".agents", "core", "runtime", "scripts", "autoupdate.js"), _args),
+    status: "available",
+  },
   "agent:agents": {
-    description: "atualiza governanca operacional gerenciada",
-    run: (_args) => runNodeScript(path.join(".agents", "core", "runtime", "scripts", "update-agents.js"), _args),
+    description: "alias transitorio de agent:autoupdate",
+    run: (_args) => runNodeScript(path.join(".agents", "core", "runtime", "scripts", "autoupdate.js"), _args),
     status: "available",
   },
   "agent:upstream:check": {
@@ -153,6 +166,31 @@ const COMMANDS = {
   "agent:inbox:apply": {
     description: "aplica efeito da avaliacao construtora somente com autorizacao",
     run: (_args) => runNodeScript(path.join(".agents", "core", "runtime", "scripts", "issue-inbox.js"), ["apply", ..._args]),
+    status: "available",
+  },
+  "agent:inbox:approve": {
+    description: "registra aprovacao humana de issue vinculada a FT",
+    run: (_args) => runNodeScript(path.join(".agents", "core", "runtime", "scripts", "issue-inbox.js"), ["approve", ..._args]),
+    status: "available",
+  },
+  "agent:inbox:sync-approved": {
+    description: "baixa issues aprovadas e cria FTs correlacionadas",
+    run: (_args) => runNodeScript(path.join(".agents", "core", "runtime", "scripts", "issue-lifecycle.js"), ["sync-approved", ..._args]),
+    status: "available",
+  },
+  "agent:inbox:start": {
+    description: "marca issues importadas como em desenvolvimento apos push",
+    run: (_args) => runNodeScript(path.join(".agents", "core", "runtime", "scripts", "issue-lifecycle.js"), ["start", ..._args]),
+    status: "available",
+  },
+  "agent:inbox:bind-release": {
+    description: "vincula FTs concluidas e suas issues a uma versao",
+    run: (_args) => runNodeScript(path.join(".agents", "core", "runtime", "scripts", "issue-lifecycle.js"), ["bind-release", ..._args]),
+    status: "available",
+  },
+  "agent:inbox:complete-release": {
+    description: "comenta e fecha todas as issues corrigidas pelo release",
+    run: (_args) => runNodeScript(path.join(".agents", "core", "runtime", "scripts", "issue-lifecycle.js"), ["complete-release", ..._args]),
     status: "available",
   },
   "agent:test:inbox": {
@@ -353,6 +391,7 @@ function main(argv = process.argv.slice(2)) {
 }
 
 function buildIndex() {
+  assertBuildConfiguration();
   assertDirectory(SRC_DIR, "src ausente.");
   const files = listFiles(SRC_DIR)
     .filter((filePath) => [".md", ".json"].includes(path.extname(filePath).toLocaleLowerCase("en-US")))
@@ -374,10 +413,12 @@ function buildIndex() {
     sha256: hashTextFile(PACKAGE_PATH),
     source: "package.json",
   });
+  index.handoff = createUpdateHandoffDescriptor(index.update);
   return index;
 }
 
 function buildDist(options = {}) {
+  assertBuildConfiguration();
   const preservedRelease = options.releaseMetadata || readExistingReleaseMetadata();
   const releaseVersion = normalizeReleaseVersion(options.version || (preservedRelease && preservedRelease.version) || "");
   const releaseNotes = typeof options.releaseNotes === "string" ? options.releaseNotes.trim() : readExistingReleaseNotes();
@@ -390,7 +431,7 @@ function buildDist(options = {}) {
   for (const file of files) {
     const targetPath = path.join(DIST_DIR, file.path);
     fs.mkdirSync(path.dirname(targetPath), { recursive: true });
-    fs.copyFileSync(path.join(ROOT_DIR, file.sourcePath), targetPath);
+    copyDistributionFile(path.join(ROOT_DIR, file.sourcePath), targetPath);
   }
   writeJsonMinified(DISTRIBUTION_PACKAGE_PATH, buildDistributionPackage());
 
@@ -413,11 +454,13 @@ function buildDist(options = {}) {
       inference: preservedRelease.inference,
       notesSha256: crypto.createHash("sha256").update(releaseNotes, "utf8").digest("hex"),
       previousRelease: preservedRelease.previousRelease || preservedRelease.baseTag || "",
+      issues: releaseIssueLinks(releaseVersion),
       tag: `v${releaseVersion}`,
       version: releaseVersion,
     };
   }
   releaseIndex.update = createGovernanceManifest(releaseIndex.files, (entry) => fs.readFileSync(path.join(DIST_DIR, entry.path)));
+  releaseIndex.handoff = createUpdateHandoffDescriptor(releaseIndex.update);
   writeJsonMinified(RELEASE_PATH, releaseIndex);
 
   const archivePath = path.join(DIST_DIR, archiveName);
@@ -441,13 +484,58 @@ function buildDistributionFiles(index) {
     sourcePath: file.path,
   }));
   const scripts = listFiles(path.join(ROOT_DIR, ".agents"))
-    .filter((filePath) => path.extname(filePath).toLocaleLowerCase("en-US") === ".js" && isManagedScriptPath(filePath))
+    .filter((filePath) => isManagedDistributionFile(filePath))
     .map((filePath) => ({
       name: path.basename(filePath),
       path: toPosix(path.relative(ROOT_DIR, filePath)),
       sourcePath: toPosix(path.relative(ROOT_DIR, filePath)),
     }));
-  return [...normative, ...scripts].sort((a, b) => a.path.localeCompare(b.path, "en"));
+  const configuration = ["config/core.json", "config/schema.json"].map((relativePath) => ({
+    name: path.basename(relativePath),
+    path: relativePath,
+    sourcePath: relativePath,
+  }));
+  return [...normative, ...scripts, ...configuration].sort((a, b) => a.path.localeCompare(b.path, "en"));
+}
+
+function copyDistributionFile(sourcePath, targetPath) {
+  const content = fs.readFileSync(sourcePath);
+  if (path.extname(sourcePath).toLocaleLowerCase("en-US") !== ".js") {
+    fs.writeFileSync(targetPath, content);
+    return;
+  }
+  const banner = distributionBanner();
+  const text = content.toString("utf8");
+  const withoutExisting = text.replace(/^(?:\/\/[^\r\n]*\r?\n)+\r?\n/u, "");
+  fs.writeFileSync(targetPath, `${banner}\n\n${withoutExisting}`, "utf8");
+}
+
+function distributionBanner() {
+  const metadata = CONFIGURATION.metadata || {};
+  const required = ["author", "contact", "repository", "license", "licenseUrl", "licenseNotice", "disclaimer"];
+  const missing = required.filter((key) => !String(metadata[key] || "").trim());
+  if (missing.length) throw new Error(`PARAMETRO_NORMATIVO_AUSENTE:metadata.${missing.join(",metadata.")}`);
+  return [
+    `// Autor: ${metadata.author}`,
+    `// Site do Autor: ${metadata.contact}`,
+    `// Repositorio: ${metadata.repository}`,
+    `// Licenca: ${metadata.license}`,
+    `// Site da Licenca: ${metadata.licenseUrl}`,
+    `// Resumo da Licenca: ${metadata.licenseNotice}`,
+    `// Disclaimer: ${metadata.disclaimer}`,
+  ].join("\n");
+}
+
+function resolveConfiguredRoot(key) {
+  const [group, name] = key.split(".");
+  const value = CONFIGURATION[group] && CONFIGURATION[group][name];
+  return value ? path.resolve(ROOT_DIR, value) : path.join(ROOT_DIR, ".agents", "cache", "unconfigured", name);
+}
+
+function assertBuildConfiguration() {
+  for (const key of ["source", "artifact"]) {
+    if (!CONFIGURATION.paths || !CONFIGURATION.paths[key]) throw new Error(`PARAMETRO_NORMATIVO_AUSENTE:paths.${key}`);
+  }
 }
 
 function createGovernanceManifest(entries, contentForEntry) {
@@ -465,14 +553,36 @@ function createGovernanceManifest(entries, contentForEntry) {
   };
 }
 
+function createUpdateHandoffDescriptor(manifest) {
+  const indexed = new Map(manifest.files.map((entry) => [entry.path, entry]));
+  for (const relativePath of UPDATE_HANDOFF_RUNTIME) {
+    if (!indexed.has(relativePath)) throw new Error(`Runtime de handoff ausente do manifesto: ${relativePath}`);
+  }
+  return {
+    entry: UPDATE_HANDOFF_RUNTIME[0],
+    files: [...UPDATE_HANDOFF_RUNTIME],
+    format: "agents-update-runtime/v1",
+    schema: 1,
+  };
+}
+
+function validateUpdateHandoffDescriptor(descriptor, label) {
+  if (!descriptor || descriptor.format !== "agents-update-runtime/v1" || descriptor.schema !== 1 ||
+    descriptor.entry !== UPDATE_HANDOFF_RUNTIME[0] || !Array.isArray(descriptor.files) ||
+    UPDATE_HANDOFF_RUNTIME.some((relativePath) => !descriptor.files.includes(relativePath))) {
+    throw new Error(`${label} sem runtime de handoff valido.`);
+  }
+}
+
 function buildDistributionPackage() {
   const source = JSON.parse(fs.readFileSync(PACKAGE_PATH, "utf8"));
   const sourceScripts = source.scripts || {};
-  const aliases = new Set(["build", "check", "clean", "lint", "prepare", "release", "release:trigger", "test"]);
+  const aliases = new Set(["build", "check", "clean", "dev-live", "lint", "prepare", "publish", "release", "release:publish", "release:trigger", "test", "update:agents"]);
   const scripts = Object.fromEntries(Object.entries(sourceScripts)
-    .filter(([name]) => name === "agents:update" || name.startsWith("agent:") || aliases.has(name)));
+    .filter(([name]) => name === "agents:update" || name === "agents:autoupdate" || name.startsWith("agent:") || name.startsWith("shared:") || aliases.has(name)));
   const dependencies = source.dependencies || {};
   const optionalDependencies = source.optionalDependencies || {};
+  const governance = source.agentsGovernance || {};
 
   return {
     name: source.name || "agents-governance",
@@ -487,8 +597,8 @@ function buildDistributionPackage() {
     ...(Object.keys(optionalDependencies).length ? { optionalDependencies } : {}),
     agentsGovernance: {
       schema: 1,
-      managedScriptPrefixes: ["agent:"],
-      managedScripts: ["agents:update"],
+      managedScriptPrefixes: governance.managedScriptPrefixes || ["agent:", "shared:"],
+      managedScripts: governance.managedScripts || ["agents:autoupdate", "agents:update", "update:agents"],
       dependencies: Object.keys(dependencies).sort((a, b) => a.localeCompare(b, "en")),
       optionalDependencies: Object.keys(optionalDependencies).sort((a, b) => a.localeCompare(b, "en")),
     },
@@ -522,6 +632,7 @@ function verify() {
   const checks = [];
   for (const script of listFiles(path.join(ROOT_DIR, ".agents")).filter((filePath) => path.extname(filePath) === ".js" && isManagedScriptPath(filePath))) {
     const content = fs.readFileSync(script, "utf8");
+    assertCodeBanner(content, toPosix(path.relative(ROOT_DIR, script)));
     if (ALIEN_SCRIPT_TERMS.some((term) => content.toLocaleLowerCase("en-US").includes(term.toLocaleLowerCase("en-US")))) {
       throw new Error(`Referencia alienigena detectada em ${toPosix(path.relative(ROOT_DIR, script))}.`);
     }
@@ -534,16 +645,30 @@ function verify() {
   validateIndex(index);
   validateNormativeReferences(index);
   buildDist();
+  for (const script of listFiles(DIST_DIR).filter((filePath) => path.extname(filePath) === ".js")) {
+    assertCodeBanner(fs.readFileSync(script, "utf8"), toPosix(path.relative(ROOT_DIR, script)));
+  }
   assertPublishedNorms(index);
 
   return ok("VERIFY_OK", { scripts: checks.length, indexedFiles: index.files.length });
+}
+
+function assertCodeBanner(content, label) {
+  const header = String(content).split(/\r?\n/u).slice(0, 10).join("\n");
+  const metadata = CONFIGURATION.metadata || {};
+  for (const value of [metadata.author, metadata.contact, metadata.repository, metadata.license, metadata.licenseUrl, metadata.licenseNotice]) {
+    if (!value || !header.includes(value)) throw new Error(`CABECALHO_CODIGO_INVALIDO:${label}`);
+  }
 }
 
 function testAll() {
   verify();
   runProcess(process.execPath, [path.join(ROOT_DIR, "test", "upstream-share.test.js")]);
   runProcess(process.execPath, [path.join(ROOT_DIR, "test", "issue-inbox.test.js")]);
-  return ok("TEST_OK", { suites: 2 });
+  runProcess(process.execPath, [path.join(ROOT_DIR, "test", "issue-lifecycle.test.js")]);
+  runProcess(process.execPath, [path.join(ROOT_DIR, "test", "autoupdate.test.js")]);
+  runProcess(process.execPath, [path.join(ROOT_DIR, "test", "configuration.test.js")]);
+  return ok("TEST_OK", { suites: 5 });
 }
 
 function validateIndex(index) {
@@ -556,6 +681,7 @@ function validateIndex(index) {
     }
   }
   validateGovernanceManifest(index.update, "index.json");
+  validateUpdateHandoffDescriptor(index.handoff, "index.json");
 }
 
 function validateNormativeReferences(index) {
@@ -613,6 +739,8 @@ function validateDist() {
   assertFile(path.join(DIST_DIR, ".agents", "scenarios", "release", "scenario.md"), "dist/.agents/scenarios/release/scenario.md ausente.");
   assertFile(path.join(DIST_DIR, ".agents", "scenarios", "web", "page-like", "scenario.md"), "dist/.agents/scenarios/web/page-like/scenario.md ausente.");
   assertFile(path.join(DIST_DIR, ".agents", "core", "runtime", "scripts", "public-client.js"), "dist/.agents/core/runtime/scripts/public-client.js ausente.");
+  assertFile(path.join(DIST_DIR, "config", "core.json"), "dist/config/core.json ausente.");
+  assertFile(path.join(DIST_DIR, "config", "schema.json"), "dist/config/schema.json ausente.");
   assertFile(path.join(DIST_DIR, ".agents", "core", "runtime", "scripts", "issue-inbox.js"), "dist/.agents/core/runtime/scripts/issue-inbox.js ausente.");
   assertFile(path.join(DIST_DIR, ".agents", "core", "runtime", "scripts", "upstream-share.js"), "dist/.agents/core/runtime/scripts/upstream-share.js ausente.");
   assertFile(path.join(DIST_DIR, ".agents", "scenarios", "release", "scripts", "release-hooks.js"), "dist/.agents/scenarios/release/scripts/release-hooks.js ausente.");
@@ -626,13 +754,18 @@ function validateDist() {
     throw new Error("dist/release.json nao indexa package.json.");
   }
   validateGovernanceManifest(release.update, "dist/release.json");
+  validateUpdateHandoffDescriptor(release.handoff, "dist/release.json");
   const distributionPackage = JSON.parse(fs.readFileSync(DISTRIBUTION_PACKAGE_PATH, "utf8"));
   assertPublishedMain(distributionPackage);
   const policy = distributionPackage.agentsGovernance;
   if (!policy || policy.schema !== 1 || !Array.isArray(policy.managedScriptPrefixes) ||
     !Array.isArray(policy.managedScripts) || !Array.isArray(policy.dependencies) ||
     !Array.isArray(policy.optionalDependencies) || !distributionPackage.scripts ||
-    !distributionPackage.scripts["agent:agents"] || !distributionPackage.scripts["agents:update"]) {
+    !distributionPackage.scripts["agent:autoupdate"] || !distributionPackage.scripts["agents:autoupdate"] ||
+    !distributionPackage.scripts["agent:agents"] || !distributionPackage.scripts["agents:update"] ||
+    !distributionPackage.scripts["update:agents"] || !distributionPackage.scripts["shared:update:agents"] ||
+    !distributionPackage.scripts.release || !distributionPackage.scripts.publish ||
+    !policy.managedScriptPrefixes.includes("shared:")) {
     throw new Error("dist/package.json nao contem contrato executavel de governanca.");
   }
 }
@@ -1066,7 +1199,24 @@ function buildReleaseNotes(version) {
     }
   }
 
+  const issues = releaseIssueLinks(version);
+  if (issues.length) {
+    lines.push("", "Issues corrigidas:");
+    for (const issue of issues) lines.push(`- ${issue.ft}: ${issue.id}`);
+  }
+
   return lines.join("\n");
+}
+
+function releaseIssueLinks(version) {
+  const memoryPath = path.join(ROOT_DIR, ".agents", "continue.ia");
+  if (!fs.existsSync(memoryPath) || !version) return [];
+  return fs.readFileSync(memoryPath, "utf8").split(/(?=^FT-\d+\|)/mu).map((block) => {
+    const ft = (block.match(/^(FT-\d+)\|.*\|status=concluido(?:\||$)/mu) || [])[1];
+    const id = (block.match(/^issue_id=([^\r\n]+)/mu) || [])[1];
+    const bound = (block.match(/^release=([^\r\n]+)/mu) || [])[1];
+    return ft && id && bound === version ? { ft, id } : null;
+  }).filter(Boolean).sort((left, right) => left.id.localeCompare(right.id));
 }
 
 function readPackageScripts() {
@@ -1188,7 +1338,16 @@ function toPosix(value) {
 
 function isManagedScriptPath(filePath) {
   const relativePath = toPosix(path.relative(ROOT_DIR, filePath));
-  return !relativePath.startsWith(".agents/hooks/") && !relativePath.startsWith(".agents/local/");
+  return relativePath.startsWith(".agents/core/runtime/scripts/")
+    || relativePath.startsWith(".agents/core/update/migrations/")
+    || /^\.agents\/scenarios\/[^/]+\/scripts\//u.test(relativePath);
+}
+
+function isManagedDistributionFile(filePath) {
+  const relativePath = toPosix(path.relative(ROOT_DIR, filePath));
+  return (path.extname(filePath).toLocaleLowerCase("en-US") === ".js" && isManagedScriptPath(filePath))
+    || relativePath === ".agents/package.json"
+    || relativePath === ".agents/core/runtime/scripts/package.json";
 }
 
 if (require.main === module) {
@@ -1215,6 +1374,8 @@ module.exports = {
   buildDist,
   buildDistributionPackage,
   buildIndex,
+  isManagedDistributionFile,
+  isManagedScriptPath,
   main,
   resolveRelease,
   validateDist,
