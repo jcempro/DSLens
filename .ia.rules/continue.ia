@@ -299,6 +299,22 @@ aceite=Diagnóstico registrado; lacunas normativas saneadas; comandos explícito
 diagnostico=Já havia ESM/CJS/browser minificado/types, mas faltavam subpath exports por componente, manifests individuais, site Pages manual, demo comum live/offline e validação de tarball real instalado.
 verificacao=npm test 16 etapas aprovado; release:dry-run gerou tarball real .ia.rules/cache/package/jeancarloem-dslens-0.0.1.tgz, instalou em projeto temporário e confirmou imports raiz/individualizados; npm audit --audit-level=high retornou 0 vulnerabilidades; nenhuma publicação real executada.
 
+FT-20260722-011|nome=Correção de namespaces publish e release|escopo=Técnico|prioridade=alta|status=concluído|inicio=2026-07-22T13:55:28-03:00|fim=2026-07-22T14:00:00-03:00
+objetivo=Corrigir scripts para que publicação de conteúdo/Pages use `publish`/`publish:*` e release de software permaneça em `release`/`release:*`.
+nao_escopo=Executar publicação real de Pages, npm, tag ou release.
+dependencias=AGENTS.md §§17-18; .ia.rules/scenarios/content-publication/scenario.md; .ia.rules/scenarios/release/scenario.md; .ia.rules/scenarios/web/page-like/capabilities/browser.md.
+riscos=`site:publish` acionar release; `publish` permanecer sem all-in-one aplicável; alias transitório mascarar taxonomia.
+arquivos_previstos=package.json; scripts/publish/flow.mjs; scripts/test/run.mjs; README.md; docs/rcf/distribution.md; package-lock.json; package/dslens/README.md; .ia.rules/continue.ia.
+aceite=`publish` é all-in-one de Pages; `publish:pages` é subcomando especializado; `site:publish` delega somente para `publish:pages`; testes bloqueiam regressão para `scripts/release/flow.mjs`.
+1/2 Correção [concluído]
+  1/3 Criar fluxo publish próprio para Pages [concluído]
+  2/3 Renomear scripts e remover `release:publish:explicit` inventado [concluído]
+  3/3 Atualizar README e RCF de distribuição [concluído]
+2/2 Validação [concluído]
+  1/2 Executar `npm run site:publish -- --dry-run` [concluído]
+  2/2 Executar `npm test` [concluído]
+verificacao=site:publish -- --dry-run executou publish:pages e retornou published=false; npm test 16 etapas aprovado; nenhuma publicação real executada.
+
 DECISOES=20260716: sintaxe/semântica são canônicas; linguagens equivalentes; PowerShell/Python convergem; TypeScript opcional e JavaScript transpilado cliente/servidor; API real opt-in.
 VERIFICACOES=20260716 npm test 9 etapas; test:real 10 etapas; browser real PASS sem console; npm pack/instalação/imports PASS; audit 0; build reproduzível; GitHub Actions 29471167293, 29471237832, 29471309806 e 29471417146 success; actions v6 sem avisos.
 PROXIMO=Revisar diff final, executar compactação final, preparar commit e push em dev se autorizado.

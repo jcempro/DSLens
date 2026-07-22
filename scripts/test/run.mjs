@@ -164,6 +164,19 @@ try {
       manifest.main !== 'README.md'
     )
       throw new Error('metadados npm divergentes');
+    if (
+      rootManifest.scripts.publish !== 'npm run publish:pages --' ||
+      rootManifest.scripts['site:publish'] !==
+        'npm run publish:pages --' ||
+      rootManifest.scripts['site:publish'].includes(
+        'scripts/release/flow.mjs',
+      ) ||
+      !rootManifest.scripts['publish:pages']?.includes(
+        'scripts/publish/flow.mjs pages',
+      ) ||
+      rootManifest.scripts['release:publish:explicit']
+    )
+      throw new Error('namespaces publish/release divergentes');
     for (const subpath of [
       '.',
       './browser',

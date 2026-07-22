@@ -45,7 +45,7 @@ Publicação DEVE validar pacote montado, não somente árvore-fonte. Para npm, 
 
 Release GitHub no estado `published` DEVE acionar publicação npm somente quando a tag corresponder exatamente à versão do pacote. CI DEVE usar OIDC/provenance e `NPM_TOKEN` secreto, sem expor credencial. Publicação local inicial DEVE autenticar por navegador com PKI/2FA; falha `401`/`403` DEVE orientar a vinculação de token de automação ao repositório e ao escopo npm. Versão já publicada DEVE encerrar sem nova tentativa destrutiva.
 
-GitHub Pages DEVE usar workflow customizado, manual e explícito, com permissões mínimas, instalação reproduzível, build da biblioteca, validação de manifests, build do site e upload oficial do artefato. O site DEVE ser estático, reutilizar `./demo/shared/` como núcleo funcional, funcionar sob subpath e não executar publicação por `push`.
+GitHub Pages DEVE usar workflow customizado, manual e explícito, com permissões mínimas, instalação reproduzível, build da biblioteca, validação de manifests, build do site e upload oficial do artefato. O site DEVE ser estático, reutilizar `./demo/shared/` como núcleo funcional, funcionar sob subpath e não executar publicação por `push`. Publicação de Pages pertence ao comando all-in-one `publish` e aos subcomandos `publish:*`; `release:*` NÃO DEVE acionar Pages, e alias transitório `site:publish` somente PODE delegar para `publish:pages`.
 
 Demo online e offline DEVEM compartilhar núcleo funcional. Exemplo `live` executa requisição client-side real; `offline` usa fixture local declarada; `documental` descreve limitação externa ou de ambiente sem simular resultado real. Cada exemplo DEVE expor fonte, formato, comando executado, estado, duração e resultado ou falha.
 
