@@ -177,6 +177,18 @@ try {
       rootManifest.scripts['release:publish:explicit']
     )
       throw new Error('namespaces publish/release divergentes');
+    const publishFlow = await readFile(
+      'scripts/publish/flow.mjs',
+      'utf8',
+    );
+    if (
+      publishFlow.includes('--confirm-publish') ||
+      publishFlow.includes('PAGES_PUBLICACAO_BLOQUEADA') ||
+      !publishFlow.includes('PAGES_PUBLICADOR_INDISPONIVEL') ||
+      !publishFlow.includes('GH_TOKEN') ||
+      !publishFlow.includes('gh\', [\'auth\', \'status\']')
+    )
+      throw new Error('preflight de publish Pages divergente');
     for (const subpath of [
       '.',
       './browser',

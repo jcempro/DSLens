@@ -5,7 +5,6 @@ import process from 'node:process';
 
 const command = process.argv[2] ?? 'pages';
 const dryRun = process.argv.includes('--dry-run');
-const confirm = process.argv.includes('--confirm-publish');
 
 const tasks = {
   check: publishCheck,
@@ -15,8 +14,13 @@ const tasks = {
   verify: publishVerify,
 };
 
-if (!tasks[command]) throw new Error(`comando publish desconhecido: ${command}`);
-await tasks[command]();
+try {
+  if (!tasks[command]) throw new Error(`comando publish desconhecido: ${command}`);
+  await tasks[command]();
+} catch (error) {
+  console.error(`FAIL ${error instanceof Error ? error.message : String(error)}`);
+  process.exitCode = 1;
+}
 
 async function publishCheck() {
   const workflow = await readFile('.github/workflows/pages.yml', 'utf8');
@@ -45,13 +49,12 @@ async function publishDryRun() {
 
 async function publishPages() {
   if (dryRun) return publishDryRun();
+  const publisher = await resolvePublisher();
   await publishVerify();
-  if (!confirm)
-    throw new Error(
-      'PAGES_PUBLICACAO_BLOQUEADA: use npm run publish:pages -- --confirm-publish',
-    );
-  run('gh', ['workflow', 'run', 'pages.yml', '--ref', 'dev']);
-  console.log('publish pages dispatched workflow=pages.yml ref=dev');
+  await publisher.dispatch();
+  console.log(
+    `publish pages dispatched workflow=pages.yml ref=dev via=${publisher.via}`,
+  );
 }
 
 async function publishVerify() {
@@ -79,6 +82,56 @@ function runNpm(args) {
   return run('npm', args);
 }
 
+async function resolvePublisher() {
+  const token = process.env.GH_TOKEN ?? process.env.GITHUB_TOKEN;
+  if (token)
+    return {
+      via: 'github-api',
+      dispatch: () => dispatchWithGitHubApi(token),
+    };
+  if (commandSucceeds('gh', ['--version'])) {
+    if (!commandSucceeds('gh', ['auth', 'status']))
+      throw new Error(
+        'PAGES_PUBLICADOR_INDISPONIVEL: GitHub CLI encontrado, mas sem autenticacao. Execute gh auth login ou defina GH_TOKEN/GITHUB_TOKEN.',
+      );
+    return {
+      via: 'gh',
+      dispatch: () => run('gh', ['workflow', 'run', 'pages.yml', '--ref', 'dev']),
+    };
+  }
+  throw new Error(
+    'PAGES_PUBLICADOR_INDISPONIVEL: instale/autentique GitHub CLI ou defina GH_TOKEN/GITHUB_TOKEN para acionar workflow_dispatch.',
+  );
+}
+
+async function dispatchWithGitHubApi(token) {
+  const response = await fetch(
+    'https://api.github.com/repos/jcempro/DSLens/actions/workflows/pages.yml/dispatches',
+    {
+      method: 'POST',
+      headers: {
+        accept: 'application/vnd.github+json',
+        authorization: `Bearer ${token}`,
+        'content-type': 'application/json',
+        'x-github-api-version': '2022-11-28',
+      },
+      body: JSON.stringify({ ref: 'dev' }),
+    },
+  );
+  if (response.status !== 204)
+    throw new Error(
+      `GitHub API falhou ao acionar Pages: status=${response.status}`,
+    );
+}
+
+function commandSucceeds(commandName, args) {
+  const result = spawnSync(commandName, args, {
+    encoding: 'utf8',
+    stdio: 'pipe',
+  });
+  return result.status === 0;
+}
+
 function run(commandName, args) {
   const result = spawnSync(commandName, args, {
     encoding: 'utf8',
@@ -89,4 +142,3 @@ function run(commandName, args) {
       `${commandName} ${args.join(' ')} falhou: ${result.error?.message ?? ''}`,
     );
 }
-

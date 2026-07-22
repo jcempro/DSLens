@@ -292,10 +292,10 @@ npm run publish:check
 npm run publish:build
 npm run publish:dry-run
 npm run publish:verify
-npm run publish:pages -- --confirm-publish
+npm run publish:pages
 ```
 
-`npm run publish` é o all-in-one para Pages. `npm run site:publish` permanece alias transitório para `publish:pages`, sem acionar release. O workflow [Pages](.github/workflows/pages.yml) é customizado e acionado manualmente por `workflow_dispatch`; ele não publica por `push`.
+`npm run publish` é o all-in-one para Pages. `npm run site:publish` permanece alias transitório para `publish:pages`, sem acionar release. O workflow [Pages](.github/workflows/pages.yml) é customizado e acionado manualmente por `workflow_dispatch`; ele não publica por `push`. Publicação local exige GitHub CLI autenticado (`gh auth login`) ou `GH_TOKEN`/`GITHUB_TOKEN` com permissão para acionar Actions.
 
 ## Release, pacote e publicação
 
@@ -312,7 +312,7 @@ npm run release:verify
 npm run npm:verify
 ```
 
-`release:dry-run` valida branch, manifests, build, site, mapa de distribuição, tarball e testes sem criar tag, release, pacote npm ou Pages. Release de software fica no namespace `release`; publicação de conteúdo/Pages fica no namespace `publish`. Publicação real permanece restrita a comandos explícitos e bloqueada sem autorização específica; comandos comuns como `build`, `test`, `prepare`, `site:build` e abertura da demo não publicam nada.
+`release:dry-run` valida branch, manifests, build, site, mapa de distribuição, tarball e testes sem criar tag, release, pacote npm ou Pages. Release de software fica no namespace `release`; publicação de conteúdo/Pages fica no namespace `publish`. Comandos comuns como `build`, `test`, `prepare`, `site:build` e abertura da demo não publicam nada.
 
 ## Contratos e manifestos
 
