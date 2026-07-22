@@ -27,6 +27,59 @@ O pacote npm `@jeancarloem/dslens` é montado em `package/dslens` a partir do ma
 
 A configuração TypeScript versionada mantém `target`, `module` e biblioteca-base em `ES2020`. A cada build, `target` e biblioteca ECMAScript são derivados automaticamente como `ES(max(2020, ano UTC atual - 5))`, enquanto `module` permanece `ES2020`; em 2026, o target efetivo é `ES2021`. O metadado resolvido é distribuído pelo subpath `@jcempro/dslens/build-target`.
 
+## Instalação e imports
+
+```bash
+npm install @jeancarloem/dslens
+```
+
+Entradas principais:
+
+```ts
+import { resolveDslData } from "@jeancarloem/dslens";
+import { resolveParserExpression } from "@jeancarloem/dslens/browser";
+```
+
+Componentes individualizados:
+
+```ts
+import { hasParserExpression } from "@jeancarloem/dslens/components/detect";
+import { resolveDslData } from "@jeancarloem/dslens/components/resolve-data";
+import { resolveParserExpression } from "@jeancarloem/dslens/components/resolve-source";
+```
+
+Browser por componente:
+
+```html
+<script type="module">
+  import { resolveParserExpression } from "@jeancarloem/dslens/browser/components/resolve-source";
+</script>
+```
+
+O pacote publica JavaScript compilado ESM e CommonJS, declarações `.d.ts`, source maps aprovados, `browser.min.js`, manifests públicos e a fonte TypeScript apenas pelo subpath explícito `./typescript`. `sideEffects` é `false`; imports por componente reduzem o bundle quando o consumidor usa bundler com tree-shaking.
+
+## Manifests por componente
+
+O índice compacto fica em [manifests/components/index.json](manifests/components/index.json). Cada componente possui manifest de máquina e documento humano:
+
+- [detect](docs/components/detect.md): parser e detecção;
+- [resolve-data](docs/components/resolve-data.md): seleção local sem I/O;
+- [resolve-source](docs/components/resolve-source.md): fetch client-side JSON e resolução.
+
+Uso por IA/máquina:
+
+```js
+const index = await import("@jeancarloem/dslens/manifests/components", {
+  with: { type: "json" }
+});
+const target = index.default.components.find((item) => item.id === "resolve-data");
+const manifest = await import(`@jeancarloem/dslens/manifests/components/${target.id}`, {
+  with: { type: "json" }
+});
+```
+
+O índice não replica contratos completos; carregue somente o manifest do componente necessário.
+
 ## Sintaxe estável documentada
 
 O perfil canônico v1 usa exatamente uma expressão com fonte HTTP(S):
@@ -212,6 +265,44 @@ Nenhuma linguagem é principal: a sintaxe e a semântica são canônicas. TypeSc
 Os canais implementados são Git, submódulo Git, pacote npm montável, importação ESM, TypeScript explícito e arquivo JavaScript para cliente/CDN. O checkout como submódulo pode ocupar path arbitrário; nenhuma implementação depende do nome da pasta ou do diretório corrente.
 
 Os artefatos incluem ESM e CommonJS para core, browser, worker e servidor, declarações, source maps e JavaScript client-side otimizado. IIFE e UMD permanecem condicionados a consumidor e implementação comprovados.
+
+## Demo, site e exemplos
+
+A demo local fica em [demo/offline/index.html](demo/offline/index.html) e reutiliza o núcleo comum [demo/shared/demo-core.js](demo/shared/demo-core.js). A mesma base é copiada para o site Pages por `npm run site:build`.
+
+Classificação dos exemplos:
+
+- `live`: executa requisição real client-side, como `https://api.github.com/repos/jcempro/DSLens`;
+- `offline`: usa fixture versionada local, como JSON e XML em [demo/offline/fixtures](demo/offline/fixtures);
+- `documental`: descreve limitação sem simular resultado, como YAML no browser sem parser obrigatório.
+
+Cada exemplo mostra link da fonte, formato, comando exato, estado, duração e resultado obtido. CORS, timeout, resposta inválida e fonte incompatível são tratados como estado da demonstração, não como resultado falso.
+
+O site público é gerado em `site/dist` por:
+
+```bash
+npm run site:build
+npm run site:preview
+```
+
+O workflow [Pages](.github/workflows/pages.yml) é customizado e acionado manualmente por `workflow_dispatch`; ele não publica por `push`.
+
+## Release, pacote e publicação
+
+Comandos locais seguros:
+
+```bash
+npm run release:check
+npm run release:prepare
+npm run release:build
+npm run release:pack
+npm run release:test
+npm run release:dry-run
+npm run release:verify
+npm run npm:verify
+```
+
+`release:dry-run` valida branch, manifests, build, site, mapa de distribuição, tarball e testes sem criar tag, release, pacote npm ou Pages. Publicação real permanece restrita a comandos explícitos de publicação e bloqueada sem autorização específica; comandos comuns como `build`, `test`, `prepare`, `site:build` e abertura da demo não publicam nada.
 
 ## Contratos e manifestos
 

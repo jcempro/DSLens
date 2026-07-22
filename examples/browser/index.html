@@ -1,0 +1,15 @@
+<!-- Origem: https://github.com/jcempro/DSLens | Autor: JeanCarloEM | MPL-2.0 https://mozilla.org/MPL/2.0/ -->
+<!doctype html>
+<html lang="pt-BR">
+  <meta charset="utf-8" />
+  <title>DSLens browser example</title>
+  <body>
+    <pre id="result">running</pre>
+    <script type="module">
+      import { resolveDslData } from '../../package/dslens/dist/javascript/browser/components/resolve-data.js';
+      const data = { users: [{ name: 'Ana', active: true }] };
+      document.querySelector('#result').textContent = resolveDslData(data, '.users[0].name');
+    </script>
+  </body>
+</html>
+

@@ -62,8 +62,42 @@
       "import": "./package/dslens/dist/javascript/server.js",
       "require": "./package/dslens/dist/commonjs/server.cjs"
     },
+    "./components/detect": {
+      "types": "./package/dslens/dist/typescript/components/detect.d.ts",
+      "import": "./package/dslens/dist/javascript/components/detect.js",
+      "require": "./package/dslens/dist/commonjs/components/detect.cjs"
+    },
+    "./components/resolve-data": {
+      "types": "./package/dslens/dist/typescript/components/resolve-data.d.ts",
+      "import": "./package/dslens/dist/javascript/components/resolve-data.js",
+      "require": "./package/dslens/dist/commonjs/components/resolve-data.cjs"
+    },
+    "./components/resolve-source": {
+      "types": "./package/dslens/dist/typescript/components/resolve-source.d.ts",
+      "import": "./package/dslens/dist/javascript/components/resolve-source.js",
+      "require": "./package/dslens/dist/commonjs/components/resolve-source.cjs"
+    },
+    "./browser/components/detect": {
+      "types": "./package/dslens/dist/typescript/browser/components/detect.d.ts",
+      "import": "./package/dslens/dist/javascript/browser/components/detect.js",
+      "require": "./package/dslens/dist/commonjs/browser/components/detect.cjs"
+    },
+    "./browser/components/resolve-data": {
+      "types": "./package/dslens/dist/typescript/browser/components/resolve-data.d.ts",
+      "import": "./package/dslens/dist/javascript/browser/components/resolve-data.js",
+      "require": "./package/dslens/dist/commonjs/browser/components/resolve-data.cjs"
+    },
+    "./browser/components/resolve-source": {
+      "types": "./package/dslens/dist/typescript/browser/components/resolve-source.d.ts",
+      "import": "./package/dslens/dist/javascript/browser/components/resolve-source.js",
+      "require": "./package/dslens/dist/commonjs/browser/components/resolve-source.cjs"
+    },
     "./typescript": "./src/ts/index.ts",
     "./manifest": "./manifests/dslens.json",
+    "./manifests/components": "./manifests/components/index.json",
+    "./manifests/components/detect": "./manifests/components/detect.json",
+    "./manifests/components/resolve-data": "./manifests/components/resolve-data.json",
+    "./manifests/components/resolve-source": "./manifests/components/resolve-source.json",
     "./build-target": "./package/dslens/dist/build-target.json"
   },
   "agentsUpstream": {
@@ -78,8 +112,24 @@
     "lint": "npm run agent:lint",
     "prepare": "npm run agent:setup",
     "release": "node scripts/release/npm-release.mjs",
-    "release:dry-run": "node scripts/release/npm-release.mjs --dry-run",
+    "release:check": "node scripts/release/flow.mjs check",
+    "release:prepare": "node scripts/release/flow.mjs prepare",
+    "release:build": "node scripts/release/flow.mjs build",
+    "release:pack": "node scripts/release/flow.mjs pack",
+    "release:test": "node scripts/release/flow.mjs test",
+    "release:dry-run": "node scripts/release/flow.mjs dry-run",
+    "release:create": "node scripts/release/flow.mjs create",
+    "release:publish:explicit": "node scripts/release/flow.mjs publish",
+    "release:verify": "node scripts/release/flow.mjs verify",
     "release:trigger": "npm run agent:release:trigger",
+    "npm:publish": "node scripts/release/flow.mjs npm-publish",
+    "npm:verify": "node scripts/release/flow.mjs npm-verify",
+    "manifests:generate": "node scripts/manifests/generate.mjs",
+    "manifests:validate": "node scripts/manifests/validate.mjs",
+    "site:build": "node scripts/site/build.mjs",
+    "site:preview": "node scripts/site/preview.mjs",
+    "site:publish": "node scripts/release/flow.mjs publish",
+    "site:verify": "node scripts/release/flow.mjs verify",
     "test": "node scripts/test/run.mjs",
     "test:real": "node scripts/test/run.mjs --real",
     "build:dslens": "node scripts/build/build.mjs",

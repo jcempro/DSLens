@@ -1,0 +1,31 @@
+{
+  "schemaVersion": 1,
+  "package": "@jeancarloem/dslens",
+  "components": [
+    {
+      "id": "detect",
+      "category": "parser",
+      "status": "stable",
+      "entrypoints": ["./components/detect", "./browser/components/detect"],
+      "manifest": "manifests/components/detect.json",
+      "documentation": "docs/components/detect.md"
+    },
+    {
+      "id": "resolve-data",
+      "category": "selector",
+      "status": "stable",
+      "entrypoints": ["./components/resolve-data", "./browser/components/resolve-data"],
+      "manifest": "manifests/components/resolve-data.json",
+      "documentation": "docs/components/resolve-data.md"
+    },
+    {
+      "id": "resolve-source",
+      "category": "fetch-adapter",
+      "status": "stable",
+      "entrypoints": ["./components/resolve-source", "./browser/components/resolve-source"],
+      "manifest": "manifests/components/resolve-source.json",
+      "documentation": "docs/components/resolve-source.md"
+    }
+  ]
+}
+

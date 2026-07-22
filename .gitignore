@@ -6,6 +6,7 @@
 .runtime/
 node_modules/
 agents-governance-backups/
+site/dist/
 
 # === Cache e Compilados ===
 __pycache__/

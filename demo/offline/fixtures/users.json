@@ -1,0 +1,8 @@
+{
+  "users": [
+    { "name": "Ana", "active": true },
+    { "name": "Bruno", "active": false },
+    { "name": "Carla", "active": true }
+  ]
+}
+

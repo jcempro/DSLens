@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800" role="img" aria-label="Camadas estruturadas de dados">
+  <rect width="1200" height="800" fill="#0b1424"/>
+  <g fill="none" stroke="#7ce3c3" stroke-width="2" opacity=".7">
+    <path d="M110 620 C260 480 320 500 460 350 S720 250 850 180 1040 120 1120 70"/>
+    <path d="M80 700 C240 570 380 610 520 470 S720 380 900 300 1040 260 1160 160"/>
+  </g>
+  <g fill="#ffffff" opacity=".86">
+    <circle cx="462" cy="350" r="9"/>
+    <circle cx="720" cy="260" r="9"/>
+    <circle cx="900" cy="300" r="9"/>
+    <circle cx="1040" cy="260" r="9"/>
+  </g>
+  <g fill="#16344f" stroke="#7ce3c3" stroke-width="2">
+    <rect x="140" y="150" width="220" height="92" rx="8"/>
+    <rect x="460" y="430" width="260" height="104" rx="8"/>
+    <rect x="790" y="520" width="250" height="96" rx="8"/>
+  </g>
+  <g fill="#d8fff3" font-family="monospace" font-size="28">
+    <text x="166" y="205">.users[*]</text>
+    <text x="490" y="492">..license</text>
+    <text x="820" y="580">exists(...)</text>
+  </g>
+</svg>
+

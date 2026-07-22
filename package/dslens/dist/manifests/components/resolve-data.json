@@ -1,0 +1,31 @@
+{
+  "schemaVersion": 1,
+  "id": "resolve-data",
+  "name": "Resolução estrutural local",
+  "summary": "Executa path DSLens sobre dado estruturado já carregado, sem I/O.",
+  "category": "selector",
+  "entrypoints": {
+    "typescript": "@jeancarloem/dslens/components/resolve-data",
+    "browser": "@jeancarloem/dslens/browser/components/resolve-data"
+  },
+  "environments": ["browser", "worker", "node", "bundler"],
+  "exports": ["resolveDslData", "toDslResult"],
+  "signature": "resolveDslData(data: unknown, path: string, callback?: DslCallback): string|null",
+  "parameters": [
+    { "name": "data", "type": "unknown", "required": true },
+    { "name": "path", "type": "string", "required": true },
+    { "name": "callback", "type": "DslCallback", "required": false }
+  ],
+  "returns": ["string|null", "DslResult"],
+  "events": ["callback:telemetry"],
+  "sideEffects": false,
+  "dependencies": [],
+  "incompatibilities": ["html", "xpath-arbitrary", "eval"],
+  "examples": [{ "id": "resolve-data-minimal", "source": "examples/components/resolve-data.mjs" }],
+  "requirements": ["structured-data", "selector-path"],
+  "related": ["detect", "resolve-source"],
+  "since": "0.0.1",
+  "stability": "stable",
+  "normativeReference": "RCF.md#511-seletores-estruturais-compatíveis"
+}
+

@@ -1,0 +1,31 @@
+{
+  "schemaVersion": 1,
+  "id": "resolve-source",
+  "name": "Resolução de fonte HTTP client-side",
+  "summary": "Obtém JSON por fetch injetável e aplica o núcleo de resolução estrutural.",
+  "category": "fetch-adapter",
+  "entrypoints": {
+    "typescript": "@jeancarloem/dslens/components/resolve-source",
+    "browser": "@jeancarloem/dslens/browser/components/resolve-source"
+  },
+  "environments": ["browser", "node-fetch-compatible", "bundler"],
+  "exports": ["resolveParserExpression"],
+  "signature": "resolveParserExpression(source: string, options?: ResolveSourceOptions, callback?: DslCallback): Promise<string|null>",
+  "parameters": [
+    { "name": "source", "type": "string", "required": true },
+    { "name": "options", "type": "ResolveSourceOptions", "required": false },
+    { "name": "callback", "type": "DslCallback", "required": false }
+  ],
+  "returns": ["Promise<string|null>"],
+  "events": ["callback:telemetry", "AbortSignal"],
+  "sideEffects": false,
+  "dependencies": ["fetch"],
+  "incompatibilities": ["cors-blocked-source", "non-json-response", "secretless-browser-env"],
+  "examples": [{ "id": "resolve-source-live", "source": "examples/components/resolve-source.mjs" }],
+  "requirements": ["https-or-http-source", "json-response", "cors-when-browser"],
+  "related": ["detect", "resolve-data"],
+  "since": "0.0.1",
+  "stability": "stable",
+  "normativeReference": "RCF.md#7-sincronismo-estado-cache-e-limites"
+}
+

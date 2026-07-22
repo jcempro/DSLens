@@ -1,0 +1,78 @@
+<!-- Origem: https://github.com/jcempro/DSLens | Autor: JeanCarloEM | MPL-2.0 https://mozilla.org/MPL/2.0/ -->
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; connect-src 'self' https://api.github.com; script-src 'self'; style-src 'self'; img-src 'self' data:; base-uri 'none'; form-action 'none'"
+    />
+    <title>DSLens</title>
+    <link rel="stylesheet" href="./assets/site.css" />
+  </head>
+  <body>
+    <header class="hero">
+      <nav>
+        <strong>DSLens</strong>
+        <a href="#install">Instalação</a>
+        <a href="#imports">Imports</a>
+        <a href="#demo">Demo</a>
+        <a href="https://github.com/jcempro/DSLens">GitHub</a>
+      </nav>
+      <section>
+        <p class="eyebrow">Seletores estruturais para dados remotos</p>
+        <h1>DSLens</h1>
+        <p>
+          Biblioteca multilinguagem para resolver valores em JSON, XML e dados
+          estruturados com uma DSL declarativa, determinística e testável.
+        </p>
+      </section>
+    </header>
+    <main>
+      <section id="install" class="band">
+        <h2>Instalação</h2>
+        <pre><code>npm install @jeancarloem/dslens</code></pre>
+      </section>
+      <section id="imports" class="grid">
+        <article>
+          <h2>TypeScript</h2>
+          <pre><code>import { resolveDslData } from "@jeancarloem/dslens";
+import { resolveDslData } from "@jeancarloem/dslens/components/resolve-data";</code></pre>
+        </article>
+        <article>
+          <h2>Browser</h2>
+          <pre><code>import { resolveParserExpression } from "@jeancarloem/dslens/browser";
+import { resolveParserExpression } from "@jeancarloem/dslens/browser/components/resolve-source";</code></pre>
+        </article>
+      </section>
+      <section class="band">
+        <h2>Manifests</h2>
+        <p>
+          O índice compacto aponta para manifests individuais de máquina e
+          documentação humana por componente.
+        </p>
+        <p>
+          <a href="./manifests/components/index.json">Índice JSON</a>
+          <a href="https://github.com/jcempro/DSLens/tree/dev/docs/components">Documentação</a>
+          <a href="https://www.npmjs.com/package/@jeancarloem/dslens">NPM</a>
+          <a href="https://github.com/jcempro/DSLens/releases">Releases</a>
+        </p>
+      </section>
+      <section id="demo" class="demo">
+        <div>
+          <h2>Demo real client-side</h2>
+          <p>
+            Cada exemplo mostra fonte, formato, comando executado, estado e
+            resultado retornado no navegador. Fontes incompatíveis não são
+            simuladas.
+          </p>
+        </div>
+        <nav id="examples" aria-label="Exemplos"></nav>
+        <article id="panel" aria-live="polite"></article>
+      </section>
+    </main>
+    <script type="module" src="./assets/site.js"></script>
+  </body>
+</html>
+

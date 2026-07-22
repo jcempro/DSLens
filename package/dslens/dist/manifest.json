@@ -103,6 +103,39 @@
       "stability": "stable",
       "import": "environment entry point",
       "normativeReference": "RCF.md#7-sincronismo-estado-cache-e-limites"
+    },
+    {
+      "id": "component-detect",
+      "category": "component",
+      "language": "TypeScript/JavaScript",
+      "runtime": "browser, worker, node or bundler",
+      "signature": "hasParserExpression(source: string): boolean",
+      "synchronism": "sync",
+      "stability": "stable",
+      "import": "@jeancarloem/dslens/components/detect",
+      "normativeReference": "docs/rcf/typescript-javascript.md#6-npm-e-exports"
+    },
+    {
+      "id": "component-resolve-data",
+      "category": "component",
+      "language": "TypeScript/JavaScript",
+      "runtime": "browser, worker, node or bundler",
+      "signature": "resolveDslData(data: unknown, path: string, callback?: DslCallback): string|null",
+      "synchronism": "sync",
+      "stability": "stable",
+      "import": "@jeancarloem/dslens/components/resolve-data",
+      "normativeReference": "docs/rcf/typescript-javascript.md#6-npm-e-exports"
+    },
+    {
+      "id": "component-resolve-source",
+      "category": "component",
+      "language": "TypeScript/JavaScript",
+      "runtime": "browser or fetch-compatible runtime",
+      "signature": "resolveParserExpression(source: string, options?: ResolveSourceOptions, callback?: DslCallback): Promise<string|null>",
+      "synchronism": "async",
+      "stability": "stable",
+      "import": "@jeancarloem/dslens/components/resolve-source",
+      "normativeReference": "docs/rcf/typescript-javascript.md#6-npm-e-exports"
     }
   ],
   "artifacts": [

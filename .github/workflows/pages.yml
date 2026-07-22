@@ -1,0 +1,50 @@
+# Origem: https://github.com/jcempro/DSLens
+# Autor: JeanCarloEM - https://jeancarloem.com
+# Licença: MPL-2.0 - https://mozilla.org/MPL/2.0/
+# Resumo: uso, cópia, modificação e distribuição conforme a MPL-2.0.
+
+name: Pages
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '20.19.0'
+          cache: npm
+      - name: Install
+        run: npm ci --ignore-scripts
+      - name: Validate and build site
+        env:
+          CI: 'true'
+        run: npm run release:verify
+      - uses: actions/configure-pages@v6
+      - uses: actions/upload-pages-artifact@v4
+        with:
+          path: site/dist
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v5
+

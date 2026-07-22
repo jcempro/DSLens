@@ -1,0 +1,799 @@
+{
+  "schemaVersion": 1,
+  "version": "0.0.1",
+  "generatedBy": "scripts/release/flow.mjs distribution-map",
+  "destinations": [
+    "npm-package",
+    "release-asset",
+    "offline-demo",
+    "github-pages"
+  ],
+  "files": [
+    {
+      "path": "demo/offline/fixtures/catalog.xml",
+      "size": 60,
+      "sha256": "13ff1c7791bbc13195150cbc20864ea0aa0d901ded7be4195323cff53c58a94c",
+      "policy": "replace-generated"
+    },
+    {
+      "path": "demo/offline/fixtures/users.json",
+      "size": 143,
+      "sha256": "1872463ce3632ae714e630c52960e44c949f5aef511bff98d3e4f7caae1dd616",
+      "policy": "replace-generated"
+    },
+    {
+      "path": "demo/offline/fixtures/users.yaml",
+      "size": 73,
+      "sha256": "6c345ce8af5b29d92fb88610bf03c251203613d56e63973b564086a54e382617",
+      "policy": "replace-generated"
+    },
+    {
+      "path": "demo/offline/index.html",
+      "size": 557,
+      "sha256": "92e711b30030ea7e48b470b5e1eef06af12b1d509b8293e69f4479b931b42a0c",
+      "policy": "replace-generated"
+    },
+    {
+      "path": "demo/offline/main.js",
+      "size": 1659,
+      "sha256": "4f1e6f76035aeb1db3423b636b01b4257b4b3a55c06bfd6bc1566385b01d8d5a",
+      "policy": "replace-generated"
+    },
+    {
+      "path": "demo/offline/style.css",
+      "size": 697,
+      "sha256": "b7d3d3aca365f5bbec2b87e6f47b87da768600177ea1a19406355e23119e8a5c",
+      "policy": "replace-generated"
+    },
+    {
+      "path": "docs/components/detect.md",
+      "size": 922,
+      "sha256": "ca3f7ad80040222150e276a3adab8127e960d737eab6582bef388d04baf9a503",
+      "policy": "replace-generated"
+    },
+    {
+      "path": "docs/components/resolve-data.md",
+      "size": 1013,
+      "sha256": "6a0626972bf67b6497e00c2d3badc5b2f2b8e2f61781ad39132f8fd0b55ea28d",
+      "policy": "replace-generated"
+    },
+    {
+      "path": "docs/components/resolve-source.md",
+      "size": 1186,
+      "sha256": "706c76be7f8295ecf555c1ce9b5242c0c7bd43f46a511a80cc03c11af03b5a15",
+      "policy": "replace-generated"
+    },
+    {
+      "path": "manifests/components/detect.json",
+      "size": 1170,
+      "sha256": "fd26e8e03c85e06eb88d3ea5699c84d7cbb25b75baa2e393f0b619b2773053c4",
+      "policy": "replace-generated"
+    },
+    {
+      "path": "manifests/components/index.json",
+      "size": 976,
+      "sha256": "5a744d63852e93c7fd1dfab50edb110e82e0d3f333bb4cb754f5bc29aeb8128b",
+      "policy": "replace-generated"
+    },
+    {
+      "path": "manifests/components/resolve-data.json",
+      "size": 1281,
+      "sha256": "669c1bff9a5521bc794aa53bed9c04368e76f2aa25903792dde4f6acd574b219",
+      "policy": "replace-generated"
+    },
+    {
+      "path": "manifests/components/resolve-source.json",
+      "size": 1446,
+      "sha256": "49495c7fc2b98ef3f4af64fb952a743a42a6fb1aa89e1bf8199f6763b8f11fc7",
+      "policy": "replace-generated"
+    },
+    {
+      "path": "manifests/dslens.json",
+      "size": 8783,
+      "sha256": "f2d472d01d0787cb23f20820865ecd37ad7068efb7af84307507d65d6543bad9",
+      "policy": "replace-generated"
+    },
+    {
+      "path": "package/dslens/dist/build-target.json",
+      "size": 214,
+      "sha256": "462d5b518af14dc6e95b56809ea8dc4b1d0c70dd5d9a05139ec8c7a5c37a3070",
+      "policy": "replace-generated"
+    },
+    {
+      "path": "package/dslens/dist/commonjs/browser.cjs",
+      "size": 20558,
+      "sha256": "96eda6af21324b098b76e2e783c606a48e2de05a6e9a44e4d22bcf344432bae7",
+      "policy": "replace-generated"
+    },
+    {
+      "path": "package/dslens/dist/commonjs/browser.cjs.map",
+      "size": 41426,
+      "sha256": "987d7559b514b31289e532ea063b21a2610c6099196d7f69d9cb7fadacf65bd2",
+      "policy": "replace-generated"
+    },
+    {
+      "path": "package/dslens/dist/commonjs/browser/components/detect.cjs",
+      "size": 5333,
+      "sha256": "ea5cb976cbba72eb7d7fc8651bbb087c09e60a2fe52fe58a50f315b402b4f2ef",
+      "policy": "replace-generated"
+    },
+    {
+      "path": "package/dslens/dist/commonjs/browser/components/detect.cjs.map",
+      "size": 26738,
+      "sha256": "9bacce13f077d804c9b6c541d9efbc03845e6f12fe0943113052f2e2eab23567",
+      "policy": "replace-generated"
+    },
+    {
+      "path": "package/dslens/dist/commonjs/browser/components/resolve-data.cjs",
+      "size": 13982,
+      "sha256": "77453f95784ed2610eae6a60c753dd798fc0dfce9e2a3b7f00500bf0a5930850",
+      "policy": "replace-generated"
+    },
+    {
+      "path": "package/dslens/dist/commonjs/browser/components/resolve-data.cjs.map",
+      "size": 33646,
+      "sha256": "6728617f86aeb66a20a3b8662564f37ac2847a2d7ff6107620b1b3adebfcc80e",
+      "policy": "replace-generated"
+    },
+    {
+      "path": "package/dslens/dist/commonjs/browser/components/resolve-source.cjs",
+      "size": 20010,
+      "sha256": "093c80b0254d75549e047bec92a7a1c04d647f172a1f1f56431b11d228be20df",
+      "policy": "replace-generated"
+    },
+    {
+      "path": "package/dslens/dist/commonjs/browser/components/resolve-source.cjs.map",
+      "size": 41552,
+      "sha256": "0298fa545d1258d2376b95ee16cb008a3b6b736f659ee68c26d5b166f7c7e508",
+      "policy": "replace-generated"
+    },
+    {
+      "path": "package/dslens/dist/commonjs/components/detect.cjs",
+      "size": 5325,
+      "sha256": "6f8c07b681164fe382b58be69c63a0ebf4abcd75a1c775ca21e995fee200c9e3",
+      "policy": "replace-generated"
+    },
+    {
+      "path": "package/dslens/dist/commonjs/components/detect.cjs.map",
+      "size": 26721,
+      "sha256": "2062eb3e4472dc30f91ff2928345e7079f3b1b115673b3bdf7219b1e41abce8c",
+      "policy": "replace-generated"
+    },
+    {
+      "path": "package/dslens/dist/commonjs/components/resolve-data.cjs",
+      "size": 13974,
+      "sha256": "312c10a47b39f321d91423c96dbc76814daf5539c19a8b77e5777ee41e4fc3ef",
+      "policy": "replace-generated"
+    },
+    {
+      "path": "package/dslens/dist/commonjs/components/resolve-data.cjs.map",
+      "size": 33629,
+      "sha256": "93d29393a5e78b95bc8f1067d45ce43f493cb81e05a876d7f6836bfdd073f0f7",
+      "policy": "replace-generated"
+    },
+    {
+      "path": "package/dslens/dist/commonjs/components/resolve-source.cjs",
+      "size": 20002,
+      "sha256": "3cdbcb757e1969a92c1f922054c7cfa42135b4e98af765cd45d0a5c371c21b0a",
+      "policy": "replace-generated"
+    },
+    {
+      "path": "package/dslens/dist/commonjs/components/resolve-source.cjs.map",
+      "size": 41529,
+      "sha256": "f16931371a177c2f501f0b16f425f8f388b632bb6b6672c4f8a710d7c195ae77",
+      "policy": "replace-generated"
+    },
+    {
+      "path": "package/dslens/dist/commonjs/index.cjs",
+      "size": 18163,
+      "sha256": "02c751252378a20b9752d0377bdd9670bb7e6eb863f9206bd80cc439e44731c8",
+      "policy": "replace-generated"
+    },
+    {
+      "path": "package/dslens/dist/commonjs/index.cjs.map",
+      "size": 36645,
+      "sha256": "1ebfef13ef8f3b5994967234d6679a8032596a50beef0a5c98972c6d66aa15ae",
+      "policy": "replace-generated"
+    },
+    {
+      "path": "package/dslens/dist/commonjs/server.cjs",
+      "size": 20748,
+      "sha256": "5e484dd553393b2fdcab1e346e08490a4f45a00ca393045a8225ff686acb69a8",
+      "policy": "replace-generated"
+    },
+    {
+      "path": "package/dslens/dist/commonjs/server.cjs.map",
+      "size": 41849,
+      "sha256": "833e1f13d2b8b0b55bacf95495e7373fd550d7dbb082f9bc37c20301120adcbf",
+      "policy": "replace-generated"
+    },
+    {
+      "path": "package/dslens/dist/commonjs/worker.cjs",
+      "size": 18374,
+      "sha256": "c0f75e9cd7df54cdb8fca279aadd962546a39f6605c0c47b6d5b7ef979f4d6c3",
+      "policy": "replace-generated"
+    },
+    {
+      "path": "package/dslens/dist/commonjs/worker.cjs.map",
+      "size": 37265,
+      "sha256": "de57e27dcff6bed645cc60a0b0f51f96ccde5ad1b1f8ca5400693122fed83621",
+      "policy": "replace-generated"
+    },
+    {
+      "path": "package/dslens/dist/javascript/browser.js",
+      "size": 19517,
+      "sha256": "d4599dfbd597e49007bfdf4dbd78089803dc47f93aed8161444dc0025ddab911",
+      "policy": "replace-generated"
+    },
+    {
+      "path": "package/dslens/dist/javascript/browser.js.map",
+      "size": 41361,
+      "sha256": "48f6cfb909fc98c6da4230529bdcaefce8e1861c3be711129a8f40962e8a041b",
+      "policy": "replace-generated"
+    },
+    {
+      "path": "package/dslens/dist/javascript/browser.min.js",
+      "size": 11187,
+      "sha256": "062d5e02a7e73e1f1c0b720728c1d76b2b858b0bf32afcfa42b931eb5bf910c5",
+      "policy": "replace-generated"
+    },
+    {
+      "path": "package/dslens/dist/javascript/browser.min.js.map",
+      "size": 42561,
+      "sha256": "4a8fafa7f498cc411f5df2360a221b4e2196b6e2c5fef12d2f4cdaa9aabdda7d",
+      "policy": "replace-generated"
+    },
+    {
+      "path": "package/dslens/dist/javascript/browser/components/detect.js",
+      "size": 4349,
+      "sha256": "d737628033b49639253f70a64b30269773ace9c1dbdec8f5469bb3fa3032a6d0",
+      "policy": "replace-generated"
+    },
+    {
+      "path": "package/dslens/dist/javascript/browser/components/detect.js.map",
+      "size": 26292,
+      "sha256": "dd86dfec2bbe49662838053bd4e34db5b289bffc57f09195e14478e12b9db2a3",
+      "policy": "replace-generated"
+    },
+    {
+      "path": "package/dslens/dist/javascript/browser/components/resolve-data.js",
+      "size": 12986,
+      "sha256": "adacec6464b35bf35a16038a46e87d121adb51b279164c9148b0b8a9ecbbcfd5",
+      "policy": "replace-generated"
+    },
+    {
+      "path": "package/dslens/dist/javascript/browser/components/resolve-data.js.map",
+      "size": 33206,
+      "sha256": "89dde39deb642d5debe60c7d255f1a4080ac2d2d63f6d0b04dbccdc7e6366e8c",
+      "policy": "replace-generated"
+    },
+    {
+      "path": "package/dslens/dist/javascript/browser/components/resolve-source.js",
+      "size": 19016,
+      "sha256": "a57cb1b3f3c9d1f6be40fc02fca4e33cac65fd24c25c6c18454906bea00066d4",
+      "policy": "replace-generated"
+    },
+    {
+      "path": "package/dslens/dist/javascript/browser/components/resolve-source.js.map",
+      "size": 41053,
+      "sha256": "00028fc814afa855bbd9e8892b6ee43706de681f4d48fa5f8188e3b6f9ea8d9f",
+      "policy": "replace-generated"
+    },
+    {
+      "path": "package/dslens/dist/javascript/components/detect.js",
+      "size": 4349,
+      "sha256": "d737628033b49639253f70a64b30269773ace9c1dbdec8f5469bb3fa3032a6d0",
+      "policy": "replace-generated"
+    },
+    {
+      "path": "package/dslens/dist/javascript/components/detect.js.map",
+      "size": 26289,
+      "sha256": "17bf1635bc395af70233a7c335753bf109dd774425565942b685f3901f982ede",
+      "policy": "replace-generated"
+    },
+    {
+      "path": "package/dslens/dist/javascript/components/resolve-data.js",
+      "size": 12986,
+      "sha256": "adacec6464b35bf35a16038a46e87d121adb51b279164c9148b0b8a9ecbbcfd5",
+      "policy": "replace-generated"
+    },
+    {
+      "path": "package/dslens/dist/javascript/components/resolve-data.js.map",
+      "size": 33203,
+      "sha256": "81c07bebafd68788a217315efcd0a178c3de56dcd7ca861edef86f0220e9cafa",
+      "policy": "replace-generated"
+    },
+    {
+      "path": "package/dslens/dist/javascript/components/resolve-source.js",
+      "size": 19016,
+      "sha256": "a57cb1b3f3c9d1f6be40fc02fca4e33cac65fd24c25c6c18454906bea00066d4",
+      "policy": "replace-generated"
+    },
+    {
+      "path": "package/dslens/dist/javascript/components/resolve-source.js.map",
+      "size": 41047,
+      "sha256": "6693f96009990bcb3550c9ae4fb16deec224b7370579f65122c8e62e7ed56aae",
+      "policy": "replace-generated"
+    },
+    {
+      "path": "package/dslens/dist/javascript/index.js",
+      "size": 17161,
+      "sha256": "b40a1a9d7d100cd30b0c810a73db608daeb5eafa6d2db05531f4024b4ecda5cf",
+      "policy": "replace-generated"
+    },
+    {
+      "path": "package/dslens/dist/javascript/index.js.map",
+      "size": 36263,
+      "sha256": "34397b2f6f441d22e17560c94827c65133c0a425577c4e31ee363c277feb6f16",
+      "policy": "replace-generated"
+    },
+    {
+      "path": "package/dslens/dist/javascript/server.js",
+      "size": 19516,
+      "sha256": "4113cd7ae891e040bec4a89ba27e92edc7dfd5590cffd8f8d9464c4416e9eba2",
+      "policy": "replace-generated"
+    },
+    {
+      "path": "package/dslens/dist/javascript/server.js.map",
+      "size": 41361,
+      "sha256": "48f6cfb909fc98c6da4230529bdcaefce8e1861c3be711129a8f40962e8a041b",
+      "policy": "replace-generated"
+    },
+    {
+      "path": "package/dslens/dist/javascript/worker.js",
+      "size": 17340,
+      "sha256": "9fd363b9a8ca939c42b1d77a36e67f2f11f0a7e004d08fa57d6ca5924098ed55",
+      "policy": "replace-generated"
+    },
+    {
+      "path": "package/dslens/dist/javascript/worker.js.map",
+      "size": 37200,
+      "sha256": "8eff44fe263c05d5c0cc3c87b35dc60ca19afa32ee4bc3ccda80cb09c8e2f662",
+      "policy": "replace-generated"
+    },
+    {
+      "path": "package/dslens/dist/manifest.json",
+      "size": 8783,
+      "sha256": "f2d472d01d0787cb23f20820865ecd37ad7068efb7af84307507d65d6543bad9",
+      "policy": "replace-generated"
+    },
+    {
+      "path": "package/dslens/dist/manifests/components/detect.json",
+      "size": 1170,
+      "sha256": "fd26e8e03c85e06eb88d3ea5699c84d7cbb25b75baa2e393f0b619b2773053c4",
+      "policy": "replace-generated"
+    },
+    {
+      "path": "package/dslens/dist/manifests/components/index.json",
+      "size": 976,
+      "sha256": "5a744d63852e93c7fd1dfab50edb110e82e0d3f333bb4cb754f5bc29aeb8128b",
+      "policy": "replace-generated"
+    },
+    {
+      "path": "package/dslens/dist/manifests/components/resolve-data.json",
+      "size": 1281,
+      "sha256": "669c1bff9a5521bc794aa53bed9c04368e76f2aa25903792dde4f6acd574b219",
+      "policy": "replace-generated"
+    },
+    {
+      "path": "package/dslens/dist/manifests/components/resolve-source.json",
+      "size": 1446,
+      "sha256": "49495c7fc2b98ef3f4af64fb952a743a42a6fb1aa89e1bf8199f6763b8f11fc7",
+      "policy": "replace-generated"
+    },
+    {
+      "path": "package/dslens/dist/typescript/browser.d.ts",
+      "size": 588,
+      "sha256": "b4de30dee05ccbe63ae265d665661849c01a29a0a1c4aa224b17de7902228d31",
+      "policy": "replace-generated"
+    },
+    {
+      "path": "package/dslens/dist/typescript/browser.d.ts.map",
+      "size": 591,
+      "sha256": "0bfb55ff67fd78d5257e2646aa1ce8defb5f966449a57ec75fc7484716fc2e6f",
+      "policy": "replace-generated"
+    },
+    {
+      "path": "package/dslens/dist/typescript/browser.js",
+      "size": 2970,
+      "sha256": "60305aae5965b3fa16811829c17b2e6270b13693221e04b611a96dac9ad7cb3d",
+      "policy": "replace-generated"
+    },
+    {
+      "path": "package/dslens/dist/typescript/browser.js.map",
+      "size": 2963,
+      "sha256": "2bf8fdee304dee697346ae4ec2942a9df313107fb8491adb6bcb32fcade259d2",
+      "policy": "replace-generated"
+    },
+    {
+      "path": "package/dslens/dist/typescript/browser/components/detect.d.ts",
+      "size": 109,
+      "sha256": "446e96ef45b961d444526d0fe6cd51fb90e08270aa3d8705cc265f18285bf97c",
+      "policy": "replace-generated"
+    },
+    {
+      "path": "package/dslens/dist/typescript/browser/components/detect.d.ts.map",
+      "size": 196,
+      "sha256": "a81a81a8c771c4e9bef7368339d5aa73d504703f1b49a7bbe3a8f889f98ef1fc",
+      "policy": "replace-generated"
+    },
+    {
+      "path": "package/dslens/dist/typescript/browser/components/detect.js",
+      "size": 334,
+      "sha256": "a69d99378d302552f5621ee8b5e859b27674a5db81f7501ff31bf25da0005fae",
+      "policy": "replace-generated"
+    },
+    {
+      "path": "package/dslens/dist/typescript/browser/components/detect.js.map",
+      "size": 208,
+      "sha256": "4d51effbbc5ad8966893f4a98923050b6c6900f42b3b081243e702e9f7511c26",
+      "policy": "replace-generated"
+    },
+    {
+      "path": "package/dslens/dist/typescript/browser/components/resolve-data.d.ts",
+      "size": 103,
+      "sha256": "4d44c5ed357ec86561ac771e9ac2c6285ed10964cc92baa5bea5e65a17e428b0",
+      "policy": "replace-generated"
+    },
+    {
+      "path": "package/dslens/dist/typescript/browser/components/resolve-data.d.ts.map",
+      "size": 204,
+      "sha256": "e8a00d8792a8426dbb83d1e3eff8123015af1a6555a54dbd02e3818d044773cd",
+      "policy": "replace-generated"
+    },
+    {
+      "path": "package/dslens/dist/typescript/browser/components/resolve-data.js",
+      "size": 328,
+      "sha256": "48500e5d63cc06e4c91466a82d1397024e6ec874e45ccf6d5fb7b4d333c1b811",
+      "policy": "replace-generated"
+    },
+    {
+      "path": "package/dslens/dist/typescript/browser/components/resolve-data.js.map",
+      "size": 216,
+      "sha256": "90b62d2a09ff6577421f4c9f5dc6a6ba1bb72ce26f15bac6320b149150b8dc1d",
+      "policy": "replace-generated"
+    },
+    {
+      "path": "package/dslens/dist/typescript/browser/components/resolve-source.d.ts",
+      "size": 166,
+      "sha256": "97e102fb5b21afb5873c158095eaa290b52dbd8fd38ccedf4e66213de8776df8",
+      "policy": "replace-generated"
+    },
+    {
+      "path": "package/dslens/dist/typescript/browser/components/resolve-source.d.ts.map",
+      "size": 247,
+      "sha256": "c40b97a5eb835cf6ecce2f8757dd0e16f333a70b53bfb3a0bc4f0755356ef70c",
+      "policy": "replace-generated"
+    },
+    {
+      "path": "package/dslens/dist/typescript/browser/components/resolve-source.js",
+      "size": 329,
+      "sha256": "3cc56537caf6da8974a149c96b37c1ddddbd70251a760061f38f907fe9580cee",
+      "policy": "replace-generated"
+    },
+    {
+      "path": "package/dslens/dist/typescript/browser/components/resolve-source.js.map",
+      "size": 214,
+      "sha256": "e4704e5f8988bbc3af4b790e1300613b5349b9257c9c0e803dea8cd635ce9236",
+      "policy": "replace-generated"
+    },
+    {
+      "path": "package/dslens/dist/typescript/components/detect.d.ts",
+      "size": 106,
+      "sha256": "c287b2b63df67fa9aacc0846713d1f088349dfc292dcbc162281601ec1096357",
+      "policy": "replace-generated"
+    },
+    {
+      "path": "package/dslens/dist/typescript/components/detect.d.ts.map",
+      "size": 185,
+      "sha256": "a2a29d57aaa89829056d16167e89d6f44939a181d393e9e878e3c0171bed4457",
+      "policy": "replace-generated"
+    },
+    {
+      "path": "package/dslens/dist/typescript/components/detect.js",
+      "size": 331,
+      "sha256": "f2cf54a64437c0b85ab565015f27f47533aae6333adfff00df25b39ff31a1781",
+      "policy": "replace-generated"
+    },
+    {
+      "path": "package/dslens/dist/typescript/components/detect.js.map",
+      "size": 197,
+      "sha256": "59bc10dba28d17dc3f5938e7c18c6aa5a4c22d6be92bdff0b7eb2ff5d7df8bdf",
+      "policy": "replace-generated"
+    },
+    {
+      "path": "package/dslens/dist/typescript/components/resolve-data.d.ts",
+      "size": 100,
+      "sha256": "60710ccdf3a09d316a70db3d480fdb26137c0f23b6e33ffc1207c0b29d42fdb1",
+      "policy": "replace-generated"
+    },
+    {
+      "path": "package/dslens/dist/typescript/components/resolve-data.d.ts.map",
+      "size": 193,
+      "sha256": "9843c8871655caee201d840cc4fedf188455e8d29596aef1d300770d4cc8bf97",
+      "policy": "replace-generated"
+    },
+    {
+      "path": "package/dslens/dist/typescript/components/resolve-data.js",
+      "size": 325,
+      "sha256": "1770f98170cef458dd942a3669f45df3179585c7a011413a7b49c30f824c6c0b",
+      "policy": "replace-generated"
+    },
+    {
+      "path": "package/dslens/dist/typescript/components/resolve-data.js.map",
+      "size": 205,
+      "sha256": "f3e32cad39a8466dcfe257d91bf13daee7528e5a554c5bbe9ed49b2509eabfcf",
+      "policy": "replace-generated"
+    },
+    {
+      "path": "package/dslens/dist/typescript/components/resolve-source.d.ts",
+      "size": 160,
+      "sha256": "c5e108e3f3aaf6ef54269c00f2d0e588d39f1161c759279d8e5ded094e01cc7f",
+      "policy": "replace-generated"
+    },
+    {
+      "path": "package/dslens/dist/typescript/components/resolve-source.d.ts.map",
+      "size": 232,
+      "sha256": "d04b34255abe0eaf335cd9ce80d1e146f906446c021cf92387d67a3190fad4c7",
+      "policy": "replace-generated"
+    },
+    {
+      "path": "package/dslens/dist/typescript/components/resolve-source.js",
+      "size": 326,
+      "sha256": "0c86f2e437a9fa4ecdb50c6eef97b810b43472a8147c2922cf60327fb58c3171",
+      "policy": "replace-generated"
+    },
+    {
+      "path": "package/dslens/dist/typescript/components/resolve-source.js.map",
+      "size": 201,
+      "sha256": "513db9feb1ee9e7fe204176784276baaafe85f59a2b75d3b37eb70411da5e24f",
+      "policy": "replace-generated"
+    },
+    {
+      "path": "package/dslens/dist/typescript/core.d.ts",
+      "size": 1765,
+      "sha256": "ab8e91b5e8230e7574c853079b672b424902801eb0b87dcf1cd487232c6d1996",
+      "policy": "replace-generated"
+    },
+    {
+      "path": "package/dslens/dist/typescript/core.d.ts.map",
+      "size": 1560,
+      "sha256": "c7f0c2ff11ba40965509aba176dc79b09c4ff7ac2795434e8f6961f7c016f291",
+      "policy": "replace-generated"
+    },
+    {
+      "path": "package/dslens/dist/typescript/core.js",
+      "size": 20582,
+      "sha256": "24c77a5cab328f50a058060693824ce5f3410319ca3bf0ababcbea428d7baf6a",
+      "policy": "replace-generated"
+    },
+    {
+      "path": "package/dslens/dist/typescript/core.js.map",
+      "size": 22021,
+      "sha256": "6fa09f45e0bf91a3d6e99424a6443e34641a6b6cef54ae873fd646e501761c0f",
+      "policy": "replace-generated"
+    },
+    {
+      "path": "package/dslens/dist/typescript/index.d.ts",
+      "size": 62,
+      "sha256": "54be4157511742de23744fe40db74263dad660fff37dcb71b3f37e42d29bace4",
+      "policy": "replace-generated"
+    },
+    {
+      "path": "package/dslens/dist/typescript/index.d.ts.map",
+      "size": 135,
+      "sha256": "5f6a9a555dd0018ee2ab9303bba21bd99d271c7ffc89e60bc1a48a26698dd585",
+      "policy": "replace-generated"
+    },
+    {
+      "path": "package/dslens/dist/typescript/index.js",
+      "size": 287,
+      "sha256": "e2fc9435486daf98898d081bdfdc6de4d2050cea30d0ee97d26d232e1e303a96",
+      "policy": "replace-generated"
+    },
+    {
+      "path": "package/dslens/dist/typescript/index.js.map",
+      "size": 147,
+      "sha256": "693c91443736640ee22289abd7e2da706695768764f9394727a4325a32c8a97f",
+      "policy": "replace-generated"
+    },
+    {
+      "path": "package/dslens/dist/typescript/server.d.ts",
+      "size": 154,
+      "sha256": "aab431b8a4be5b70cd72a2e9644e52763f5a5f15baeb1771693037cb53363e25",
+      "policy": "replace-generated"
+    },
+    {
+      "path": "package/dslens/dist/typescript/server.d.ts.map",
+      "size": 150,
+      "sha256": "c70b0a775d945796ea911f9b5f3ab9ae811341027f0ec882491d5590004434e1",
+      "policy": "replace-generated"
+    },
+    {
+      "path": "package/dslens/dist/typescript/server.js",
+      "size": 379,
+      "sha256": "937d7e8abb4700734b9112bc1a97d5e5f3b10164fa35fac085e742db2df2eccb",
+      "policy": "replace-generated"
+    },
+    {
+      "path": "package/dslens/dist/typescript/server.js.map",
+      "size": 162,
+      "sha256": "6a171022d29b7aee925068a36c9bc342fc1c587223b02dd2e484f34f37206d7c",
+      "policy": "replace-generated"
+    },
+    {
+      "path": "package/dslens/dist/typescript/worker.d.ts",
+      "size": 424,
+      "sha256": "535813a614ce357eb192292625c3a0bf83e7fa1c30d62d6fe8540a89a2a0b525",
+      "policy": "replace-generated"
+    },
+    {
+      "path": "package/dslens/dist/typescript/worker.d.ts.map",
+      "size": 430,
+      "sha256": "d20161fabdee7b5fcf0bf8b731ae0fe7bf205bc84d99b96b350616f582b9ba27",
+      "policy": "replace-generated"
+    },
+    {
+      "path": "package/dslens/dist/typescript/worker.js",
+      "size": 554,
+      "sha256": "38bf0f01a731aaf0cc01a0261324135adbfadd7a166a93b54785b228f02c359c",
+      "policy": "replace-generated"
+    },
+    {
+      "path": "package/dslens/dist/typescript/worker.js.map",
+      "size": 365,
+      "sha256": "9edd353942eac24fc8eb4910e460d81d9e2871d72f0e269647f69e994b2effb6",
+      "policy": "replace-generated"
+    },
+    {
+      "path": "package/dslens/LICENSE",
+      "size": 15984,
+      "sha256": "8d470d891fa27c2fd97f27b55e676ba91654781dc086f72f53f51ae7ec6cb3f3",
+      "policy": "replace-generated"
+    },
+    {
+      "path": "package/dslens/package.json",
+      "size": 4388,
+      "sha256": "cad263eb21b528a8f2f67b20eb24355f8d5e6861d016c2e960ad1615430f7e1c",
+      "policy": "replace-generated"
+    },
+    {
+      "path": "package/dslens/README.md",
+      "size": 15255,
+      "sha256": "d82f097e2adeaaa421b69a57a73913b1ce01e183f4b5f3b585ef0cf3c390b72d",
+      "policy": "replace-generated"
+    },
+    {
+      "path": "package/dslens/src/browser.ts",
+      "size": 3238,
+      "sha256": "2dfaa72b4086879b87733c9f192f8b642c33f509a96d59a9ce749a6a71da3e97",
+      "policy": "replace-generated"
+    },
+    {
+      "path": "package/dslens/src/browser/components/detect.ts",
+      "size": 302,
+      "sha256": "bc90aa7ca0265a7e8ff0cd40b7cf075cd5a2c9d09e9e0443e0def6674fa12156",
+      "policy": "replace-generated"
+    },
+    {
+      "path": "package/dslens/src/browser/components/resolve-data.ts",
+      "size": 290,
+      "sha256": "3b786a788497d68a7b54443d2915dddfff202509012b39d5ad1e3ade4d8c167b",
+      "policy": "replace-generated"
+    },
+    {
+      "path": "package/dslens/src/browser/components/resolve-source.ts",
+      "size": 351,
+      "sha256": "b19c18722f31ae580ada01fa6c8031ba78bbb0db667f76420d5bf314895ebc81",
+      "policy": "replace-generated"
+    },
+    {
+      "path": "package/dslens/src/components/detect.ts",
+      "size": 299,
+      "sha256": "b11b6329f3f761c78fddf60a492c3380710a65fa4f34c20dac2a224791cc71d2",
+      "policy": "replace-generated"
+    },
+    {
+      "path": "package/dslens/src/components/resolve-data.ts",
+      "size": 287,
+      "sha256": "b245985f1a88fbe33e5e832ceaddba2eba0e4a666d2a0d7a8d77741e007d58d0",
+      "policy": "replace-generated"
+    },
+    {
+      "path": "package/dslens/src/components/resolve-source.ts",
+      "size": 345,
+      "sha256": "8ba0cd98e6520aceab57d3fadde52bba38acbd67951f927ed7275214051cdc6f",
+      "policy": "replace-generated"
+    },
+    {
+      "path": "package/dslens/src/core.ts",
+      "size": 22234,
+      "sha256": "a34f1ed7ecfd8f8c8af007209a96216afb9a9cf0705b18695cac1434e11d12a6",
+      "policy": "replace-generated"
+    },
+    {
+      "path": "package/dslens/src/index.ts",
+      "size": 255,
+      "sha256": "3b37fbb7595af109aa3e4dda3a0d4cef53ec919258a380fbab0c247e5cd762dd",
+      "policy": "replace-generated"
+    },
+    {
+      "path": "package/dslens/src/server.ts",
+      "size": 346,
+      "sha256": "9d1268a5ecfccb33bd753bcb6fe150914d5164a41079857d4324fb083465a4d3",
+      "policy": "replace-generated"
+    },
+    {
+      "path": "package/dslens/src/worker.ts",
+      "size": 738,
+      "sha256": "bdc0aa784aac0f74be5a072d54eccfa668f96cf7d1e5b205fc9b54c0c59798d1",
+      "policy": "replace-generated"
+    },
+    {
+      "path": "site/dist/assets/demo-core.js",
+      "size": 3498,
+      "sha256": "1283ac600dc9193937eb8da89eed84063beedf228e88e391c35140d3e8263223",
+      "policy": "replace-generated"
+    },
+    {
+      "path": "site/dist/assets/dslens.browser.min.js",
+      "size": 11187,
+      "sha256": "062d5e02a7e73e1f1c0b720728c1d76b2b858b0bf32afcfa42b931eb5bf910c5",
+      "policy": "replace-generated"
+    },
+    {
+      "path": "site/dist/assets/signal.svg",
+      "size": 1050,
+      "sha256": "d27f9d538b0db9eaae8f33103b1b4e47cb21ec50400cad30f414f9bad4477e81",
+      "policy": "replace-generated"
+    },
+    {
+      "path": "site/dist/assets/site.css",
+      "size": 1833,
+      "sha256": "77602be5bb2cc67e64d8e0d99c6e0b5dc03b6ac3f9d2e2dd20f647ea62c65037",
+      "policy": "replace-generated"
+    },
+    {
+      "path": "site/dist/assets/site.js",
+      "size": 2007,
+      "sha256": "2416ce4f9c47f518f01d699efb5c69721e3c8725ea1e241115b644ff4156553e",
+      "policy": "replace-generated"
+    },
+    {
+      "path": "site/dist/index.html",
+      "size": 3009,
+      "sha256": "cf8219233f7cbd8453e0cb8dfde35add535af25bb007b69a43bdae0b3f7705c2",
+      "policy": "replace-generated"
+    },
+    {
+      "path": "site/dist/manifests/components/detect.json",
+      "size": 1170,
+      "sha256": "fd26e8e03c85e06eb88d3ea5699c84d7cbb25b75baa2e393f0b619b2773053c4",
+      "policy": "replace-generated"
+    },
+    {
+      "path": "site/dist/manifests/components/index.json",
+      "size": 976,
+      "sha256": "5a744d63852e93c7fd1dfab50edb110e82e0d3f333bb4cb754f5bc29aeb8128b",
+      "policy": "replace-generated"
+    },
+    {
+      "path": "site/dist/manifests/components/resolve-data.json",
+      "size": 1281,
+      "sha256": "669c1bff9a5521bc794aa53bed9c04368e76f2aa25903792dde4f6acd574b219",
+      "policy": "replace-generated"
+    },
+    {
+      "path": "site/dist/manifests/components/resolve-source.json",
+      "size": 1446,
+      "sha256": "49495c7fc2b98ef3f4af64fb952a743a42a6fb1aa89e1bf8199f6763b8f11fc7",
+      "policy": "replace-generated"
+    },
+    {
+      "path": "site/dist/manifests/dslens.json",
+      "size": 8783,
+      "sha256": "f2d472d01d0787cb23f20820865ecd37ad7068efb7af84307507d65d6543bad9",
+      "policy": "replace-generated"
+    }
+  ]
+}

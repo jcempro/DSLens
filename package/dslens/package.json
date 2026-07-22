@@ -67,8 +67,48 @@
       "require": "./dist/commonjs/server.cjs",
       "default": "./dist/javascript/server.js"
     },
+    "./components/detect": {
+      "types": "./dist/typescript/components/detect.d.ts",
+      "import": "./dist/javascript/components/detect.js",
+      "require": "./dist/commonjs/components/detect.cjs",
+      "default": "./dist/javascript/components/detect.js"
+    },
+    "./components/resolve-data": {
+      "types": "./dist/typescript/components/resolve-data.d.ts",
+      "import": "./dist/javascript/components/resolve-data.js",
+      "require": "./dist/commonjs/components/resolve-data.cjs",
+      "default": "./dist/javascript/components/resolve-data.js"
+    },
+    "./components/resolve-source": {
+      "types": "./dist/typescript/components/resolve-source.d.ts",
+      "import": "./dist/javascript/components/resolve-source.js",
+      "require": "./dist/commonjs/components/resolve-source.cjs",
+      "default": "./dist/javascript/components/resolve-source.js"
+    },
+    "./browser/components/detect": {
+      "types": "./dist/typescript/browser/components/detect.d.ts",
+      "import": "./dist/javascript/browser/components/detect.js",
+      "require": "./dist/commonjs/browser/components/detect.cjs",
+      "default": "./dist/javascript/browser/components/detect.js"
+    },
+    "./browser/components/resolve-data": {
+      "types": "./dist/typescript/browser/components/resolve-data.d.ts",
+      "import": "./dist/javascript/browser/components/resolve-data.js",
+      "require": "./dist/commonjs/browser/components/resolve-data.cjs",
+      "default": "./dist/javascript/browser/components/resolve-data.js"
+    },
+    "./browser/components/resolve-source": {
+      "types": "./dist/typescript/browser/components/resolve-source.d.ts",
+      "import": "./dist/javascript/browser/components/resolve-source.js",
+      "require": "./dist/commonjs/browser/components/resolve-source.cjs",
+      "default": "./dist/javascript/browser/components/resolve-source.js"
+    },
     "./typescript": "./src/index.ts",
     "./manifest": "./dist/manifest.json",
+    "./manifests/components": "./dist/manifests/components/index.json",
+    "./manifests/components/detect": "./dist/manifests/components/detect.json",
+    "./manifests/components/resolve-data": "./dist/manifests/components/resolve-data.json",
+    "./manifests/components/resolve-source": "./dist/manifests/components/resolve-source.json",
     "./build-target": "./dist/build-target.json"
   }
 }

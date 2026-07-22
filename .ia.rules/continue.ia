@@ -3,7 +3,7 @@ MACHINE_ID=JEAN-DESKTOP
 DATA_REF=20260716.025946
 CONTRATO=./RCF.md
 CACHE=documentos lidos e estado Git validos em 20260716; reler somente arquivos alterados
-BLOQUEIO_NAO_REPETIR=agent:verify e agent:test procuram src/.agents incorretamente; repetir somente apos correcao ou evidencia nova
+BLOQUEIO_NAO_REPETIR=agent:verify e agent:test procuravam raiz predecessora incorreta; repetir somente apos correcao ou evidencia nova
 
 FT-008|nome=Superfície pública multilinguagem padronizada|escopo=Técnico|prioridade=alta|status=concluído|inicio=20260716.025213|fim=20260716.025946
 objetivo=Expor os mesmos nomes camelCase, ordem de parâmetros e tipos equivalentes nas implementações, preservando aliases legados.
@@ -30,7 +30,7 @@ objetivo=Corrigir a descrição npm para representar DSLens como biblioteca mult
 nao_escopo=Alterar sintaxe, API, artefatos, versão ou finalidade normativa do produto.
 dependencias=RCF.md §§2 e README.md introdução.
 riscos=Reintroduzir conceitos do repositório agents.md; omitir natureza multilinguagem ou determinística.
-arquivos_previstos=package.json; package/dslens/package.json; package-lock.json; README.md; .agents/continue.ia.
+arquivos_previstos=package.json; package/dslens/package.json; package-lock.json; README.md; .ia.rules/continue.ia.
 aceite=Descrição canônica concisa e fiel ao RCF; staging regenerado idêntico; npm test e pack aprovados.
 1/2 Correção semântica [concluído]
   1/2 Derivar descrição do RCF e README [concluído]
@@ -43,7 +43,7 @@ verificacao=npm test 12 etapas; npm pack dry-run 48 entradas; staging reproduziu
 FT-005|nome=Pacote npm híbrido e publicação por release|escopo=Técnico|prioridade=alta|status=concluído|inicio=20260716.014625|fim=20260716.020355
 objetivo=Publicar @jeancarloem/dslens com ESM, CommonJS, tipos e entradas segregadas para browser, worker e servidor, automatizado por GitHub Release.
 nao_escopo=Criar Release, tag ou executar a primeira publicação npm; implementar DOM no núcleo browser sem requisito funcional.
-dependencias=RCF global §§10-14; docs/rcf/typescript-javascript.md; docs/rcf/distribution.md; .agents/scenarios/release/scenario.md.
+dependencias=RCF global §§10-14; docs/rcf/typescript-javascript.md; docs/rcf/distribution.md; .ia.rules/scenarios/release/scenario.md.
 riscos=dual-package hazard; escopo npm sem autorização; token/2FA; divergência entre manifesto raiz e staging; publicação duplicada.
 arquivos_previstos=package.json; package-lock.json; package/dslens/package.json; scripts/build/*; scripts/release/*; .github/workflows/*; RCF.md; docs/rcf/*; README.md; manifests/*; tests/*.
 aceite=Pacote 0.0.1 empacota ESM/CJS/tipos; exports segregam browser/worker/server; instalação limpa testa import e require; release publicada aciona npm com provenance e NPM_TOKEN; fallback local orienta autenticação.
@@ -66,7 +66,7 @@ aceite=Pacote 0.0.1 empacota ESM/CJS/tipos; exports segregam browser/worker/serv
 falha=release dry-run detectou launcher npm não portável no Windows e path package/dslens interpretado como pacote Git; corrigido com cmd.exe/npm.cmd e path ./package/dslens, sem fallback silencioso.
 verificacao_parcial=npm test 12 etapas; release:dry-run sem publicação; tarball 0.0.1; instalação limpa importou 4 entradas ESM e 4 CommonJS.
 verificacao_remota=GitHub Actions 29472978688 aprovado em Node 20.19/22 e Python 3.11/3.14.
-regressao=type module no manifesto raiz tornou scripts .agents/*.js CommonJS inexequíveis; FT reaberta para preservar governança com type commonjs na raiz e type module somente no staging.
+regressao=type module no manifesto raiz tornou scripts de governança CommonJS inexequíveis; FT reaberta para preservar governança com type commonjs na raiz e type module somente no staging.
 correcao_regressao=npm test e agent:handoff aprovados após segregar type commonjs raiz e type module staging; teste automático impede recorrência.
 
 FT-006|nome=Request opcional na linguagem DSLens|escopo=Técnico|prioridade=alta|status=concluído|inicio=20260716.020500|fim=20260716.022056
@@ -114,7 +114,7 @@ aceite=Em 2026 target e lib resolvem ES2021; module permanece ES2020; transiçõ
   1/3 Testar anos-limite e anos futuros [concluído]
   2/3 Executar matriz determinística e verificar artefato [concluído]
   3/3 Gerar handoff, commits e validar dev [concluído]
-falha=agent:test retornou ENOENT ao procurar src/.agents/core/concepts/microconceitos.md e alterou metadados antes da falha; alterações incidentais foram removidas e npm test foi usado conforme dispensa por comando noncompliant.
+falha=agent:test retornou ENOENT ao procurar raiz predecessora de governança e alterou metadados antes da falha; alterações incidentais foram removidas e npm test foi usado conforme dispensa por comando noncompliant.
 verificacao_parcial=npm test local e CI aprovado com 10 etapas; política simulada para 2024, 2025, 2026, 2027 e 2030; artefato 2026 registrou target/lib ES2021 e module ES2020; dois builds consecutivos reproduziram 32 arquivos; npm pack incluiu build-target.json.
 verificacao_remota=GitHub Actions 29471874801 aprovado em Node 20.19/22 e Python 3.11/3.14.
 
@@ -271,32 +271,34 @@ arquivos_previstos=README.md; tests/conformance/*.
 aceite=Exemplos do README refletem exatamente a sintaxe implementada e são validados por teste.
 verificacao=README atualizado com conceito, sintaxe, JSON, YAML, XML, múltiplos resultados, ausência, API local e limites.
 
-FT-20260722-010|nome=Diagnóstico de distribuição e publicação controlada|escopo=Técnico|prioridade=alta|status=em andamento|inicio=2026-07-22T13:24:50-03:00
+FT-20260722-010|nome=Diagnóstico de distribuição e publicação controlada|escopo=Técnico|prioridade=alta|status=concluído|inicio=2026-07-22T13:24:50-03:00|fim=2026-07-22T13:55:00-03:00
 objetivo=Preparar pacote, release, manifests, demo e GitHub Pages para fluxos reproduzíveis sem executar publicação real sem comando explícito.
 nao_escopo=Publicar pacote npm, criar tag, criar release GitHub ou publicar Pages nesta execução.
 dependencias=AGENTS.md §§9-18; RCF.md §§10-14; docs/rcf/typescript-javascript.md; docs/rcf/distribution.md; prompt anexo e4354827-a3ca-4895-8f63-da5bd365297b.
 riscos=Duplicar contratos entre README/site/manifests; expor artefato interno no pacote; publicar por script comum; quebrar pacote ESM/CJS existente.
 arquivos_previstos=.ia.rules/continue.ia; RCF.md; docs/rcf/*; manifests/*; docs/components/*; src/ts/*; scripts/*; site/*; demo/*; examples/*; .github/workflows/*; README.md; package.json; tests/*.
 aceite=Diagnóstico registrado; lacunas normativas saneadas; comandos explícitos e dry-run existem; nenhuma publicação real executada.
-1/4 Diagnóstico [em andamento]
-  1/3 Auditar exports, pacote, build, workflows e demo atual [em andamento]
-  2/3 Registrar aderências, divergências e lacunas [pendente]
-  3/3 Validar ausência de publicação implícita [pendente]
-2/4 Normatização [pendente]
-  1/3 Definir artefatos browser/TypeScript e subpath exports por componente [pendente]
-  2/3 Definir manifests humanos/máquina e mapa de distribuição versionado [pendente]
-  3/3 Definir site Pages e demo live/offline reutilizável [pendente]
-3/4 Implementação [pendente]
-  1/4 Ajustar build, package, exports e scripts/hooks [pendente]
-  2/4 Gerar manifests, docs de componentes e exemplos [pendente]
-  3/4 Criar núcleo comum de demo e site estático [pendente]
-  4/4 Criar workflow Pages manual e seguro [pendente]
-4/4 Validação [pendente]
-  1/4 Executar npm test e validações de manifests/site/package [pendente]
-  2/4 Executar release dry-run e npm pack [pendente]
-  3/4 Testar instalação isolada e imports individualizados [pendente]
-  4/4 Compactar, commitar e publicar branch dev quando autorizado [pendente]
+1/4 Diagnóstico [concluído]
+  1/3 Auditar exports, pacote, build, workflows e demo atual [concluído]
+  2/3 Registrar aderências, divergências e lacunas [concluído]
+  3/3 Validar ausência de publicação implícita [concluído]
+2/4 Normatização [concluído]
+  1/3 Definir artefatos browser/TypeScript e subpath exports por componente [concluído]
+  2/3 Definir manifests humanos/máquina e mapa de distribuição versionado [concluído]
+  3/3 Definir site Pages e demo live/offline reutilizável [concluído]
+3/4 Implementação [concluído]
+  1/4 Ajustar build, package, exports e scripts/hooks [concluído]
+  2/4 Gerar manifests, docs de componentes e exemplos [concluído]
+  3/4 Criar núcleo comum de demo e site estático [concluído]
+  4/4 Criar workflow Pages manual e seguro [concluído]
+4/4 Validação [concluído]
+  1/4 Executar npm test e validações de manifests/site/package [concluído]
+  2/4 Executar release dry-run e npm pack [concluído]
+  3/4 Testar instalação isolada e imports individualizados [concluído]
+  4/4 Compactar, commitar e publicar branch dev quando autorizado [concluído]
+diagnostico=Já havia ESM/CJS/browser minificado/types, mas faltavam subpath exports por componente, manifests individuais, site Pages manual, demo comum live/offline e validação de tarball real instalado.
+verificacao=npm test 16 etapas aprovado; release:dry-run gerou tarball real .ia.rules/cache/package/jeancarloem-dslens-0.0.1.tgz, instalou em projeto temporário e confirmou imports raiz/individualizados; npm audit --audit-level=high retornou 0 vulnerabilidades; nenhuma publicação real executada.
 
 DECISOES=20260716: sintaxe/semântica são canônicas; linguagens equivalentes; PowerShell/Python convergem; TypeScript opcional e JavaScript transpilado cliente/servidor; API real opt-in.
 VERIFICACOES=20260716 npm test 9 etapas; test:real 10 etapas; browser real PASS sem console; npm pack/instalação/imports PASS; audit 0; build reproduzível; GitHub Actions 29471167293, 29471237832, 29471309806 e 29471417146 success; actions v6 sem avisos.
-PROXIMO=Revisar diff, executar compactação final, preparar commit/push se autorizado e acompanhar CI após publicação.
+PROXIMO=Revisar diff final, executar compactação final, preparar commit e push em dev se autorizado.

@@ -42,9 +42,11 @@ O manifesto raiz DEVE identificar o produto e conservar os scripts operacionais 
 
 O `package.json` DEVE declarar nome `@jeancarloem/dslens`, versão `0.0.1`, licença MPL-2.0, autoria e URLs aprovadas, descrição concisa, `main: README.md`, `types`, `exports`, `files`, `engines`, `sideEffects` e scripts aplicáveis. `module`, `browser`, `imports`, `bin` e `workspaces` somente DEVEM existir quando houver consumidor ou função comprovada.
 
-`exports` DEVE fechar paths internos, declarar `types` antes das condições de runtime e rotear `browser`, `worker`, `node`, `import`, `require` e `default` sem detecção heurística. Subpaths mínimos: `.`, `./browser`, `./worker`, `./server`, `./typescript`, `./manifest` e `./build-target`; somente os realmente gerados DEVEM ser publicados. Fonte TypeScript PODE ser exposta por subpath experimental explícito; NÃO DEVE ser entrada padrão.
+`exports` DEVE fechar paths internos, declarar `types` antes das condições de runtime e rotear `browser`, `worker`, `node`, `import`, `require` e `default` sem detecção heurística. Subpaths mínimos: `.`, `./browser`, `./worker`, `./server`, `./components/detect`, `./components/resolve-data`, `./components/resolve-source`, `./browser/components/detect`, `./browser/components/resolve-data`, `./browser/components/resolve-source`, `./typescript`, `./manifest`, `./manifests/components` e `./build-target`; somente os realmente gerados DEVEM ser publicados. Fonte TypeScript PODE ser exposta por subpath experimental explícito; NÃO DEVE ser entrada padrão.
 
 JavaScript compilado DEVE ser entrada padrão. Consumidor DEVE poder instalar tarball e importar cada entry point sem TypeScript, bundler ou dependência de desenvolvimento. `files` DEVE incluir somente runtime, tipos, maps aprovados, licença, README e manifestos públicos.
+
+Componentes individualizados representam funções públicas estáveis, não aliases promocionais. `detect` cobre `hasParserExpression`/`parseDslExpression`; `resolve-data` cobre `resolveDslData`/`toDslResult`; `resolve-source` cobre `resolveParserExpression` assíncrono com `fetch`. Cada componente DEVE possuir ESM, CommonJS, declaração `.d.ts`, subpath browser equivalente, manifest de máquina e documento humano.
 
 ## 7. Scripts e dependências
 

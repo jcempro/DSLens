@@ -132,6 +132,19 @@ try {
     );
     if (!releaseWorkflow.on?.release?.types?.includes('published'))
       throw new Error('workflow npm não reage a release publicada');
+    const pagesWorkflow = parseYaml(
+      await readFile('.github/workflows/pages.yml', 'utf8'),
+    );
+    if (
+      !Object.prototype.hasOwnProperty.call(
+        pagesWorkflow.on ?? {},
+        'workflow_dispatch',
+      ) ||
+      pagesWorkflow.on?.push ||
+      pagesWorkflow.permissions?.pages !== 'write' ||
+      pagesWorkflow.permissions?.contents !== 'read'
+    )
+      throw new Error('workflow Pages deve ser manual e minimo');
   });
 
   await stage('npm-package-contract', async () => {
@@ -156,11 +169,15 @@ try {
       './browser',
       './worker',
       './server',
+      './components/detect',
+      './components/resolve-data',
+      './components/resolve-source',
+      './browser/components/detect',
+      './browser/components/resolve-data',
+      './browser/components/resolve-source',
     ]) {
       const exported = manifest.exports[subpath];
-      const requirePath =
-        subpath === '.' ? exported.require : exported.require;
-      if (!requirePath?.endsWith('.cjs'))
+      if (!exported?.import?.endsWith('.js') || !exported.require?.endsWith('.cjs'))
         throw new Error(`${subpath} não possui condição require`);
     }
     const source = await readFile(
@@ -252,6 +269,32 @@ nullish: null
     }
   });
 
+  await stage('component-subpath-conformance', async () => {
+    const detect = await import(
+      '../../package/dslens/dist/javascript/components/detect.js'
+    );
+    const browserDetect = await import(
+      '../../package/dslens/dist/javascript/browser/components/detect.js'
+    );
+    const data = await import(
+      '../../package/dslens/dist/javascript/components/resolve-data.js'
+    );
+    const browserData = await import(
+      '../../package/dslens/dist/javascript/browser/components/resolve-data.js'
+    );
+    const source = await import(
+      '../../package/dslens/dist/javascript/components/resolve-source.js'
+    );
+    if (
+      typeof detect.hasParserExpression !== 'function' ||
+      typeof browserDetect.hasParserExpression !== 'function' ||
+      data.resolveDslData({ a: 1 }, '.a') !== '1' ||
+      browserData.resolveDslData({ a: 1 }, '.a') !== '1' ||
+      typeof source.resolveParserExpression !== 'function'
+    )
+      throw new Error('subpath de componente divergente');
+  });
+
   await stage('commonjs-unit-conformance', async () => {
     for (const entry of ['index', 'browser', 'worker', 'server']) {
       const module = require(
@@ -337,6 +380,25 @@ nullish: null
       );
       await rm(directory, { recursive: true, force: true });
     }
+  });
+
+  await stage('manifests-and-site', async () => {
+    run('manifests:validate', process.execPath, [
+      'scripts/manifests/validate.mjs',
+    ]);
+    run('site:build', process.execPath, ['scripts/site/build.mjs']);
+    const site = await readFile('site/dist/index.html', 'utf8');
+    const demo = await readFile('site/dist/assets/demo-core.js', 'utf8');
+    const bundle = await readFile(
+      'site/dist/assets/dslens.browser.min.js',
+      'utf8',
+    );
+    if (
+      !site.includes('Content-Security-Policy') ||
+      !demo.includes('classification') ||
+      !bundle.includes('DSLens')
+    )
+      throw new Error('site ou demo gerados incompletos');
   });
 
   if (

@@ -1,5 +1,12 @@
 /* Origem: https://github.com/jcempro/DSLens | Autor: JeanCarloEM | MPL-2.0 https://mozilla.org/MPL/2.0/ */
-import { cp, mkdir, readFile, rm, writeFile } from 'node:fs/promises';
+import {
+  cp,
+  mkdir,
+  readFile,
+  rename,
+  rm,
+  writeFile,
+} from 'node:fs/promises';
 import { execFileSync } from 'node:child_process';
 import { build } from 'esbuild';
 import {
@@ -40,6 +47,36 @@ for (const entry of ['index', 'browser', 'worker', 'server']) {
     banner: { js: banner },
   });
 }
+const componentEntries = [
+  'components/detect',
+  'components/resolve-data',
+  'components/resolve-source',
+  'browser/components/detect',
+  'browser/components/resolve-data',
+  'browser/components/resolve-source',
+];
+for (const entry of componentEntries) {
+  await build({
+    entryPoints: [`src/ts/${entry}.ts`],
+    outfile: `package/dslens/dist/javascript/${entry}.js`,
+    bundle: true,
+    format: 'esm',
+    platform: 'browser',
+    target: ecmascript.target.toLowerCase(),
+    sourcemap: true,
+    banner: { js: banner },
+  });
+  await build({
+    entryPoints: [`src/ts/${entry}.ts`],
+    outfile: `package/dslens/dist/commonjs/${entry}.cjs`,
+    bundle: true,
+    format: 'cjs',
+    platform: 'browser',
+    target: ecmascript.target.toLowerCase(),
+    sourcemap: true,
+    banner: { js: banner },
+  });
+}
 await build({
   entryPoints: ['src/ts/browser.ts'],
   outfile: 'package/dslens/dist/javascript/browser.min.js',
@@ -63,6 +100,9 @@ const runtimeExport = (name) => ({
   require: `./dist/commonjs/${name}.cjs`,
   default: `./dist/javascript/${name}.js`,
 });
+const componentExport = (name) => runtimeExport(`components/${name}`);
+const browserComponentExport = (name) =>
+  runtimeExport(`browser/components/${name}`);
 const publicPackage = {
   name: rootPackage.name,
   version: rootPackage.version,
@@ -101,22 +141,54 @@ const publicPackage = {
     './browser': runtimeExport('browser'),
     './worker': runtimeExport('worker'),
     './server': runtimeExport('server'),
+    './components/detect': componentExport('detect'),
+    './components/resolve-data': componentExport('resolve-data'),
+    './components/resolve-source': componentExport('resolve-source'),
+    './browser/components/detect': browserComponentExport('detect'),
+    './browser/components/resolve-data':
+      browserComponentExport('resolve-data'),
+    './browser/components/resolve-source':
+      browserComponentExport('resolve-source'),
     './typescript': './src/index.ts',
     './manifest': './dist/manifest.json',
+    './manifests/components': './dist/manifests/components/index.json',
+    './manifests/components/detect':
+      './dist/manifests/components/detect.json',
+    './manifests/components/resolve-data':
+      './dist/manifests/components/resolve-data.json',
+    './manifests/components/resolve-source':
+      './dist/manifests/components/resolve-source.json',
     './build-target': './dist/build-target.json',
   },
 };
-await writeFile(
+await writeGeneratedFile(
   'package/dslens/package.json',
   `${JSON.stringify(publicPackage, null, 2)}\n`,
-  'utf8',
 );
 await cp(
   'manifests/dslens.json',
   'package/dslens/dist/manifest.json',
 );
-await writeFile(
+await mkdir('package/dslens/dist/manifests', { recursive: true });
+await cp('manifests/components', 'package/dslens/dist/manifests/components', {
+  recursive: true,
+});
+await writeGeneratedFile(
   'package/dslens/dist/build-target.json',
   `${JSON.stringify(ecmascript, null, 2)}\n`,
-  'utf8',
 );
+
+async function writeGeneratedFile(path, content) {
+  const temporary = `${path}.tmp-${process.pid}`;
+  for (let attempt = 0; attempt < 5; attempt += 1) {
+    try {
+      await writeFile(temporary, content, 'utf8');
+      await rename(temporary, path);
+      return;
+    } catch (error) {
+      await rm(temporary, { force: true });
+      if (attempt === 4) throw error;
+      await new Promise((resolve) => setTimeout(resolve, 100 * (attempt + 1)));
+    }
+  }
+}

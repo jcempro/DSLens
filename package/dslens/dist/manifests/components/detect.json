@@ -1,0 +1,27 @@
+{
+  "schemaVersion": 1,
+  "id": "detect",
+  "name": "Detecção e parsing de expressão",
+  "summary": "Detecta expressão DSLens e compila origem/path sem executar rede.",
+  "category": "parser",
+  "entrypoints": {
+    "typescript": "@jeancarloem/dslens/components/detect",
+    "browser": "@jeancarloem/dslens/browser/components/detect"
+  },
+  "environments": ["browser", "worker", "node", "bundler"],
+  "exports": ["hasParserExpression", "parseDslExpression"],
+  "signature": "hasParserExpression(source: string): boolean; parseDslExpression(source: string): ParsedDslExpression|null",
+  "parameters": [{ "name": "source", "type": "string", "required": true }],
+  "returns": ["boolean", "ParsedDslExpression|null"],
+  "events": [],
+  "sideEffects": false,
+  "dependencies": [],
+  "incompatibilities": ["malformed-expression", "non-http-source"],
+  "examples": [{ "id": "detect-minimal", "source": "examples/components/detect.mjs" }],
+  "requirements": ["single-expression", "http-or-https-source"],
+  "related": ["resolve-data", "resolve-source"],
+  "since": "0.0.1",
+  "stability": "stable",
+  "normativeReference": "RCF.md#6-entradas-saídas-falhas-e-telemetria"
+}
+
