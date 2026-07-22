@@ -331,6 +331,21 @@ aceite=`npm run publish` não exige `--confirm-publish`; sem GitHub CLI autentic
   3/3 Executar `npm test` [concluído]
 verificacao=publish:dry-run retornou published=false; publish sem gh/token retornou apenas PAGES_PUBLICADOR_INDISPONIVEL antes de build:dslens/site:build; npm test 16 etapas aprovado; nenhuma publicação real executada.
 
+FT-20260722-013|nome=Uso de credencial Git local para Pages|escopo=Técnico|prioridade=alta|status=concluído|inicio=2026-07-22T14:06:40-03:00|fim=2026-07-22T14:10:00-03:00
+objetivo=Permitir que `npm run publish` acione Pages usando token HTTPS já disponível no credential helper do Git local antes de exigir GitHub CLI ou variável de ambiente.
+nao_escopo=Extrair segredo para log; usar autenticação SSH como token API; executar publicação real durante validação.
+dependencias=FT-20260722-012; scripts/publish/flow.mjs; credencial Git local HTTPS.
+riscos=Credential helper não expor token; autenticação SSH provar Git sem permitir `workflow_dispatch`; vazamento acidental de segredo.
+arquivos_previstos=scripts/publish/flow.mjs; scripts/test/run.mjs; README.md; package/dslens/README.md; .ia.rules/continue.ia.
+aceite=Ordem de autenticação: GH_TOKEN/GITHUB_TOKEN, `git credential fill`, GitHub CLI autenticado; token obtido não é logado; falha remanescente explica SSH/helper sem token API.
+1/2 Implementação [concluído]
+  1/2 Adicionar leitura segura de token por `git credential fill` [concluído]
+  2/2 Atualizar diagnóstico e documentação [concluído]
+2/2 Validação [concluído]
+  1/2 Executar `npm run publish:dry-run` [concluído]
+  2/2 Executar `npm test` [concluído]
+verificacao=publish:dry-run retornou published=false; npm test 16 etapas aprovado; publicação real não executada para evitar dispatch remoto durante validação.
+
 DECISOES=20260716: sintaxe/semântica são canônicas; linguagens equivalentes; PowerShell/Python convergem; TypeScript opcional e JavaScript transpilado cliente/servidor; API real opt-in.
 VERIFICACOES=20260716 npm test 9 etapas; test:real 10 etapas; browser real PASS sem console; npm pack/instalação/imports PASS; audit 0; build reproduzível; GitHub Actions 29471167293, 29471237832, 29471309806 e 29471417146 success; actions v6 sem avisos.
 PROXIMO=Revisar diff final, executar compactação final, preparar commit e push em dev se autorizado.

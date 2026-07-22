@@ -186,6 +186,9 @@ try {
       publishFlow.includes('PAGES_PUBLICACAO_BLOQUEADA') ||
       !publishFlow.includes('PAGES_PUBLICADOR_INDISPONIVEL') ||
       !publishFlow.includes('GH_TOKEN') ||
+      !publishFlow.includes('git\', [\'credential\', \'fill\']') ||
+      !publishFlow.includes('git-credential') ||
+      !publishFlow.includes('SSH ou helper sem token API') ||
       !publishFlow.includes('gh\', [\'auth\', \'status\']')
     )
       throw new Error('preflight de publish Pages divergente');

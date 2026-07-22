@@ -5,6 +5,10 @@ import process from 'node:process';
 
 const command = process.argv[2] ?? 'pages';
 const dryRun = process.argv.includes('--dry-run');
+const repository = {
+  owner: 'jcempro',
+  name: 'DSLens',
+};
 
 const tasks = {
   check: publishCheck,
@@ -89,6 +93,12 @@ async function resolvePublisher() {
       via: 'github-api',
       dispatch: () => dispatchWithGitHubApi(token),
     };
+  const gitCredential = resolveGitCredentialToken();
+  if (gitCredential)
+    return {
+      via: 'git-credential',
+      dispatch: () => dispatchWithGitHubApi(gitCredential),
+    };
   if (commandSucceeds('gh', ['--version'])) {
     if (!commandSucceeds('gh', ['auth', 'status']))
       throw new Error(
@@ -100,13 +110,13 @@ async function resolvePublisher() {
     };
   }
   throw new Error(
-    'PAGES_PUBLICADOR_INDISPONIVEL: instale/autentique GitHub CLI ou defina GH_TOKEN/GITHUB_TOKEN para acionar workflow_dispatch.',
+    'PAGES_PUBLICADOR_INDISPONIVEL: Git autenticado por SSH ou helper sem token API nao aciona workflow_dispatch; use remoto HTTPS com credential helper, gh auth login ou GH_TOKEN/GITHUB_TOKEN.',
   );
 }
 
 async function dispatchWithGitHubApi(token) {
   const response = await fetch(
-    'https://api.github.com/repos/jcempro/DSLens/actions/workflows/pages.yml/dispatches',
+    `https://api.github.com/repos/${repository.owner}/${repository.name}/actions/workflows/pages.yml/dispatches`,
     {
       method: 'POST',
       headers: {
@@ -122,6 +132,34 @@ async function dispatchWithGitHubApi(token) {
     throw new Error(
       `GitHub API falhou ao acionar Pages: status=${response.status}`,
     );
+}
+
+function resolveGitCredentialToken() {
+  const candidates = [
+    `protocol=https\nhost=github.com\npath=${repository.owner}/${repository.name}.git\n\n`,
+    'protocol=https\nhost=github.com\n\n',
+  ];
+  for (const input of candidates) {
+    const result = spawnSync('git', ['credential', 'fill'], {
+      encoding: 'utf8',
+      input,
+      stdio: 'pipe',
+    });
+    if (result.status !== 0) continue;
+    const credential = parseGitCredential(result.stdout);
+    if (credential.password) return credential.password;
+  }
+  return '';
+}
+
+function parseGitCredential(output) {
+  const credential = {};
+  for (const line of output.split(/\r?\n/u)) {
+    const separator = line.indexOf('=');
+    if (separator <= 0) continue;
+    credential[line.slice(0, separator)] = line.slice(separator + 1);
+  }
+  return credential;
 }
 
 function commandSucceeds(commandName, args) {

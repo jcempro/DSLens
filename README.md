@@ -295,7 +295,7 @@ npm run publish:verify
 npm run publish:pages
 ```
 
-`npm run publish` é o all-in-one para Pages. `npm run site:publish` permanece alias transitório para `publish:pages`, sem acionar release. O workflow [Pages](.github/workflows/pages.yml) é customizado e acionado manualmente por `workflow_dispatch`; ele não publica por `push`. Publicação local exige GitHub CLI autenticado (`gh auth login`) ou `GH_TOKEN`/`GITHUB_TOKEN` com permissão para acionar Actions.
+`npm run publish` é o all-in-one para Pages. `npm run site:publish` permanece alias transitório para `publish:pages`, sem acionar release. O workflow [Pages](.github/workflows/pages.yml) é customizado e acionado manualmente por `workflow_dispatch`; ele não publica por `push`. Publicação local usa, nesta ordem, `GH_TOKEN`/`GITHUB_TOKEN`, token HTTPS disponível no credential helper do Git local ou GitHub CLI autenticado (`gh auth login`). Autenticação Git por SSH não expõe token de API para `workflow_dispatch`.
 
 ## Release, pacote e publicação
 
