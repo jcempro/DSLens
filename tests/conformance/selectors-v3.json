@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "data": {
+    "users": [
+      { "name": "Ana", "active": true, "email": "ana@example.test", "score": 12 },
+      { "name": "Bruno", "active": false, "score": 7 }
+    ],
+    "special": { "display.name": "Ana Maria" },
+    "meta": { "contacts": [{ "email": "ops@example.test" }] },
+    "nullish": null
+  },
+  "cases": [
+    { "id": "quoted-property", "path": ".special.[\"display.name\"]", "expected": "Ana Maria" },
+    { "id": "wildcard", "path": "all(.users[*].name)", "expected": "[\"Ana\",\"Bruno\"]" },
+    { "id": "recursive", "path": "all(..email)", "expected": "[\"ana@example.test\",\"ops@example.test\"]" },
+    { "id": "filter-boolean", "path": ".users[?(@.active = true)].name", "expected": "Ana" },
+    { "id": "filter-number", "path": ".users[?(@.score >= 10)].name", "expected": "Ana" },
+    { "id": "filter-exists", "path": "all(.users[?(@.email)].name)", "expected": "[\"Ana\"]" },
+    { "id": "first", "path": "first(.users[*].name)", "expected": "Ana" },
+    { "id": "count", "path": "count(.users[*])", "expected": "2" },
+    { "id": "exists-true", "path": "exists(.users[?(@.active = true)].email)", "expected": "true" },
+    { "id": "exists-false", "path": "exists(.users[?(@.active = false)].email)", "expected": "false" },
+    { "id": "null-all", "path": "all(.nullish)", "expected": "[null]" },
+    { "id": "type-incompatible", "path": ".users[0].name[0]", "expected": null }
+  ],
+  "invalid": [
+    ".users[-1]",
+    ".users[0:1]",
+    ".users[?(@.active && true)]",
+    ".users[?(@.name = unknown)]"
+  ]
+}

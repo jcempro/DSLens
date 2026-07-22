@@ -7,6 +7,7 @@ $root = Resolve-Path (Join-Path $PSScriptRoot '..\..')
 . (Join-Path $root 'src\ps\dsl.ps1')
 $vectors = Get-Content -LiteralPath (Join-Path $root 'tests\conformance\v1.json') -Raw | ConvertFrom-Json
 $requestVectors = Get-Content -LiteralPath (Join-Path $root 'tests\conformance\request-v2.json') -Raw | ConvertFrom-Json
+$selectorVectors = Get-Content -LiteralPath (Join-Path $root 'tests\conformance\selectors-v3.json') -Raw | ConvertFrom-Json
 $failures = [System.Collections.Generic.List[string]]::new()
 
 foreach ($case in $vectors.cases) {
@@ -36,5 +37,23 @@ foreach ($case in $requestVectors.cases) {
 foreach ($value in $requestVectors.invalid) {
   if ($null -ne (_extract_dsl $value)) { $failures.Add("request inválido aceito: $value") }
 }
+foreach ($case in $selectorVectors.cases) {
+  $actual = resolve_dsl_data -data $selectorVectors.data -path $case.path
+  if ($actual -ne $case.expected) { $failures.Add("selector $($case.id): esperado=$($case.expected) obtido=$actual") }
+}
+foreach ($value in $selectorVectors.invalid) {
+  if ($null -ne (resolve_dsl_data -data $selectorVectors.data -path $value)) { $failures.Add("selector inválido aceito: $value") }
+}
+$xml = _parse_content '<catalog xmlns:x="urn:test"><book id="b1"><title>Ana</title></book><x:book id="b2">Bruno</x:book></catalog>' $null
+$xmlCases = @(
+  @{ Path = 'first(.book.@id)'; Expected = 'b1' },
+  @{ Path = '.book.title.text()'; Expected = 'Ana' },
+  @{ Path = '.["{urn:test}book"].text()'; Expected = 'Bruno' }
+)
+foreach ($case in $xmlCases) {
+  $actual = resolve_dsl_data -data $xml.DocumentElement -path $case.Path
+  if ($actual -ne $case.Expected) { $failures.Add("xml $($case.Path): esperado=$($case.Expected) obtido=$actual") }
+}
+if ($null -ne (_parse_content '<!DOCTYPE x [<!ENTITY e SYSTEM "file:///etc/passwd">]><x/>' $null)) { $failures.Add('xml doctype aceito') }
 if ($failures.Count -gt 0) { throw ($failures -join [Environment]::NewLine) }
-Write-Output "PASS powershell conformance ($($vectors.cases.Count + $vectors.detection.Count + $requestVectors.cases.Count + $requestVectors.invalid.Count) casos)"
+Write-Output "PASS powershell conformance ($($vectors.cases.Count + $vectors.detection.Count + $requestVectors.cases.Count + $requestVectors.invalid.Count + $selectorVectors.cases.Count + $selectorVectors.invalid.Count + $xmlCases.Count) casos)"

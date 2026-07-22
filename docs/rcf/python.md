@@ -12,11 +12,15 @@ A API DEVE permanecer síncrona e fail-safe. Callback opcional DEVE receber `(me
 
 O provedor `env` opcional DEVE ser mapeamento injetado em `resolve_parser_expression`; a implementação NÃO DEVE consultar `os.environ` implicitamente para resolver headers. O transporte v2 DEVE aplicar `query`, `GET`/`POST`, headers e body pelas APIs nativas de `urllib`.
 
+Perfil v3 DEVE implementar parser e AST próprios para os seletores do RCF global §5.1.1. Expressões de filtro NÃO PODEM usar `eval`, `ast.literal_eval` sobre expressão composta, XPath externo ou acesso a atributo Python. A seleção em mapas DEVE usar somente chaves próprias; objeto Python arbitrário não deve expor métodos, descriptors ou atributos herdados como dados.
+
 ## 3. Convergência obrigatória
 
 A implementação mantém cache de sessão e dependência YAML opcional. Cache persistente e fallback socket foram removidos do núcleo para eliminar efeitos e respostas divergentes. YAML indisponível DEVE ser capacidade diagnosticável; tokenização e normalização DEVEM permanecer cobertas pelos vetores comuns.
 
 Defaults compartilhados DEVEM corresponder ao manifesto e aos vetores comuns. Resultado, erro, normalização textual, ordenação, filtros, índices, limites e rejeições DEVEM ser equivalentes a PowerShell, TypeScript e JavaScript.
+
+XML v3 DEVE usar `xml.etree.ElementTree` ou parser seguro equivalente com rejeição prévia de `<!DOCTYPE`. Elementos, atributos, texto e nomes expandidos `{uri}local` DEVEM ser preservados. XPath arbitrário por `find`, `findall` ou predicado fornecido pelo usuário é proibido; somente os passos compilados da DSLens podem selecionar nós.
 
 ## 4. Distribuição
 

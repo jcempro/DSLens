@@ -20,6 +20,8 @@ O núcleo DEVE ser funcional, síncrono e livre de I/O: detectar, compilar/valid
 
 API pública DEVE incluir `hasParserExpression(source: string)`, `resolveDslData(data: unknown, path: string, callback?: DslCallback)` e `resolveParserExpression(source: string, options?: ResolveSourceOptions, callback?: DslCallback)`, nessa ordem, além de resultado estruturado. TypeScript DEVE ser importável por subpath explícito e OPCIONAL; JavaScript transpilado DEVE ser a entrada executável padrão. Fetch DEVE residir em adaptador assíncrono; a fachada async DEVE aceitar `AbortSignal`, timeout e fornecedor de fetch injetável.
 
+Perfil v3 DEVE substituir a tokenização por regex por parser determinístico com AST exportável somente quando declarado no manifesto. O core DEVE impor limites do RCF global §5.1.3, impedir acesso a `__proto__`, `prototype`, `constructor`, getters, métodos e cadeia de protótipos, e materializar múltiplos resultados sem depender de ordem não determinística. Filtros `?()` DEVEM comparar somente escalares já materializados, sem função arbitrária.
+
 ## 4. Browser e workers
 
 Entry point `browser` NÃO DEVE importar `node:*`, `fs`, `path`, `process`, CommonJS, binário, serviço servidor ou bundler no consumidor. Ele DEVE funcionar por ESM nativo, CDN, arquivo local e bundler. Build por `<script>` PODE ser IIFE após decisão de `../../RCF.md` §16; se existir, DEVE expor um único namespace estável e configurável sem vazar internos.
@@ -28,7 +30,7 @@ Rede síncrona na thread principal NÃO DEVE ser requisito. Resolução síncron
 
 O artefato client-side ultraotimizado DEVE ser JavaScript sem TypeScript, carregar e executar em navegador real, preservar API aplicável e banner, excluir código Node.js, permitir CDN/local e registrar tamanhos bruto, minificado, gzip e Brotli. Dependência externa DEVE ser resolvida ou declarada.
 
-Baseline minificado após o perfil request v2: 4.510 bytes; orçamento: 5.120 bytes. O aumento anterior de 1.590 bytes (+2.920; +184%) decorre do parser JSON seguro, validação, query, headers, ambiente e body `json`/`form`/`text`. Carregamento dinâmico foi descartado por quebrar uso direto e offline; nenhuma dependência foi adicionada.
+Baseline minificado após o perfil request v2: 4.510 bytes; orçamento anterior: 5.120 bytes. O perfil v3 de seletores estruturais mediu 11.180 bytes em 2026-07-22; o novo orçamento é 12.288 bytes. O aumento decorre de parser próprio, AST, filtros seguros, wildcard, recursão limitada, cardinalidade explícita, materialização determinística e bloqueio de protótipo sem dependência externa. Carregamento dinâmico permanece descartado por quebrar uso direto e offline.
 
 ## 5. Node.js
 
@@ -48,7 +50,7 @@ JavaScript compilado DEVE ser entrada padrão. Consumidor DEVE poder instalar ta
 
 Scripts npm futuros DEVEM compor os comandos `agent:*` aplicáveis sem renomeá-los. Typecheck, lint, teste, build, validação de exports, schema, tamanho, pacote simulado e release DEVEM possuir comandos determinísticos. Comando extenso DEVERIA residir em arquivo reutilizável.
 
-Runtime core DEVERIA possuir zero dependência. Parser YAML, XML ou fetch auxiliar somente PODE ser adotado após licença, manutenção, tamanho e suporte browser comprovados; dependência opcional DEVE ter ausência funcionalmente definida.
+Runtime core DEVERIA possuir zero dependência. Parser YAML, XML ou fetch auxiliar somente PODE ser adotado após licença, manutenção, tamanho e suporte browser comprovados; dependência opcional DEVE ter ausência funcionalmente definida. O core JavaScript não DEVE adicionar parser XML ou YAML obrigatório ao browser para o perfil v3; seleção v3 sobre dados já carregados deve funcionar para objetos, arrays, escalares e objetos XML adaptados explicitamente.
 
 ## 8. Validação futura
 

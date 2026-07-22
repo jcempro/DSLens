@@ -39,7 +39,7 @@ Toda API, hook, adaptador, evento, configuração, módulo, subpath, comando, bu
 
 Build DEVE partir de checkout limpo, lockfile aprovado e toolchain fixada; timestamp e path local NÃO DEVEM alterar bytes quando não integrarem metadado normativo. Hashes DEVEM ser registrados. Source map público DEVE usar paths portáveis e excluir segredo ou fonte não destinada à distribuição.
 
-Publicação DEVE validar pacote montado, não somente árvore-fonte. Para npm, `npm pack --dry-run`, tarball real, instalação limpa e imports de todos os exports DEVEM preceder release. CDN DEVE servir exatamente artefato versionado e verificável. Release DEVE seguir `./.agents/scenarios/release/scenario.md` somente após autorização.
+Publicação DEVE validar pacote montado, não somente árvore-fonte. Para npm, `npm pack --dry-run`, tarball real, instalação limpa e imports de todos os exports DEVEM preceder release. CDN DEVE servir exatamente artefato versionado e verificável. Release DEVE seguir `./.ia.rules/scenarios/release/scenario.md` somente após autorização.
 
 Release GitHub no estado `published` DEVE acionar publicação npm somente quando a tag corresponder exatamente à versão do pacote. CI DEVE usar OIDC/provenance e `NPM_TOKEN` secreto, sem expor credencial. Publicação local inicial DEVE autenticar por navegador com PKI/2FA; falha `401`/`403` DEVE orientar a vinculação de token de automação ao repositório e ao escopo npm. Versão já publicada DEVE encerrar sem nova tentativa destrutiva.
 

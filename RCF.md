@@ -64,11 +64,52 @@ O perfil canônico v1 DEVE aceitar exatamente uma expressão por entrada. `sourc
 
 Texto sem expressão DEVE ser devolvido sem alteração. Texto que contenha abertura `${` malformada DEVE falhar. Conteúdo externo combinado com expressão, múltiplas expressões, resultado que contenha nova expressão e encadeamento recursivo NÃO DEVEM integrar o perfil canônico v1.
 
-Crases, origem inline, arquivo local/remoto, wildcard, `.find()`, interpolação parcial e método HTTP diferente de GET/POST são capacidades propostas não implementadas. Elas NÃO DEVEM ser aceitas como estáveis até extensão de gramática, modelo de segurança, vetores comuns e decisão normativa explícita.
+Crases, origem inline, arquivo local/remoto, `.find()`, interpolação parcial e método HTTP diferente de GET/POST permanecem fora do contrato estável. Wildcard somente é estável no perfil v3 como passo delimitado `[*]`; qualquer outro padrão de casamento, glob ou `.find()` NÃO DEVE ser aceito como equivalente.
 
 O perfil v2 adiciona exatamente um segundo parâmetro opcional `request`, nas formas equivalentes `; request={...}` e `; {...}`. O segundo parâmetro posicional DEVE significar `request`; outro parâmetro futuro DEVE ser nomeado. Forma posicional e nomeada juntas, nome desconhecido, objeto não JSON ou parâmetro adicional DEVEM falhar. Ausência de `request` preserva integralmente o perfil v1: `GET`, sem body e sem cabeçalho customizado.
 
 `request` PODE conter `method`, `query`, `headers` e `body`. `method` aceita somente `GET` ou `POST`, com `GET` default. `query` DEVE ser objeto de escalares serializados de forma determinística. `headers` DEVE ser objeto de strings ou referências `{ "env": "NOME" }`; `Host`, `Content-Length`, `Connection` e equivalentes controlados pelo runtime DEVEM ser rejeitados. `body` somente PODE existir em `POST` e declara `encoding` (`json`, `form` ou `text`) e `value`. Referência de ambiente DEVE ser resolvida por provedor injetado; browser e worker NÃO DEVEM ler ambiente global implicitamente. Valor ausente falha sem expor nome ou conteúdo sensível. Cabeçalho sensível NÃO DEVE atravessar redirecionamento entre origens.
+
+### 5.1.1 Seletores estruturais compatíveis
+
+O perfil v3 adiciona consulta estrutural sobre dados já carregados e sobre fontes v1/v2 sem alterar path válido anterior. A sintaxe NÃO copia JSONPath, XPath ou YAMLPath; ela reaproveita conceitos com raiz implícita DSLens. A forma estável é:
+
+```ebnf
+selector-expression = result-function, "(", selector-path, ")" | selector-path ;
+result-function     = "first" | "all" | "count" | "exists" ;
+selector-path       = { step } ;
+step                = member | quoted-member | xml-attribute | xml-text | index | wildcard | recursive | filter ;
+quoted-member       = ".", "[", quote, literal, quote, "]" ;
+xml-attribute       = ".", "@", name-or-expanded-name ;
+xml-text            = ".", "text", "(", ")" ;
+wildcard            = "[*]" ;
+recursive           = "..", ( identifier | "[", quote, literal, quote, "]" | "@", name-or-expanded-name ) ;
+filter              = "[?", "(", predicate, ")", "]" | legacy-filter ;
+legacy-filter       = "[@", identifier, "=", quote, literal, quote, "]" ;
+predicate           = existence | comparison ;
+existence           = "@", selector-path ;
+comparison          = "@", selector-path, comparator, scalar ;
+comparator          = "=" | "!=" | ">" | ">=" | "<" | "<=" ;
+scalar              = quoted-string | number | "true" | "false" | "null" ;
+```
+
+`member`, `index` e `legacy-filter` preservam integralmente a semântica v1. `quoted-member` seleciona nome de propriedade ou elemento com caractere especial; aspas delimitadoras podem ser simples ou duplas, e somente barra invertida para a própria aspa e para barra invertida é reconhecida. Índice negativo, fatia, união de campos, ordenação e projeção transformacional ficam fora do perfil v3 por custo semântico e por colisão com retorno textual atual.
+
+`wildcard` expande todos os filhos diretos de mapa, objeto, sequência ou elemento XML, preservando ordem nativa determinística do formato. `recursive` realiza busca em profundidade pré-ordem a partir do nó corrente, limitada pelos controles de segurança. Filtro novo `?()` opera item a item sobre sequência ou conjunto de nós e aceita apenas existência e comparação escalar; operadores lógicos, chamada de função e expressão aritmética são proibidos.
+
+Funções de resultado são explícitas e só podem envolver a consulta inteira. Após `${...}`, a expressão de seleção PODE iniciar por `.`, `[`, `first(`, `all(`, `count(` ou `exists(`. Sem função, a compatibilidade v1 prevalece: resultado único retorna texto, múltiplos resultados de sintaxe nova retornam JSON compacto determinístico e vazio retorna ausência. `first(path)` retorna o primeiro item em ordem de seleção ou ausência; `all(path)` sempre materializa lista JSON compacta; `count(path)` retorna contagem decimal; `exists(path)` retorna `true` ou `false`.
+
+### 5.1.2 Modelo de dados dos seletores
+
+A avaliação usa um conjunto ordenado de nós com cardinalidade zero ou mais. Cada passo recebe conjunto e retorna conjunto. Duplicatas por identidade de nó DEVEM ser removidas preservando a primeira ocorrência. Ausência é conjunto vazio; `null` é valor existente e materializável como `null` em `all`, mas retorna ausência em modo legado sem função para preservar v1. Tipo incompatível em passo estrutural retorna conjunto vazio, exceto consulta malformada, que falha como `INVALID_EXPRESSION` ou `INVALID_PATH`.
+
+JSON e YAML compartilham semântica para mapas, sequências e escalares equivalentes. Propriedade acessa somente membro próprio; cadeia de protótipos, atributo de classe, método, getter e execução de código são proibidos. XML preserva elementos, atributos, texto, namespaces e ordem documental quando o runtime expõe esses dados. Elemento é selecionado por nome local ou nome expandido `{uri}local` em `quoted-member`; atributo usa `.@nome` ou `.@{uri}nome`; texto usa `.text()`. XPath arbitrário, entidades externas, DTD externa, HTML e conversão XML para JSON são proibidos.
+
+### 5.1.3 Limites e segurança de consulta
+
+Limites mínimos comuns do perfil v3: consulta até 2048 caracteres; profundidade sintática até 64 passos; recursão até 32 níveis; nós visitados até 10000; resultados materializados até 1024; filtros até 32 por consulta; literal até 512 caracteres. Implementação PODE usar limite menor por runtime somente quando documentado e testado. Exceder limite retorna falha segura e telemetria sem dado sensível.
+
+Consulta, filtros e dados externos são entradas não confiáveis. Implementação NÃO DEVE usar `eval`, `Invoke-Expression`, compilação dinâmica, XPath arbitrário, desserialização insegura, YAML com tags executáveis, acesso a ambiente, protótipo, método ou propriedade herdada durante seleção. XML DEVE desabilitar entidade externa e DTD quando o parser permitir configuração; quando o parser nativo não expuser controle suficiente, entrada com `<!DOCTYPE` DEVE ser rejeitada antes do parse.
 
 ### 5.2 Pipeline
 

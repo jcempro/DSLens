@@ -5,7 +5,7 @@
     "repository": "https://github.com/jcempro/DSLens",
     "license": "MPL-2.0"
   },
-  "contractVersion": "1.0.0",
+  "contractVersion": "1.1.0",
   "implementations": [
     {
       "id": "powershell",
@@ -13,7 +13,7 @@
       "runtime": "5.1 ou 7.4+",
       "version": "1.0.0",
       "status": "supported",
-      "capabilities": ["detect", "resolve-data", "resolve-source"]
+      "capabilities": ["detect", "resolve-data", "resolve-source", "structural-selectors"]
     },
     {
       "id": "python",
@@ -21,7 +21,7 @@
       "runtime": "3.11+",
       "version": "1.0.0",
       "status": "supported",
-      "capabilities": ["detect", "resolve-data", "resolve-source"]
+      "capabilities": ["detect", "resolve-data", "resolve-source", "structural-selectors"]
     },
     {
       "id": "typescript",
@@ -29,7 +29,7 @@
       "runtime": "5.8+",
       "version": "1.0.0",
       "status": "supported",
-      "capabilities": ["detect", "resolve-data"]
+      "capabilities": ["detect", "resolve-data", "structural-selectors"]
     },
     {
       "id": "javascript-browser",
@@ -37,7 +37,7 @@
       "runtime": "ES2020 browser",
       "version": "1.0.0",
       "status": "supported",
-      "capabilities": ["detect", "resolve-data", "resolve-source"]
+      "capabilities": ["detect", "resolve-data", "resolve-source", "structural-selectors"]
     },
     {
       "id": "javascript-server",
@@ -45,7 +45,7 @@
       "runtime": "Node.js 20.19+",
       "version": "1.0.0",
       "status": "supported",
-      "capabilities": ["detect", "resolve-data", "resolve-source"]
+      "capabilities": ["detect", "resolve-data", "resolve-source", "structural-selectors"]
     }
   ],
   "capabilities": [
@@ -63,6 +63,11 @@
       "id": "resolve-source",
       "status": "required",
       "normativeReference": "RCF.md#52-pipeline"
+    },
+    {
+      "id": "structural-selectors",
+      "status": "required",
+      "normativeReference": "RCF.md#511-seletores-estruturais-compatíveis"
     }
   ],
   "publicSurface": [
@@ -141,7 +146,7 @@
       "minified": true,
       "sourceMap": true,
       "stability": "stable",
-      "budgetBytes": 5120
+      "budgetBytes": 12288
     },
     {
       "id": "javascript-worker",

@@ -54,6 +54,117 @@ Sem o segundo parâmetro, permanece `GET` sem body nem cabeçalho customizado. P
 
 Crases, conteúdo inline, arquivos, opções de requisição, `.find()`, wildcards e interpolação parcial aparecem em documentação histórica do código, mas não estão implementados de forma contratual. Consulte as decisões pendentes no RCF antes de depender desses recursos.
 
+## Seletores estruturais
+
+O perfil v3 amplia o path sem mudar a sintaxe válida anterior. A raiz é implícita; não use `$` no path DSLens.
+
+Operadores disponíveis:
+
+- `.name`: propriedade ou elemento;
+- `.["display.name"]`: propriedade delimitada;
+- `[0]`: índice positivo;
+- `[*]`: todos os itens diretos;
+- `..email`: busca recursiva limitada;
+- `[?(@.active = true)]`: filtro escalar seguro;
+- `.@id`: atributo XML;
+- `.text()`: texto XML;
+- `first(...)`, `all(...)`, `count(...)`, `exists(...)`: cardinalidade explícita.
+
+Exemplo JSON:
+
+```json
+{
+  "users": [
+    { "name": "Ana", "active": true },
+    { "name": "Bruno", "active": false }
+  ]
+}
+```
+
+```text
+.users[?(@.active = true)].name
+```
+
+Resultado:
+
+```text
+Ana
+```
+
+Exemplo YAML equivalente:
+
+```yaml
+users:
+  - name: Ana
+    active: true
+  - name: Bruno
+    active: false
+```
+
+```text
+.users[?(@.active = true)].name
+```
+
+Resultado:
+
+```text
+Ana
+```
+
+Múltiplos resultados são JSON compacto quando a consulta produz mais de um item ou quando `all(...)` é usado:
+
+```text
+all(.users[*].name)
+```
+
+```json
+["Ana","Bruno"]
+```
+
+Ausência retorna `null`/`None`/`$null` no binding. Existência é explícita:
+
+```text
+exists(.users[?(@.active = true)].name)
+```
+
+```text
+true
+```
+
+Exemplo XML:
+
+```xml
+<catalog xmlns:x="urn:test">
+  <book id="b1"><title>Ana</title></book>
+  <x:book id="b2">Bruno</x:book>
+</catalog>
+```
+
+```text
+first(.book.@id)
+.book.title.text()
+.["{urn:test}book"].text()
+```
+
+Resultados:
+
+```text
+b1
+Ana
+Bruno
+```
+
+Uso com URL ou API preserva a expressão de fonte:
+
+```text
+${"http://127.0.0.1:3000/users"}.users[?(@.active = true)].name
+${"http://127.0.0.1:3000/users"; {"query":{"page":1}}}all(.users[*].name)
+```
+
+Nos testes, API remota é simulada por servidor local determinístico; endpoints externos permanecem apenas no perfil `test:real`.
+
+Limites de segurança do perfil v3: consulta até 2048 caracteres, 64 passos, recursão até 32 níveis, 10000 nós visitados, 1024 resultados, 32 filtros e literais até 512 caracteres. Índice negativo, fatias, união de campos, ordenação, projeção transformacional, `.find()`, XPath arbitrário, HTML e XML com `DOCTYPE` não são aceitos.
+
 ## Uso atual em PowerShell
 
 Importação:

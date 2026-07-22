@@ -185,6 +185,14 @@ Set-Variable RETRY_MAX_ATTEMPTS         3    -Option Constant -Scope Script
 Set-Variable RETRY_BACKOFF_BASE_MS      200  -Option Constant -Scope Script
 Set-Variable RETRY_BACKOFF_MAX_MS       2000 -Option Constant -Scope Script
 
+Set-Variable QUERY_MAX_LENGTH           2048 -Option Constant -Scope Script
+Set-Variable QUERY_MAX_STEPS            64   -Option Constant -Scope Script
+Set-Variable QUERY_MAX_RECURSIVE_DEPTH  32   -Option Constant -Scope Script
+Set-Variable QUERY_MAX_VISITED_NODES    10000 -Option Constant -Scope Script
+Set-Variable QUERY_MAX_RESULTS          1024 -Option Constant -Scope Script
+Set-Variable QUERY_MAX_FILTERS          32   -Option Constant -Scope Script
+Set-Variable QUERY_MAX_LITERAL_LENGTH   512  -Option Constant -Scope Script
+
 Set-Variable ERROR_HTTP                 'HTTP_ERROR'       -Option Constant -Scope Script
 Set-Variable ERROR_TIMEOUT              'TIMEOUT_EXCEEDED' -Option Constant -Scope Script
 Set-Variable ERROR_INVALID_PATH         'INVALID_PATH'     -Option Constant -Scope Script
@@ -195,6 +203,9 @@ Set-Variable ERROR_PARSE_FAILURE        'PARSE_FAILURE'    -Option Constant -Sco
 # init lazy (evita chamada antes da definição de função)
 if (-not $script:__DSL_RUNTIME_START) {
   $script:__DSL_RUNTIME_START = [DateTime]::UtcNow
+}
+if (-not $script:__DSL_NULL) {
+  $script:__DSL_NULL = [PSCustomObject]@{ __dslensNull = $true }
 }
 
 # =========================
@@ -278,7 +289,7 @@ function _extract_dsl {
   }
   if ($cursor -ge $source.Length -or $source[$cursor] -ne '}') { return $null }
   $path = $source.Substring($cursor + 1)
-  if ($path -notmatch '^[\.\[]') { return $null }
+  if (-not (_is_selector_start $path)) { return $null }
   return @{ url = $url; path = $path; request = $request }
 }
 
@@ -446,6 +457,11 @@ function _parse_content {
     return $raw
   }
 
+  if ($raw.ToUpperInvariant().Contains('<!DOCTYPE')) {
+    _emit "xml doctype forbidden" "e" $callback
+    return $null
+  }
+
   # JSON
   try {
     return $raw | ConvertFrom-Json -ErrorAction Stop
@@ -603,6 +619,372 @@ function _navigate {
 }
 
 # =========================
+# SELETORES V3
+# =========================
+function _is_selector_start {
+  param([string]$path)
+  return ($path -match '^(?:[\.\[]|(?:first|all|count|exists)\()')
+}
+
+function _new_parser {
+  param([string]$source)
+  if ($source.Length -gt $script:QUERY_MAX_LENGTH) { throw "query limit" }
+  return @{ source = $source.Trim(); cursor = 0; filters = 0 }
+}
+
+function _parser_peek { param($p) if ($p.cursor -lt $p.source.Length) { return [string]$p.source[$p.cursor] }; return "" }
+function _parser_consume { param($p, [string]$token) if ($p.source.Substring($p.cursor).StartsWith($token)) { $p.cursor += $token.Length; return $true }; return $false }
+function _parser_expect { param($p, [string]$token) if (-not (_parser_consume $p $token)) { throw "expected $token" } }
+function _parser_read_while {
+  param($p, [string]$pattern)
+  $start = $p.cursor
+  while ($p.cursor -lt $p.source.Length -and ([string]$p.source[$p.cursor]) -match "^$pattern$") { $p.cursor++ }
+  return $p.source.Substring($start, $p.cursor - $start)
+}
+function _parser_skip_spaces { param($p) [void](_parser_read_while $p '\s') }
+
+function _parse_selector {
+  param([string]$source)
+  $mode = 'default'
+  $path = $source.Trim()
+  if ($path -match '^(first|all|count|exists)\(') {
+    $mode = $matches[1]
+    $open = $matches[0].Length - 1
+    $close = _find_selector_close $path $open
+    if ($close -ne ($path.Length - 1)) { throw "invalid function" }
+    $path = $path.Substring($matches[0].Length, $close - $matches[0].Length)
+  }
+  $p = _new_parser $path
+  $steps = _parse_path $p
+  if ($steps.Count -gt $script:QUERY_MAX_STEPS) { throw "step limit" }
+  return @{ mode = $mode; steps = $steps }
+}
+
+function _find_selector_close {
+  param([string]$source, [int]$open)
+  $depth = 0; $quote = [char]0; $escaped = $false
+  for ($i = $open; $i -lt $source.Length; $i++) {
+    $char = $source[$i]
+    if ($quote -ne [char]0) {
+      if ($escaped) { $escaped = $false }
+      elseif ($char -eq '\') { $escaped = $true }
+      elseif ($char -eq $quote) { $quote = [char]0 }
+    }
+    elseif ($char -eq '"' -or $char -eq "'") { $quote = $char }
+    elseif ($char -eq '(') { $depth++ }
+    elseif ($char -eq ')') { $depth--; if ($depth -eq 0) { return $i } }
+  }
+  return -1
+}
+
+function _parse_path {
+  param($p)
+  $steps = New-Object System.Collections.ArrayList
+  while ($p.cursor -lt $p.source.Length) { [void]$steps.Add((_parse_step $p)) }
+  return @($steps)
+}
+
+function _parse_step {
+  param($p)
+  if (_parser_consume $p '..') { return @{ kind = 'recursive'; target = (_parse_recursive_target $p) } }
+  if (_parser_consume $p '.text()') { return @{ kind = 'text' } }
+  if (_parser_consume $p '.@') { return @{ kind = 'attribute'; name = (_parse_name $p) } }
+  if (_parser_consume $p '.[') { return @{ kind = 'property'; name = (_parse_quoted $p ']') } }
+  if (_parser_consume $p '.') { return @{ kind = 'property'; name = (_parse_name $p) } }
+  if (_parser_consume $p '[*]') { return @{ kind = 'wildcard' } }
+  if (_parser_consume $p '[?(') { return _parse_filter $p }
+  if ((_parser_peek $p) -eq '[') { return _parse_index_or_legacy_filter $p }
+  throw "unexpected token"
+}
+
+function _parse_recursive_target {
+  param($p)
+  if (_parser_consume $p '@') { return @{ kind = 'attribute'; name = (_parse_name $p) } }
+  if (_parser_consume $p '[') { return @{ kind = 'property'; name = (_parse_quoted $p ']') } }
+  return @{ kind = 'property'; name = (_parse_name $p) }
+}
+
+function _parse_filter {
+  param($p)
+  $p.filters++
+  if ($p.filters -gt $script:QUERY_MAX_FILTERS) { throw "filter limit" }
+  if (-not (_parser_consume $p '@')) { throw "invalid filter" }
+  $start = $p.cursor
+  while ($p.cursor -lt $p.source.Length) {
+    _parser_skip_spaces $p
+    if ($p.source.Substring($p.cursor) -match '^(=|!=|>=|<=|>|<|\)\])') { break }
+    [void](_parse_step $p)
+  }
+  $nested = _new_parser ($p.source.Substring($start, $p.cursor - $start))
+  $path = _parse_path $nested
+  _parser_skip_spaces $p
+  $operator = _parse_operator $p
+  if (-not $operator) {
+    _parser_expect $p ')]'
+    return @{ kind = 'filter'; predicate = @{ kind = 'exists'; path = $path } }
+  }
+  $value = _parse_scalar $p
+  _parser_skip_spaces $p
+  _parser_expect $p ')]'
+  return @{ kind = 'filter'; predicate = @{ kind = 'compare'; path = $path; operator = $operator; value = $value } }
+}
+
+function _parse_index_or_legacy_filter {
+  param($p)
+  _parser_expect $p '['
+  if (_parser_consume $p '@') {
+    $name = _parse_name $p
+    _parser_expect $p '='
+    $value = _parse_scalar $p
+    _parser_expect $p ']'
+    return @{ kind = 'filter'; predicate = @{ kind = 'compare'; path = @(@{ kind = 'property'; name = $name }); operator = '='; value = $value } }
+  }
+  $digits = _parser_read_while $p '[0-9]'
+  if (-not $digits) { throw "invalid index" }
+  _parser_expect $p ']'
+  return @{ kind = 'index'; index = [int]$digits }
+}
+
+function _parse_operator {
+  param($p)
+  foreach ($operator in @('>=', '<=', '!=', '=', '>', '<')) {
+    if (_parser_consume $p $operator) { return $operator }
+  }
+  return ''
+}
+
+function _parse_name {
+  param($p)
+  $name = _parser_read_while $p '[A-Za-z0-9_:\-${}]'
+  if (-not $name -or $name.Length -gt $script:QUERY_MAX_LITERAL_LENGTH) { throw "invalid name" }
+  return $name
+}
+
+function _parse_quoted {
+  param($p, [string]$close)
+  $quote = _parser_peek $p
+  if ($quote -ne '"' -and $quote -ne "'") { throw "invalid quote" }
+  $value = _parse_string $p $quote
+  _parser_expect $p $close
+  return $value
+}
+
+function _parse_string {
+  param($p, [string]$quote)
+  _parser_expect $p $quote
+  $value = ''
+  while ($p.cursor -lt $p.source.Length) {
+    $char = [string]$p.source[$p.cursor]; $p.cursor++
+    if ($char -eq $quote) {
+      if ($value.Length -gt $script:QUERY_MAX_LITERAL_LENGTH) { throw "literal limit" }
+      return $value
+    }
+    if ($char -eq '\') {
+      if ($p.cursor -ge $p.source.Length) { throw "invalid escape" }
+      $next = [string]$p.source[$p.cursor]; $p.cursor++
+      if ($next -ne $quote -and $next -ne '\') { throw "invalid escape" }
+      $value += $next
+    }
+    else { $value += $char }
+  }
+  throw "unclosed string"
+}
+
+function _parse_scalar {
+  param($p)
+  _parser_skip_spaces $p
+  $char = _parser_peek $p
+  if ($char -eq '"' -or $char -eq "'") { return _parse_string $p $char }
+  $token = _parser_read_while $p '[^\]\)\s]'
+  if ($token.Length -gt $script:QUERY_MAX_LITERAL_LENGTH) { throw "literal limit" }
+  if ($token -eq 'true') { return $true }
+  if ($token -eq 'false') { return $false }
+  if ($token -eq 'null') { return $null }
+  if ($token -match '^-?(?:0|[1-9]\d*)(?:\.\d+)?$') { return [double]$token }
+  throw "invalid scalar"
+}
+
+function _evaluate_selector {
+  param($data, [string]$path)
+  $compiled = _parse_selector $path
+  $state = @{ visited = 0 }
+  $current = @($data)
+  foreach ($step in $compiled.steps) { $current = @(_apply_step $current $step $state) }
+  $values = @(_dedupe $current | Select-Object -First $script:QUERY_MAX_RESULTS)
+  return _materialize $values $compiled.mode
+}
+
+function _apply_step {
+  param($nodes, $step, $state)
+  $result = New-Object System.Collections.ArrayList
+  foreach ($node in @($nodes)) {
+    _visit $state
+    switch ($step.kind) {
+      'property' { foreach ($v in @(_select_property $node $step.name)) { [void]$result.Add($v) } }
+      'attribute' { $v = _select_attribute $node $step.name; if ($null -ne $v) { [void]$result.Add($v) } }
+      'text' { $v = _select_text $node; if ($null -ne $v) { [void]$result.Add($v) } }
+      'index' { if ($node -is [System.Collections.IList] -and $step.index -lt $node.Count) { [void]$result.Add($node[$step.index]) } }
+      'wildcard' { foreach ($v in @(_select_children $node)) { [void]$result.Add($v) } }
+      'filter' {
+        $candidates = if ($node -is [System.Collections.IEnumerable] -and $node -isnot [string]) { @(_select_children $node) } else { @($node) }
+        foreach ($candidate in $candidates) {
+          if (_matches_predicate $candidate $step.predicate $state) { [void]$result.Add($candidate) }
+        }
+      }
+      'recursive' { foreach ($v in @(_select_recursive $node $step.target $state 0)) { [void]$result.Add($v) } }
+    }
+    if ($result.Count -gt $script:QUERY_MAX_RESULTS) { throw "result limit" }
+  }
+  return @($result)
+}
+
+function _matches_predicate {
+  param($node, $predicate, $state)
+  $values = @($node)
+  foreach ($step in $predicate.path) { $values = @(_apply_step $values $step $state) }
+  if ($predicate.kind -eq 'exists') { return ($values.Count -gt 0) }
+  foreach ($value in $values) {
+    if (_compare_scalar $value $predicate.operator $predicate.value) { return $true }
+  }
+  return $false
+}
+
+function _compare_scalar {
+  param($actual, [string]$operator, $expected)
+  $a = _normalize_scalar $actual
+  if ($operator -eq '=') { return ($a -eq $expected) }
+  if ($operator -eq '!=') { return ($a -ne $expected) }
+  if ($a -isnot [ValueType] -or $expected -isnot [ValueType]) { return $false }
+  switch ($operator) {
+    '>' { return ([double]$a -gt [double]$expected) }
+    '>=' { return ([double]$a -ge [double]$expected) }
+    '<' { return ([double]$a -lt [double]$expected) }
+    '<=' { return ([double]$a -le [double]$expected) }
+  }
+  return $false
+}
+
+function _normalize_scalar {
+  param($value)
+  if ($null -eq $value -or $value -is [string] -or $value -is [ValueType]) { return $value }
+  return [string]$value
+}
+
+function _select_property {
+  param($node, [string]$name)
+  if ($name -in @('__proto__', 'prototype', 'constructor')) { return @() }
+  if ($node -is [System.Xml.XmlNode]) {
+    $items = @()
+    foreach ($child in @($node.ChildNodes)) {
+      if ($child.NodeType -eq [System.Xml.XmlNodeType]::Element -and ($child.LocalName -eq $name -or $child.Name -eq $name -or (_xml_expanded_name $child) -eq $name)) { $items += $child }
+    }
+    return $items
+  }
+  try {
+    $prop = $node.PSObject.Properties[$name]
+    if ($prop) {
+      if ($null -eq $prop.Value) { return @(,$script:__DSL_NULL) }
+      return @(,$prop.Value)
+    }
+  } catch {}
+  return @()
+}
+
+function _select_attribute {
+  param($node, [string]$name)
+  if ($node -isnot [System.Xml.XmlNode] -or -not $node.Attributes) { return $null }
+  foreach ($attr in @($node.Attributes)) {
+    if ($attr.LocalName -eq $name -or $attr.Name -eq $name -or (_xml_expanded_name $attr) -eq $name) { return $attr.Value }
+  }
+  return $null
+}
+
+function _select_text {
+  param($node)
+  if ($node -is [System.Xml.XmlNode]) { return $node.InnerText }
+  if ($node -is [string] -or $node -is [ValueType]) { return [string]$node }
+  return $null
+}
+
+function _select_children {
+  param($node)
+  if ($null -eq $node -or $node -is [string] -or $node -is [ValueType] -or (_is_dsl_null $node)) { return @() }
+  if ($node -is [System.Xml.XmlNode]) { return @($node.ChildNodes | Where-Object { $_.NodeType -eq [System.Xml.XmlNodeType]::Element }) }
+  if ($node -is [System.Collections.IEnumerable] -and $node -isnot [string] -and $node -isnot [System.Management.Automation.PSCustomObject]) { return @($node) }
+  $items = @()
+  try {
+    foreach ($prop in @($node.PSObject.Properties)) {
+      if ($prop.Name -notin @('__proto__', 'prototype', 'constructor')) { $items += $prop.Value }
+    }
+  } catch {}
+  return $items
+}
+
+function _select_recursive {
+  param($node, $target, $state, [int]$depth)
+  if ($depth -gt $script:QUERY_MAX_RECURSIVE_DEPTH) { throw "recursive limit" }
+  $items = @(_apply_step @($node) $target $state)
+  foreach ($child in @(_select_children $node)) { $items += @(_select_recursive $child $target $state ($depth + 1)) }
+  return $items
+}
+
+function _visit {
+  param($state)
+  $state.visited++
+  if ($state.visited -gt $script:QUERY_MAX_VISITED_NODES) { throw "visited limit" }
+}
+
+function _dedupe {
+  param($values)
+  $seen = @{}; $result = @()
+  foreach ($value in @($values)) {
+    $key = if ($null -eq $value -or $value -is [string] -or $value -is [ValueType]) { "$($value.GetType().FullName):$value" } else { [Runtime.CompilerServices.RuntimeHelpers]::GetHashCode($value) }
+    if (-not $seen.ContainsKey($key)) { $seen[$key] = $true; $result += $value }
+  }
+  return $result
+}
+
+function _materialize {
+  param($values, [string]$mode)
+  if ($mode -eq 'exists') { return $(if (@($values).Count -gt 0) { 'true' } else { 'false' }) }
+  if ($mode -eq 'count') { return [string]@($values).Count }
+  if ($mode -eq 'all') {
+    $items = @($values | ForEach-Object { _json_value $_ })
+    if ($items.Count -eq 1 -and $null -eq $items[0]) { return '[null]' }
+    return (ConvertTo-Json -Compress -Depth 32 -InputObject $items)
+  }
+  if (@($values).Count -eq 0) { return $null }
+  if ($mode -eq 'first') { return [string](_text_value @($values)[0]) }
+  if (@($values).Count -gt 1) { return (ConvertTo-Json -Compress -Depth 32 -InputObject @(@($values | ForEach-Object { _json_value $_ }))) }
+  return [string](_text_value @($values)[0])
+}
+
+function _json_value {
+  param($value)
+  if (_is_dsl_null $value) { return $null }
+  if ($value -is [System.Xml.XmlNode]) { return $value.InnerText }
+  return $value
+}
+
+function _text_value {
+  param($value)
+  if (_is_dsl_null $value) { return $null }
+  if ($value -is [System.Xml.XmlNode]) { return $value.InnerText }
+  return $value
+}
+
+function _is_dsl_null {
+  param($value)
+  try { return [bool]($value.PSObject.Properties['__dslensNull'] -and $value.__dslensNull -eq $true) } catch { return $false }
+}
+
+function _xml_expanded_name {
+  param($node)
+  if ($node.NamespaceURI) { return "{$($node.NamespaceURI)}$($node.LocalName)" }
+  return $node.Name
+}
+
+# =========================
 # RESOLUÇÃO SÍNCRONA DE DADOS
 # =========================
 function resolve_dsl_data {
@@ -629,9 +1011,7 @@ function resolve_dsl_data {
   )
 
   try {
-    $value = _navigate -obj $data -path $path -callback $callback
-    if ($null -eq $value) { return $null }
-    return [string]$value
+    return _evaluate_selector -data $data -path $path
   }
   catch {
     # PROTECAO: a fachada fail-safe não propaga exceção de navegação.

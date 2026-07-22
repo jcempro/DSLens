@@ -5,10 +5,12 @@
 .npm-cache/
 .runtime/
 node_modules/
+agents-governance-backups/
 
 # === Cache e Compilados ===
 __pycache__/
 .ruff_cache/
+.ia.rules/cache/
 *.tgz
 
 # === Exceções (Não ignorar) ===

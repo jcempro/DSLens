@@ -156,6 +156,14 @@ RETRY_MAX_ATTEMPTS = 3
 RETRY_BACKOFF_BASE_MS = 200
 RETRY_BACKOFF_MAX_MS = 2000
 
+QUERY_MAX_LENGTH = 2048
+QUERY_MAX_STEPS = 64
+QUERY_MAX_RECURSIVE_DEPTH = 32
+QUERY_MAX_VISITED_NODES = 10000
+QUERY_MAX_RESULTS = 1024
+QUERY_MAX_FILTERS = 32
+QUERY_MAX_LITERAL_LENGTH = 512
+
 ERROR_HTTP = 'HTTP_ERROR'
 ERROR_TIMEOUT = 'TIMEOUT_EXCEEDED'
 ERROR_INVALID_PATH = 'INVALID_PATH'
@@ -254,7 +262,7 @@ def _extract_dsl(source):
     if cursor >= len(source) or source[cursor] != '}':
         return None
     path = source[cursor + 1 :]
-    if not path.startswith(('.', '[')):
+    if not _is_selector_start(path):
         return None
     return {'url': url, 'path': path, 'request': request}
 
@@ -467,6 +475,10 @@ def _parse_content(raw, callback):
     if not isinstance(raw, str):
         return raw
 
+    if '<!DOCTYPE' in raw.upper():
+        _emit('xml doctype forbidden', 'e', callback)
+        return None
+
     # JSON
     try:
         return json.loads(raw)
@@ -516,6 +528,398 @@ def _get_prop(obj, name):
         return getattr(obj, name, None)
     except Exception:
         return None
+
+
+def _is_selector_start(path):
+    return bool(re.match(r'^(?:[.\[]|(?:first|all|count|exists)\()', path or ''))
+
+
+class _SelectorParser:
+    def __init__(self, source):
+        if len(source) > QUERY_MAX_LENGTH:
+            raise ValueError('query limit')
+        self.source = source.strip()
+        self.cursor = 0
+        self.filters = 0
+
+    def parse(self):
+        mode = 'default'
+        match = re.match(r'^(first|all|count|exists)\(', self.source)
+        if match:
+            mode = match.group(1)
+            close = self._find_close(match.end() - 1)
+            if close != len(self.source) - 1:
+                raise ValueError('invalid function')
+            self.source = self.source[match.end():close]
+            self.cursor = 0
+        steps = self._parse_path()
+        if len(steps) > QUERY_MAX_STEPS:
+            raise ValueError('step limit')
+        return {'mode': mode, 'steps': steps}
+
+    def _parse_path(self):
+        steps = []
+        while self.cursor < len(self.source):
+            steps.append(self._parse_step())
+        return steps
+
+    def _parse_step(self):
+        if self._consume('..'):
+            return {'kind': 'recursive', 'target': self._parse_recursive_target()}
+        if self._consume('.text()'):
+            return {'kind': 'text'}
+        if self._consume('.@'):
+            return {'kind': 'attribute', 'name': self._parse_name()}
+        if self._consume('.['):
+            return {'kind': 'property', 'name': self._parse_quoted(']')}
+        if self._consume('.'):
+            return {'kind': 'property', 'name': self._parse_name()}
+        if self._consume('[*]'):
+            return {'kind': 'wildcard'}
+        if self._consume('[?('):
+            return self._parse_filter()
+        if self._peek() == '[':
+            return self._parse_index_or_legacy_filter()
+        raise ValueError('unexpected token')
+
+    def _parse_recursive_target(self):
+        if self._consume('@'):
+            return {'kind': 'attribute', 'name': self._parse_name()}
+        if self._consume('['):
+            return {'kind': 'property', 'name': self._parse_quoted(']')}
+        return {'kind': 'property', 'name': self._parse_name()}
+
+    def _parse_filter(self):
+        self.filters += 1
+        if self.filters > QUERY_MAX_FILTERS:
+            raise ValueError('filter limit')
+        if not self._consume('@'):
+            raise ValueError('invalid filter')
+        start = self.cursor
+        while self.cursor < len(self.source):
+            self._skip_spaces()
+            if re.match(r'^(=|!=|>=|<=|>|<|\)\])', self.source[self.cursor:]):
+                break
+            self._parse_step()
+        path = _SelectorParser(self.source[start:self.cursor])._parse_path()
+        self._skip_spaces()
+        operator = self._parse_operator()
+        if not operator:
+            self._expect(')]')
+            return {'kind': 'filter', 'predicate': {'kind': 'exists', 'path': path}}
+        value = self._parse_scalar()
+        self._skip_spaces()
+        self._expect(')]')
+        return {
+            'kind': 'filter',
+            'predicate': {
+                'kind': 'compare',
+                'path': path,
+                'operator': operator,
+                'value': value,
+            },
+        }
+
+    def _parse_index_or_legacy_filter(self):
+        self._expect('[')
+        if self._consume('@'):
+            name = self._parse_name()
+            self._expect('=')
+            value = self._parse_scalar()
+            self._expect(']')
+            return {
+                'kind': 'filter',
+                'predicate': {
+                    'kind': 'compare',
+                    'path': [{'kind': 'property', 'name': name}],
+                    'operator': '=',
+                    'value': value,
+                },
+            }
+        digits = self._read_while(r'[0-9]')
+        if not digits:
+            raise ValueError('invalid index')
+        self._expect(']')
+        return {'kind': 'index', 'index': int(digits)}
+
+    def _parse_scalar(self):
+        self._skip_spaces()
+        char = self._peek()
+        if char in ('"', "'"):
+            return self._parse_string(char)
+        token = self._read_while(r'[^\]\)\s]')
+        if len(token) > QUERY_MAX_LITERAL_LENGTH:
+            raise ValueError('literal limit')
+        if token == 'true':
+            return True
+        if token == 'false':
+            return False
+        if token == 'null':
+            return None
+        if re.match(r'^-?(?:0|[1-9]\d*)(?:\.\d+)?$', token):
+            return float(token) if '.' in token else int(token)
+        raise ValueError('invalid scalar')
+
+    def _parse_operator(self):
+        for operator in ('>=', '<=', '!=', '=', '>', '<'):
+            if self._consume(operator):
+                return operator
+        return ''
+
+    def _parse_name(self):
+        name = self._read_while(r'[A-Za-z0-9_:\-${}]')
+        if not name or len(name) > QUERY_MAX_LITERAL_LENGTH:
+            raise ValueError('invalid name')
+        return name
+
+    def _parse_quoted(self, close):
+        quote = self._peek()
+        if quote not in ('"', "'"):
+            raise ValueError('invalid quote')
+        value = self._parse_string(quote)
+        self._expect(close)
+        return value
+
+    def _parse_string(self, quote):
+        self._expect(quote)
+        value = ''
+        while self.cursor < len(self.source):
+            char = self.source[self.cursor]
+            self.cursor += 1
+            if char == quote:
+                if len(value) > QUERY_MAX_LITERAL_LENGTH:
+                    raise ValueError('literal limit')
+                return value
+            if char == '\\':
+                if self.cursor >= len(self.source):
+                    raise ValueError('invalid escape')
+                nxt = self.source[self.cursor]
+                self.cursor += 1
+                if nxt not in (quote, '\\'):
+                    raise ValueError('invalid escape')
+                value += nxt
+            else:
+                value += char
+        raise ValueError('unclosed string')
+
+    def _find_close(self, open_index):
+        depth, quote, escaped = 0, '', False
+        for index in range(open_index, len(self.source)):
+            char = self.source[index]
+            if quote:
+                if escaped:
+                    escaped = False
+                elif char == '\\':
+                    escaped = True
+                elif char == quote:
+                    quote = ''
+            elif char in ('"', "'"):
+                quote = char
+            elif char == '(':
+                depth += 1
+            elif char == ')':
+                depth -= 1
+                if depth == 0:
+                    return index
+        return -1
+
+    def _read_while(self, pattern):
+        start = self.cursor
+        while self.cursor < len(self.source) and re.match(pattern, self.source[self.cursor]):
+            self.cursor += 1
+        return self.source[start:self.cursor]
+
+    def _skip_spaces(self):
+        self._read_while(r'\s')
+
+    def _consume(self, token):
+        if not self.source.startswith(token, self.cursor):
+            return False
+        self.cursor += len(token)
+        return True
+
+    def _expect(self, token):
+        if not self._consume(token):
+            raise ValueError(f'expected {token}')
+
+    def _peek(self):
+        return self.source[self.cursor] if self.cursor < len(self.source) else ''
+
+
+def _evaluate_selector(data, path):
+    compiled = _SelectorParser(path).parse()
+    state = {'visited': 0}
+    current = [data]
+    for step in compiled['steps']:
+        current = _apply_step(current, step, state)
+    values = _dedupe(current)[:QUERY_MAX_RESULTS]
+    return _materialize(values, compiled['mode'])
+
+
+def _apply_step(nodes, step, state):
+    result = []
+    for node in nodes:
+        _visit(state)
+        kind = step['kind']
+        if kind == 'property':
+            result.extend(_select_property(node, step['name']))
+        elif kind == 'attribute':
+            value = _select_attribute(node, step['name'])
+            if value is not None:
+                result.append(value)
+        elif kind == 'text':
+            value = _select_text(node)
+            if value is not None:
+                result.append(value)
+        elif kind == 'index':
+            if isinstance(node, list) and step['index'] < len(node):
+                result.append(node[step['index']])
+        elif kind == 'wildcard':
+            result.extend(_select_children(node))
+        elif kind == 'filter':
+            candidates = _select_children(node) if isinstance(node, (list, ET.Element)) else [node]
+            for candidate in candidates:
+                if _matches_predicate(candidate, step['predicate'], state):
+                    result.append(candidate)
+        elif kind == 'recursive':
+            result.extend(_select_recursive(node, step['target'], state, 0))
+        if len(result) > QUERY_MAX_RESULTS:
+            raise ValueError('result limit')
+    return result
+
+
+def _matches_predicate(node, predicate, state):
+    values = [node]
+    for step in predicate['path']:
+        values = _apply_step(values, step, state)
+    if predicate['kind'] == 'exists':
+        return bool(values)
+    return any(
+        _compare_scalar(value, predicate['operator'], predicate['value'])
+        for value in values
+    )
+
+
+def _compare_scalar(actual, operator, expected):
+    actual = _normalize_scalar(actual)
+    if operator == '=':
+        return actual == expected
+    if operator == '!=':
+        return actual != expected
+    if not isinstance(actual, (int, float)) or not isinstance(expected, (int, float)):
+        return False
+    return {
+        '>': actual > expected,
+        '>=': actual >= expected,
+        '<': actual < expected,
+        '<=': actual <= expected,
+    }[operator]
+
+
+def _normalize_scalar(value):
+    if value is None or isinstance(value, (str, int, float, bool)):
+        return value
+    return str(value)
+
+
+def _select_property(node, name):
+    if isinstance(node, dict):
+        return [node[name]] if name in node else []
+    if isinstance(node, ET.Element):
+        return [
+            child for child in list(node)
+            if child.tag == name or _xml_expanded_name(child.tag) == name
+        ]
+    return []
+
+
+def _select_attribute(node, name):
+    if not isinstance(node, ET.Element):
+        return None
+    for key, value in node.attrib.items():
+        if key == name or _xml_expanded_name(key) == name:
+            return value
+    return None
+
+
+def _select_text(node):
+    if isinstance(node, ET.Element):
+        return ''.join(node.itertext())
+    if isinstance(node, (str, int, float, bool)):
+        return str(node)
+    return None
+
+
+def _select_children(node):
+    if isinstance(node, list):
+        return list(node)
+    if isinstance(node, dict):
+        return [node[key] for key in node]
+    if isinstance(node, ET.Element):
+        return list(node)
+    return []
+
+
+def _select_recursive(node, target, state, depth):
+    if depth > QUERY_MAX_RECURSIVE_DEPTH:
+        raise ValueError('recursive limit')
+    result = list(_apply_step([node], target, state))
+    for child in _select_children(node):
+        result.extend(_select_recursive(child, target, state, depth + 1))
+    return result
+
+
+def _visit(state):
+    state['visited'] += 1
+    if state['visited'] > QUERY_MAX_VISITED_NODES:
+        raise ValueError('visited limit')
+
+
+def _dedupe(values):
+    seen, result = set(), []
+    for value in values:
+        key = id(value) if isinstance(value, (dict, list, ET.Element)) else (type(value).__name__, value)
+        if key in seen:
+            continue
+        seen.add(key)
+        result.append(value)
+    return result
+
+
+def _materialize(values, mode):
+    if mode == 'exists':
+        return 'true' if values else 'false'
+    if mode == 'count':
+        return str(len(values))
+    if mode == 'all':
+        return json.dumps([_json_value(value) for value in values], separators=(',', ':'), sort_keys=True)
+    if mode == 'first':
+        return None if not values or values[0] is None else str(_text_value(values[0]))
+    if not values:
+        return None
+    if len(values) > 1:
+        return json.dumps([_json_value(value) for value in values], separators=(',', ':'), sort_keys=True)
+    return None if values[0] is None else str(_text_value(values[0]))
+
+
+def _json_value(value):
+    if isinstance(value, ET.Element):
+        return ''.join(value.itertext())
+    if isinstance(value, list):
+        return [_json_value(item) for item in value]
+    if isinstance(value, dict):
+        return {key: _json_value(value[key]) for key in sorted(value)}
+    return value
+
+
+def _text_value(value):
+    if isinstance(value, ET.Element):
+        return ''.join(value.itertext())
+    return value
+
+
+def _xml_expanded_name(name):
+    return name
 
 
 def _navigate(obj, path, callback):
@@ -600,8 +1004,7 @@ def _navigate(obj, path, callback):
 def resolve_dsl_data(data, path, callback=None):
     """Resolve um path canônico sobre dado carregado e retorna texto ou None."""
     try:
-        value = _navigate(data, path, callback)
-        return None if value is None else str(value)
+        return _evaluate_selector(data, path)
     except Exception:
         # PROTECAO: a fachada fail-safe não propaga exceção de navegação.
         _emit('invalid path', 'e', callback)

@@ -21,6 +21,9 @@ vectors = json.loads((ROOT / 'tests/conformance/v1.json').read_text(encoding='ut
 request_vectors = json.loads(
     (ROOT / 'tests/conformance/request-v2.json').read_text(encoding='utf-8')
 )
+selector_vectors = json.loads(
+    (ROOT / 'tests/conformance/selectors-v3.json').read_text(encoding='utf-8')
+)
 
 failures = []
 for case in vectors['cases']:
@@ -57,6 +60,32 @@ for case in request_vectors['cases']:
 for value in request_vectors['invalid']:
     if module._extract_dsl(value) is not None:
         failures.append(f"request inválido aceito: {value}")
+
+for case in selector_vectors['cases']:
+    actual = module.resolve_dsl_data(selector_vectors['data'], case['path'])
+    if actual != case['expected']:
+        failures.append(f"selector {case['id']}: esperado={case['expected']!r} obtido={actual!r}")
+
+for value in selector_vectors['invalid']:
+    if module.resolve_dsl_data(selector_vectors['data'], value) is not None:
+        failures.append(f"selector inválido aceito: {value}")
+
+xml = module._parse_content(
+    '<catalog xmlns:x="urn:test"><book id="b1"><title>Ana</title></book><x:book id="b2">Bruno</x:book></catalog>',
+    None,
+)
+xml_cases = [
+    ('.book.@id', 'b1'),
+    ('.book.title.text()', 'Ana'),
+    ('.["{urn:test}book"].text()', 'Bruno'),
+]
+for path, expected in xml_cases:
+    actual = module.resolve_dsl_data(xml, path)
+    if actual != expected:
+        failures.append(f"xml {path}: esperado={expected!r} obtido={actual!r}")
+
+if module._parse_content('<!DOCTYPE x [<!ENTITY e SYSTEM "file:///etc/passwd">]><x/>', None) is not None:
+    failures.append('xml doctype aceito')
 
 
 class RequestHandler(BaseHTTPRequestHandler):

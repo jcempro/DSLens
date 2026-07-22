@@ -12,6 +12,8 @@ O binding PowerShell DEVE suportar Windows PowerShell 5.1 e PowerShell 7.4 ou su
 
 O provedor `envValues` opcional DEVE ser `hashtable` injetada; a implementação NÃO DEVE consultar `$env:` implicitamente para resolver headers. O transporte v2 DEVE aplicar `query`, `GET`/`POST`, headers e body pelas APIs HTTP nativas.
 
+Perfil v3 DEVE implementar o parser de seletores do RCF global §5.1.1 sem `Invoke-Expression` nem XPath arbitrário. A tokenização por `-split '\.'` NÃO é suficiente para nomes delimitados, wildcard, recursão, filtros `?()` ou funções de resultado; o binding DEVE compilar a consulta em passos explícitos antes de navegar. PowerShell 5.1 e 7.4+ DEVEM produzir a mesma cardinalidade textual para `first`, `all`, `count` e `exists`.
+
 ## 3. Comportamento preservado
 
 O perfil atual DEVE preservar: aspas simples ou duplas; URL HTTP(S); GET como default; tentativas GET por `Invoke-RestMethod`, `Invoke-WebRequest` e `WebClient`; request v2 por `Invoke-RestMethod`; JSON, XML e YAML condicionado a `ConvertFrom-Yaml`; campo, índice base zero e filtro textual exato; conversão final para `[string]`; retorno `$null` em falha; cache em memória pela identidade integral com TTL de 60 s; rejeição de múltiplas expressões e resultado aninhado.
@@ -23,6 +25,8 @@ Defaults legados comprovados: profundidade 5, chaining 3, execução 90 s, rede 
 TLS, `ExecutionPolicy`, mutex global Windows, tipos XML do .NET e estratégias de fetch são detalhes do binding e NÃO DEVEM contaminar o contrato comum.
 
 O código declara crases, fonte inline/arquivo, opções, `.find`, wildcard, preservação de texto externo, profundidade/chain efetivos e cache máximo, mas não os implementa integralmente. O timeout de fetch usa 15 s por tentativa; `MAX_NETWORK_TIMEOUT`, `MAX_EXECUTION_TIMEOUT`, códigos de erro, limites de backoff e `CACHE_MAX_ENTRIES` não governam todos os caminhos. Testes atuais dependem de rede e validam principalmente URL resultante. Essas diferenças DEVEM ser corrigidas ou removidas da superfície declarada conforme o perfil canônico e DEVEM ser cobertas por testes offline comuns.
+
+XML DEVE usar APIs .NET com entidade externa desabilitada quando conteúdo textual for parseado; entrada com `<!DOCTYPE` DEVE ser rejeitada antes de `[xml]` se não houver controle seguro equivalente. Seleção XML v3 usa `.elemento`, `.@atributo`, `.text()` e nomes expandidos `{uri}local`; `SelectNodes` com string fornecida pelo usuário NÃO DEVE ser usado para executar XPath arbitrário.
 
 ## 5. Empacotamento e documentação
 
