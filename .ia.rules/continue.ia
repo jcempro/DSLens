@@ -271,6 +271,32 @@ arquivos_previstos=README.md; tests/conformance/*.
 aceite=Exemplos do README refletem exatamente a sintaxe implementada e são validados por teste.
 verificacao=README atualizado com conceito, sintaxe, JSON, YAML, XML, múltiplos resultados, ausência, API local e limites.
 
+FT-20260722-010|nome=Diagnóstico de distribuição e publicação controlada|escopo=Técnico|prioridade=alta|status=em andamento|inicio=2026-07-22T13:24:50-03:00
+objetivo=Preparar pacote, release, manifests, demo e GitHub Pages para fluxos reproduzíveis sem executar publicação real sem comando explícito.
+nao_escopo=Publicar pacote npm, criar tag, criar release GitHub ou publicar Pages nesta execução.
+dependencias=AGENTS.md §§9-18; RCF.md §§10-14; docs/rcf/typescript-javascript.md; docs/rcf/distribution.md; prompt anexo e4354827-a3ca-4895-8f63-da5bd365297b.
+riscos=Duplicar contratos entre README/site/manifests; expor artefato interno no pacote; publicar por script comum; quebrar pacote ESM/CJS existente.
+arquivos_previstos=.ia.rules/continue.ia; RCF.md; docs/rcf/*; manifests/*; docs/components/*; src/ts/*; scripts/*; site/*; demo/*; examples/*; .github/workflows/*; README.md; package.json; tests/*.
+aceite=Diagnóstico registrado; lacunas normativas saneadas; comandos explícitos e dry-run existem; nenhuma publicação real executada.
+1/4 Diagnóstico [em andamento]
+  1/3 Auditar exports, pacote, build, workflows e demo atual [em andamento]
+  2/3 Registrar aderências, divergências e lacunas [pendente]
+  3/3 Validar ausência de publicação implícita [pendente]
+2/4 Normatização [pendente]
+  1/3 Definir artefatos browser/TypeScript e subpath exports por componente [pendente]
+  2/3 Definir manifests humanos/máquina e mapa de distribuição versionado [pendente]
+  3/3 Definir site Pages e demo live/offline reutilizável [pendente]
+3/4 Implementação [pendente]
+  1/4 Ajustar build, package, exports e scripts/hooks [pendente]
+  2/4 Gerar manifests, docs de componentes e exemplos [pendente]
+  3/4 Criar núcleo comum de demo e site estático [pendente]
+  4/4 Criar workflow Pages manual e seguro [pendente]
+4/4 Validação [pendente]
+  1/4 Executar npm test e validações de manifests/site/package [pendente]
+  2/4 Executar release dry-run e npm pack [pendente]
+  3/4 Testar instalação isolada e imports individualizados [pendente]
+  4/4 Compactar, commitar e publicar branch dev quando autorizado [pendente]
+
 DECISOES=20260716: sintaxe/semântica são canônicas; linguagens equivalentes; PowerShell/Python convergem; TypeScript opcional e JavaScript transpilado cliente/servidor; API real opt-in.
 VERIFICACOES=20260716 npm test 9 etapas; test:real 10 etapas; browser real PASS sem console; npm pack/instalação/imports PASS; audit 0; build reproduzível; GitHub Actions 29471167293, 29471237832, 29471309806 e 29471417146 success; actions v6 sem avisos.
 PROXIMO=Revisar diff, executar compactação final, preparar commit/push se autorizado e acompanhar CI após publicação.

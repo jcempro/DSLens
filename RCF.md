@@ -6,7 +6,7 @@ Este RCF define o contrato funcional, arquitetural e público do DSLens. Ele DEV
 
 Ordem normativa do produto: `./RCF.md` → sub-RCF aplicável → manifesto canônico publicado → `./README.md`. Divergência entre implementação, build, pacote, manifesto ou documentação DEVE ser tratada como não conformidade; o RCF NÃO DEVE ser inferido da implementação divergente.
 
-Aplicam-se `./AGENTS.md` §§0.13, 10–14 e `./.agents/core/contracts.md` CT-1–CT-4. Linguagem normativa segue `./.agents/core/concepts/microconceitos.md` MN-2119, MN-DENS, MN-PRES, MN-REF e MN-VAL.
+Aplicam-se `./AGENTS.md` §§0.13, 10–14 e `./.ia.rules/core/contracts.md` CT-1–CT-4. Linguagem normativa segue `./.ia.rules/core/concepts/microconceitos.md` MN-2119, MN-DENS, MN-PRES, MN-REF e MN-VAL.
 
 ## 2. Finalidade e limites
 
@@ -141,7 +141,7 @@ Cache DEVE ser opcional, limitado, invalidável e semanticamente transparente. C
 
 O núcleo DEVE permanecer independente de DOM, Node.js, framework, worker, sistema de arquivos, processo, binário, serviço externo e detecção heurística de ambiente. Dependência ambiental DEVE entrar por binding, adaptador, hook, subpath ou condição de exportação.
 
-Hook DEVE declarar nome, versão, ciclo, ordem, entrada congelada, retorno estruturado, sincronismo, reentrância, cancelamento, isolamento, erros e estabilidade. Ausência de hook opcional NÃO DEVE impedir o núcleo. Hook NÃO DEVE mutar estado gerenciado fora de ação autorizada nem absorver falha contratada. Aplicam-se `./.agents/core/contracts.md` CT-2 e CT-3.
+Hook DEVE declarar nome, versão, ciclo, ordem, entrada congelada, retorno estruturado, sincronismo, reentrância, cancelamento, isolamento, erros e estabilidade. Ausência de hook opcional NÃO DEVE impedir o núcleo. Hook NÃO DEVE mutar estado gerenciado fora de ação autorizada nem absorver falha contratada. Aplicam-se `./.ia.rules/core/contracts.md` CT-2 e CT-3.
 
 Perfis previstos: `core`, `browser`, `worker`, `node`, `server`, `ssr`, `build` e `test`. Cada build DEVE declarar exatamente os perfis incluídos; importar `browser` NÃO DEVE carregar código de Node.js ou servidor.
 
