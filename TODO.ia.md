@@ -173,6 +173,8 @@
       - não convertido implicitamente em string, objeto ou valor padrão.
     - Qualquer propriedade de body já existente DEVE retornar o estado
       normatizado para ausência, sem fabricar conteúdo vazio ambíguo.
+    - Para efeito e contexto deste projeto, e deste TO-DO, o cabecalho objtido é o conteudo legítimo e real a ser considerado como retorno no lugar do body.
+    - Mesmo o cabeçalho http nao atendendo ao formato json, XML e yml, excepcionalmente ele, deve ser tratado e indexado corretamente, como equivalente (se for possível, e tecnicamente conveniente, faça a conversão/absorção dele, para e como json, diretamente), e isso deve ser feito de forma blindada e resiliente a falhas, erros de sintaxes, ausências ou o adequações.
     - A diferença entre:
       - corpo inexistente;
       - corpo não solicitado;
