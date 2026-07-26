@@ -102,8 +102,10 @@
   },
   "agentsUpstream": {
     "schema": 1,
-    "upstreamRepository": "JeanCarloEM/agents.md",
-    "candidateRepository": "jcempro/agents.md"
+    "upstreamRepository": "jcempro/agents.md",
+    "predecessorRepositories": [
+      "JeanCarloEM/agents.md"
+    ]
   },
   "scripts": {
     "build": "npm run agent:build",
