@@ -5,6 +5,53 @@ CONTRATO=./RCF.md
 CACHE=documentos lidos e estado Git validos em 20260716; reler somente arquivos alterados
 BLOQUEIO_NAO_REPETIR=agent:verify e agent:test procuravam raiz predecessora incorreta; repetir somente apos correcao ou evidencia nova
 
+FT-20260809-001|nome=Contrato do plugin browser documental|classe=implementacao_normativa|escopo=Técnico|prioridade=alta|status=em andamento|inicio=2026-08-09T20:04:31-03:00
+objetivo=Normatizar uma camada browser/client-side opcional e desacoplada que identifica encapsulamentos explícitos em HTML/Markdown, resolve DSLens assincronamente e renderiza resultado inline com degradação progressiva.
+nao_escopo=Implementar código, alterar a semântica da DSL principal, publicar npm/release ou introduzir integração específica de framework no núcleo.
+dependencias=.ia.rules/state/requests/FT-20260809-001/request.md; RCF.md; docs/rcf/typescript-javascript.md; docs/rcf/distribution.md; FT-20260809-002.
+riscos=Acoplar DOM ao núcleo; interpretar texto acidentalmente; fallback sem JavaScript inválido; execução de HTML; API de utilitários ambígua; distribuição divergente.
+arquivos_previstos=RCF.md; docs/rcf/typescript-javascript.md; docs/rcf/distribution.md; .ia.rules/continue.ia; handoff.md.
+aceite=RCF centraliza encapsulamento, lifecycle, renderização inline, fallback, pipeline de funções $, extensibilidade, integração, artefatos e validação com exemplos implementáveis; fase normativa validada e commitada antes de código.
+vinculos=fonte sha256 886290367e54e01bfea3dbaa8b9b4a064548ab625bc8439c9e239c3a29b36ba1; FT-20260809-002 depende desta FT.
+1/3 Arquitetura e encapsulamento [em andamento]
+  1/3 Delimitar núcleo DSLens e plugin documental [em andamento]
+  2/3 Definir notação HTML/Markdown e fallback sem JavaScript [pendente]
+  3/3 Definir lifecycle automático, dinâmico e manual [pendente]
+2/3 Renderização e extensibilidade [pendente]
+  1/3 Definir placeholder, loading, resultado inline e erros [pendente]
+  2/3 Contratar pipeline aninhável de funções $ e catálogo mínimo [pendente]
+  3/3 Definir integração TypeScript, JavaScript, React e Preact [pendente]
+3/3 Distribuição e aceite [pendente]
+  1/3 Definir npm, builds independentes, CSS e all-in-one [pendente]
+  2/3 Definir matriz de testes funcionais e visuais [pendente]
+  3/3 Validar RCF, commitar e solicitar autorização pós-norma [pendente]
+
+FT-20260809-002|nome=Plugin browser documental DSLens|classe=implementacao_codigo|escopo=Técnico|prioridade=alta|status=pendente|inicio=2026-08-09T20:04:32-03:00
+objetivo=Implementar, empacotar, documentar e testar o plugin browser/client-side opcional conforme o contrato concluído pela FT-20260809-001.
+nao_escopo=Modificar semântica ou bindings PowerShell/Python do núcleo; publicar release/npm sem autorização específica; executar HTML de resultado implicitamente.
+dependencias=FT-20260809-001 concluída, validada e commitada; nova autorização humana explícita após a fase normativa.
+riscos=MutationObserver recursivo; processamento duplicado; race condition; layout shift; XSS; bundle acoplado; funções não determinísticas sem injeção; regressão de exports e pacote.
+arquivos_previstos=src/ts/plugin/*; package/dslens/*; scripts/build/*; scripts/test/*; tests/*; manifests/*; schemas/*; README.md; docs/*; RCF.md; .ia.rules/continue.ia; handoff.md.
+aceite=Fonte TypeScript e builds JavaScript/CSS independentes; all-in-one opcional; API automática/manual; conteúdo dinâmico; fallback seguro; catálogo $; testes funcionais, pacote, browser e layout; documentação de uso; rastreabilidade sincronizada.
+vinculos=fonte sha256 886290367e54e01bfea3dbaa8b9b4a064548ab625bc8439c9e239c3a29b36ba1; depende de FT-20260809-001.
+1/4 Implementação do runtime [pendente]
+  1/4 Criar identificação, parsing de configuração e estado idempotente [pendente]
+  2/4 Implementar varredura inicial, MutationObserver e chamada manual [pendente]
+  3/4 Implementar resolução concorrente, cancelamento e erros fail-safe [pendente]
+  4/4 Implementar renderização inline e customização de loader [pendente]
+2/4 Funções e integrações [pendente]
+  1/3 Implementar parser seguro e composição aninhada de $ [pendente]
+  2/3 Implementar catálogo mínimo com validação determinística [pendente]
+  3/3 Expor contratos TypeScript/JavaScript e adaptadores React/Preact [pendente]
+3/4 Build, pacote e documentação [pendente]
+  1/3 Produzir plugin JS e CSS independentes [pendente]
+  2/3 Produzir all-in-one com CSS embutido sem acoplar o núcleo [pendente]
+  3/3 Atualizar exports, manifests, Modo de uso e artefatos de release [pendente]
+4/4 Validação e integração [pendente]
+  1/3 Cobrir combinações funcionais, dinâmicas, erros e ausência de JS [pendente]
+  2/3 Medir layout, baseline, espaçamento, tamanhos e target ECMAScript [pendente]
+  3/3 Validar pacote/release, sincronizar RCF, concluir e convergir branches [pendente]
+
 FT-008|nome=Superfície pública multilinguagem padronizada|escopo=Técnico|prioridade=alta|status=concluído|inicio=20260716.025213|fim=20260716.025946
 objetivo=Expor os mesmos nomes camelCase, ordem de parâmetros e tipos equivalentes nas implementações, preservando aliases legados.
 nao_escopo=Renomear helpers internos; remover snake_case; forçar tipos inexistentes em determinado runtime.
