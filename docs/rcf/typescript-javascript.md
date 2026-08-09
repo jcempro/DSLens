@@ -30,6 +30,8 @@ Rede síncrona na thread principal NÃO DEVE ser requisito. Resolução síncron
 
 O artefato client-side ultraotimizado DEVE ser JavaScript sem TypeScript, carregar e executar em navegador real, preservar API aplicável e banner, excluir código Node.js, permitir CDN/local e registrar tamanhos bruto, minificado, gzip e Brotli. Dependência externa DEVE ser resolvida ou declarada.
 
+O plugin documental DEVE ocupar entry point `./plugin`, importar somente a API pública browser do núcleo e manter sua inicialização DOM fora de qualquer entry point principal. `./plugin.css` DEVE expor o CSS separado sem injeção automática; `./all-in-one` DEVE agregar núcleo, plugin e injeção idempotente do mesmo CSS, conforme `./browser-plugin.md`. [PENDENTE-CODIGO]
+
 Baseline minificado após o perfil request v2: 4.510 bytes; orçamento anterior: 5.120 bytes. O perfil v3 de seletores estruturais mediu 11.180 bytes em 2026-07-22; o novo orçamento é 12.288 bytes. O aumento decorre de parser próprio, AST, filtros seguros, wildcard, recursão limitada, cardinalidade explícita, materialização determinística e bloqueio de protótipo sem dependência externa. Carregamento dinâmico permanece descartado por quebrar uso direto e offline.
 
 ## 5. Node.js
@@ -42,7 +44,7 @@ O manifesto raiz DEVE identificar o produto e conservar os scripts operacionais 
 
 O `package.json` DEVE declarar nome `@jeancarloem/dslens`, versão `0.0.1`, licença MPL-2.0, autoria e URLs aprovadas, descrição concisa, `main: README.md`, `types`, `exports`, `files`, `engines`, `sideEffects` e scripts aplicáveis. `module`, `browser`, `imports`, `bin` e `workspaces` somente DEVEM existir quando houver consumidor ou função comprovada.
 
-`exports` DEVE fechar paths internos, declarar `types` antes das condições de runtime e rotear `browser`, `worker`, `node`, `import`, `require` e `default` sem detecção heurística. Subpaths mínimos: `.`, `./browser`, `./worker`, `./server`, `./components/detect`, `./components/resolve-data`, `./components/resolve-source`, `./browser/components/detect`, `./browser/components/resolve-data`, `./browser/components/resolve-source`, `./typescript`, `./manifest`, `./manifests/components` e `./build-target`; somente os realmente gerados DEVEM ser publicados. Fonte TypeScript PODE ser exposta por subpath experimental explícito; NÃO DEVE ser entrada padrão.
+`exports` DEVE fechar paths internos, declarar `types` antes das condições de runtime e rotear `browser`, `worker`, `node`, `import`, `require` e `default` sem detecção heurística. Subpaths mínimos: `.`, `./browser`, `./worker`, `./server`, `./plugin`, `./plugin.css`, `./all-in-one`, `./components/detect`, `./components/resolve-data`, `./components/resolve-source`, `./browser/components/detect`, `./browser/components/resolve-data`, `./browser/components/resolve-source`, `./typescript`, `./typescript/plugin`, `./manifest`, `./manifests/components` e `./build-target`; somente os realmente gerados DEVEM ser publicados. Fonte TypeScript PODE ser exposta por subpath experimental explícito; NÃO DEVE ser entrada padrão. [PENDENTE-CODIGO]
 
 JavaScript compilado DEVE ser entrada padrão. Consumidor DEVE poder instalar tarball e importar cada entry point sem TypeScript, bundler ou dependência de desenvolvimento. `files` DEVE incluir somente runtime, tipos, maps aprovados, licença, README e manifestos públicos.
 
@@ -53,6 +55,8 @@ Componentes individualizados representam funções públicas estáveis, não ali
 Scripts npm futuros DEVEM compor os comandos `agent:*` aplicáveis sem renomeá-los. Typecheck, lint, teste, build, validação de exports, schema, tamanho, pacote simulado e release DEVEM possuir comandos determinísticos. Comando extenso DEVERIA residir em arquivo reutilizável.
 
 Runtime core DEVERIA possuir zero dependência. Parser YAML, XML ou fetch auxiliar somente PODE ser adotado após licença, manutenção, tamanho e suporte browser comprovados; dependência opcional DEVE ter ausência funcionalmente definida. O core JavaScript não DEVE adicionar parser XML ou YAML obrigatório ao browser para o perfil v3; seleção v3 sobre dados já carregados deve funcionar para objetos, arrays, escalares e objetos XML adaptados explicitamente.
+
+React e Preact NÃO DEVEM ser dependências ou peer dependencies obrigatórias do plugin. Tipos DOM, descritor manual, markup por `data-*` e exemplos com `ref`/efeito DEVEM constituir a integração compartilhada. [PENDENTE-CODIGO]
 
 ## 8. Validação futura
 

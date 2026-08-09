@@ -1,35 +1,38 @@
 SCHEMA=1
 MACHINE_ID=JEAN-DESKTOP
-DATA_REF=20260716.025946
+DATA_REF=20260809.202430
 CONTRATO=./RCF.md
-CACHE=documentos lidos e estado Git validos em 20260716; reler somente arquivos alterados
-BLOQUEIO_NAO_REPETIR=agent:verify e agent:test procuravam raiz predecessora incorreta; repetir somente apos correcao ou evidencia nova
+CACHE=Norma, RCFs, estado Git e FT-20260809-001 válidos em 20260809; reler somente arquivo alterado ou rota nova
+BLOQUEIO_NAO_REPETIR=agent:verify e agent:test procuravam raiz predecessora incorreta; agent:rcf encontra legado não mapeado em docs/rcf/distribution.md:5; repetir somente após correção/migração causal válida ou evidência nova
 
-FT-20260809-001|nome=Contrato do plugin browser documental|classe=implementacao_normativa|escopo=Técnico|prioridade=alta|status=em andamento|inicio=2026-08-09T20:04:31-03:00
+FT-20260809-001|nome=Contrato do plugin browser documental|classe=implementacao_normativa|escopo=Técnico|prioridade=alta|status=concluído|inicio=2026-08-09T20:04:31-03:00|fim=2026-08-09T20:24:30-03:00
 objetivo=Normatizar uma camada browser/client-side opcional e desacoplada que identifica encapsulamentos explícitos em HTML/Markdown, resolve DSLens assincronamente e renderiza resultado inline com degradação progressiva.
 nao_escopo=Implementar código, alterar a semântica da DSL principal, publicar npm/release ou introduzir integração específica de framework no núcleo.
-dependencias=.ia.rules/state/requests/FT-20260809-001/request.md; RCF.md; docs/rcf/typescript-javascript.md; docs/rcf/distribution.md; FT-20260809-002.
+dependencias=origem histórica no commit b855059:.ia.rules/state/requests/FT-20260809-001/request.md; RCF.md; docs/rcf/browser-plugin.md; docs/rcf/typescript-javascript.md; docs/rcf/distribution.md; FT-20260809-002.
 riscos=Acoplar DOM ao núcleo; interpretar texto acidentalmente; fallback sem JavaScript inválido; execução de HTML; API de utilitários ambígua; distribuição divergente.
 arquivos_previstos=RCF.md; docs/rcf/typescript-javascript.md; docs/rcf/distribution.md; .ia.rules/continue.ia; handoff.md.
 aceite=RCF centraliza encapsulamento, lifecycle, renderização inline, fallback, pipeline de funções $, extensibilidade, integração, artefatos e validação com exemplos implementáveis; fase normativa validada e commitada antes de código.
 vinculos=fonte sha256 886290367e54e01bfea3dbaa8b9b4a064548ab625bc8439c9e239c3a29b36ba1; FT-20260809-002 depende desta FT.
-1/3 Arquitetura e encapsulamento [em andamento]
-  1/3 Delimitar núcleo DSLens e plugin documental [em andamento]
-  2/3 Definir notação HTML/Markdown e fallback sem JavaScript [pendente]
-  3/3 Definir lifecycle automático, dinâmico e manual [pendente]
-2/3 Renderização e extensibilidade [pendente]
-  1/3 Definir placeholder, loading, resultado inline e erros [pendente]
-  2/3 Contratar pipeline aninhável de funções $ e catálogo mínimo [pendente]
-  3/3 Definir integração TypeScript, JavaScript, React e Preact [pendente]
-3/3 Distribuição e aceite [pendente]
-  1/3 Definir npm, builds independentes, CSS e all-in-one [pendente]
-  2/3 Definir matriz de testes funcionais e visuais [pendente]
-  3/3 Validar RCF, commitar e solicitar autorização pós-norma [pendente]
+1/3 Arquitetura e encapsulamento [concluído]
+  1/3 Delimitar núcleo DSLens e plugin documental [concluído]
+  2/3 Definir notação HTML/Markdown e fallback sem JavaScript [concluído]
+  3/3 Definir lifecycle automático, dinâmico e manual [concluído]
+2/3 Renderização e extensibilidade [concluído]
+  1/3 Definir placeholder, loading, resultado inline e erros [concluído]
+  2/3 Contratar pipeline aninhável de funções $ e catálogo mínimo [concluído]
+  3/3 Definir integração TypeScript, JavaScript, React e Preact [concluído]
+3/3 Distribuição e aceite [concluído]
+  1/3 Definir npm, builds independentes, CSS e all-in-one [concluído]
+  2/3 Definir matriz de testes funcionais e visuais [concluído]
+  3/3 Validar RCF, commitar e solicitar autorização pós-norma [concluído]
+verificacao=Catálogo 175/175; requisitos-chave cobertos; 42 sentenças materiais do sub-RCF e 50 sentenças totais registradas como PENDENTE-CODIGO para FT-20260809-002; target 2026 resolvido como ES2021.
+validacao_degradada=agent:rcf bloqueado por dívida preexistente RCF_SENTENCA_NAO_MAPEADA em docs/rcf/distribution.md:5; validação focada da FT aprovada sem migrar causalidade histórica indevida.
+autorizacao_codigo=pendente de nova autorização humana explícita após este marco normativo commitado.
 
 FT-20260809-002|nome=Plugin browser documental DSLens|classe=implementacao_codigo|escopo=Técnico|prioridade=alta|status=pendente|inicio=2026-08-09T20:04:32-03:00
 objetivo=Implementar, empacotar, documentar e testar o plugin browser/client-side opcional conforme o contrato concluído pela FT-20260809-001.
 nao_escopo=Modificar semântica ou bindings PowerShell/Python do núcleo; publicar release/npm sem autorização específica; executar HTML de resultado implicitamente.
-dependencias=FT-20260809-001 concluída, validada e commitada; nova autorização humana explícita após a fase normativa.
+dependencias=FT-20260809-001 concluída e validada; commit normativo deste ciclo; nova autorização humana explícita após a fase normativa.
 riscos=MutationObserver recursivo; processamento duplicado; race condition; layout shift; XSS; bundle acoplado; funções não determinísticas sem injeção; regressão de exports e pacote.
 arquivos_previstos=src/ts/plugin/*; package/dslens/*; scripts/build/*; scripts/test/*; tests/*; manifests/*; schemas/*; README.md; docs/*; RCF.md; .ia.rules/continue.ia; handoff.md.
 aceite=Fonte TypeScript e builds JavaScript/CSS independentes; all-in-one opcional; API automática/manual; conteúdo dinâmico; fallback seguro; catálogo $; testes funcionais, pacote, browser e layout; documentação de uso; rastreabilidade sincronizada.
@@ -395,4 +398,6 @@ verificacao=publish:dry-run retornou published=false; npm test 16 etapas aprovad
 
 DECISOES=20260716: sintaxe/semântica são canônicas; linguagens equivalentes; PowerShell/Python convergem; TypeScript opcional e JavaScript transpilado cliente/servidor; API real opt-in.
 VERIFICACOES=20260716 npm test 9 etapas; test:real 10 etapas; browser real PASS sem console; npm pack/instalação/imports PASS; audit 0; build reproduzível; GitHub Actions 29471167293, 29471237832, 29471309806 e 29471417146 success; actions v6 sem avisos.
-PROXIMO=Revisar diff final, executar compactação final, preparar commit e push em dev se autorizado.
+DECISOES_20260809=Plugin documental opcional usa span/data-* explícito, fallback no slot real, texto seguro, lifecycle idempotente, pipeline $ separado da DSL, IIFE sob global DSLens e assets independentes/all-in-one.
+VERIFICACOES_20260809=Catálogo 175/175; requisitos-chave e target ES2021 aprovados; 50 sentenças PENDENTE-CODIGO mapeadas; agent:rcf degradado somente por legado anterior não mapeado.
+PROXIMO=Aguardar nova autorização humana explícita para iniciar FT-20260809-002; depois implementar runtime, catálogo $, builds, documentação e testes conforme docs/rcf/browser-plugin.md.

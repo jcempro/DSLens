@@ -147,6 +147,8 @@ Perfis previstos: `core`, `browser`, `worker`, `node`, `server`, `ssr`, `build` 
 
 Classes DEVERIAM representar estado, ciclo de vida ou estratégia substituível; composição e injeção DEVERIAM prevalecer sobre herança rígida. Funções puras DEVEM permanecer permitidas quando reduzirem estado e bundle. Orientação a objetos NÃO DEVE criar abstração sem função, estado global, herança profunda ou perda desproporcional de tree-shaking.
 
+Integração de DSLens com HTML/Markdown DEVE permanecer em plugin browser opcional e desacoplado, dependente da API pública da biblioteca e regido por `./docs/rcf/browser-plugin.md`. O núcleo NÃO DEVE descobrir DOM, interpretar texto documental, renderizar markup, carregar CSS, observar lifecycle de página nem incorporar o catálogo utilitário `$`. [PENDENTE-CODIGO]
+
 ## 9. Superfície pública e documentação de código
 
 Toda entidade pública DEVE constar no manifesto canônico com nome, categoria, linguagem, runtime, assinatura, parâmetros, retorno, efeitos, erros, sincronismo, estabilidade, importação, compatibilidade, extensão e referência normativa aplicáveis. Exportação acidental NÃO DEVE adquirir estabilidade.
@@ -160,6 +162,8 @@ Cada família DEVE suportar Git e os canais idiomáticos aprovados. TypeScript/J
 Uso como submódulo Git DEVE aceitar diretório configurável, monorepo, workspace e symlink. Resolução DEVE partir da localização do módulo ou configuração explícita, nunca de nome/profundidade fixos ou diretório corrente. Falha estrutural DEVE produzir diagnóstico acionável e NÃO DEVE ser ocultada por fallback.
 
 O projeto DEVE usar versionamento semântico. Mudança de gramática, resultado, erro, ordenação, default, export público ou tipo incompatível DEVE ser major; adição compatível DEVE ser minor; correção que preserve contrato DEVE ser patch. Famílias publicadas DEVEM usar versão coordenada do contrato e declarar versão própria do artefato quando diferir.
+
+O plugin browser documental DEVE ser distribuído em TypeScript, JavaScript e CSS separado, sem tornar-se dependência obrigatória da biblioteca principal. Release DEVE oferecer builds JavaScript independentes da biblioteca e do plugin, CSS separado e all-in-one opcional com ambos e CSS embutido, conforme `./docs/rcf/browser-plugin.md` e `./docs/rcf/distribution.md`. [PENDENTE-CODIGO]
 
 ## 11. Builds, dependências e cadeia de suprimentos
 
@@ -195,6 +199,8 @@ Validação DEVE comparar resultado, falha, normalização, ordenação, default
 
 PowerShell, Python, TypeScript e JavaScript DEVEM demonstrar a mesma semântica pelos vetores comuns. Divergência existente DEVE ser corrigida na implementação divergente; nenhuma linguagem DEVE servir como evidência única do contrato.
 
+Capacidade exclusiva do plugin documental NÃO integra a paridade PowerShell/Python do núcleo. Sua conformidade DEVE ser demonstrada no navegador por contrato funcional, DOM dinâmico, fallback sem JavaScript, segurança textual, composição `$`, integração por API e preservação visual inline. [PENDENTE-CODIGO]
+
 ### 14.1 Testes automatizados e CI
 
 `npm test` DEVE orquestrar testes unitários, integração, conformidade multilinguagem e E2E. O conjunto determinístico obrigatório DEVE usar mocks e fixtures locais geradas; testes contra APIs reais DEVEM residir em perfil opt-in separado e falha externa NÃO DEVE invalidar o conjunto determinístico sem diagnóstico de causa local.
@@ -209,13 +215,14 @@ Workflow de testes DEVE executar em `push` quando houver alteração de runtime,
 - Python: `./docs/rcf/python.md`.
 - TypeScript, JavaScript, npm e ambientes JS: `./docs/rcf/typescript-javascript.md`.
 - Distribuição, builds e manifestos: `./docs/rcf/distribution.md`.
+- Plugin browser documental: `./docs/rcf/browser-plugin.md`.
 
 ## 16. Decisões pendentes
 
 Antes da implementação, decisão humana DEVE resolver:
 
 1. **Gramática ampliada** — alternativas: manter v1 estrita; adicionar inline/arquivo; adicionar opções, wildcard e `.find`. Impacto: segurança, parser e paridade. Recomendação: implementar e certificar v1 antes de extensões.
-2. **Artefato global** — alternativas: IIFE ou UMD. Impacto: tamanho, namespace e compatibilidade. Recomendação: medir ESM e IIFE; publicar IIFE apenas com consumidor comprovado.
+2. **Artefato global do núcleo legado** — o plugin documental comprova consumidor para IIFE browser nos quatro assets definidos em `./docs/rcf/browser-plugin.md`, sem autorizar UMD ou novo global. Outros artefatos globais permanecem dependentes de consumidor comprovado.
 3. **Orçamento client-side** — alternativas dependem do baseline real. Impacto: build e dependências. Recomendação: fixar limite na FT do primeiro build, sem estimativa documental.
 4. **Tokenização do manifesto** — alternativas: JSON, YAML ou TOML. Impacto: IA e toolchain. Recomendação: manter JSON por interoperabilidade e medir antes da publicação inicial.
 5. **Condição de runtime para worker** — `worker` ainda é condição customizada e nem todo resolvedor npm a ativa automaticamente. Impacto: importação pela raiz PODE cair no core neutro. Recomendação: manter `./worker` como subpath normativo, testar `--conditions=worker` e acompanhar padronização sem heurística de ambiente.

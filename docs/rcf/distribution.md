@@ -20,8 +20,14 @@ Cada artefato DEVE declarar `id`, família, consumidor, runtime, formato, extens
 | CommonJS core/browser/worker/server | Node.js, bundler ou ferramenta compatível | autorizado nesta FT |
 | JavaScript minificado | browser/CDN/local | implementado |
 | declarações/maps | toolchain TS/depuração | implementado |
+| plugin documental TypeScript/ESM | browser, CDN e bundler | normatizado; implementação pendente |
+| CSS separado do plugin | browser e CMS | normatizado; implementação pendente |
+| plugin documental IIFE | browser por script independente após núcleo | normatizado; implementação pendente |
+| all-in-one IIFE com CSS embutido | browser por script único | normatizado; implementação pendente |
 
 CommonJS está autorizado para compatibilidade de consumidores npm legados e DEVE possuir teste contra dual-package hazard em cada entrada publicada. IIFE e UMD NÃO DEVEM ser produzidos sem consumidor e decisão registrada.
+
+A demanda `FT-20260809-001` autoriza IIFE somente para os assets browser `dslens.browser.js`, `dslens-plugin.browser.js` e `dslens-all.browser.js`, sob o namespace único `globalThis.DSLens`; UMD permanece não autorizado. O CSS `dslens-plugin.css` DEVE ser asset próprio e corresponder semanticamente ao CSS incorporado pelo all-in-one. [PENDENTE-CODIGO]
 
 ## 3. Git e submódulo
 
@@ -34,6 +40,8 @@ Diagnóstico DEVE distinguir instalação aninhada, workspace, monorepo, symlink
 Manifesto JSON canônico DEVE usar `./schemas/dslens-manifest.schema.json`, ordenação lexicográfica de chaves e arrays ordenados por `id` quando não houver ordem semântica. Ele NÃO DEVE conter exemplos ou prosa extensa. O Markdown híbrido DEVE ser derivado ou validado e PODE conter exemplos.
 
 Toda API, hook, adaptador, evento, configuração, módulo, subpath, comando, build, binding e schema públicos DEVEM constar no manifesto. Assinatura divergente DEVE bloquear pacote e release.
+
+O plugin DEVE possuir manifesto próprio com dependência compatível do manifesto do núcleo, catálogo `$` versionado, opções, estados, eventos, diagnósticos, loaders e matriz de artefatos. O all-in-one DEVE referenciar os dois manifestos e provar que agrega versões compatíveis sem redefinir contratos. [PENDENTE-CODIGO]
 
 Cada componente público DEVE possuir manifest individual em `./manifests/components/<id>.json`, documentação humana em `./docs/components/<id>.md` e referência no índice compacto `./manifests/components/index.json`. O pacote npm DEVE distribuir esses manifests em `./dist/manifests/components/` e expor subpaths JSON somente para leitura seletiva; o índice NÃO DEVE repetir contratos completos.
 
