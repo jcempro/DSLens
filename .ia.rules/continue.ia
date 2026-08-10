@@ -1,9 +1,70 @@
 SCHEMA=1
 MACHINE_ID=JEAN-DESKTOP
-DATA_REF=20260809.202430
+DATA_REF=20260810.012722
 CONTRATO=./RCF.md
-CACHE=Norma, RCFs, estado Git e FT-20260809-001 válidos em 20260809; reler somente arquivo alterado ou rota nova
+CACHE=Norma integral, RCFs, estado Git, FT-20260809-001/002 e solicitação FormulaKit/Demos relidos em 20260810; reler somente arquivo alterado ou rota nova
 BLOQUEIO_NAO_REPETIR=agent:verify e agent:test procuravam raiz predecessora incorreta; agent:rcf encontra legado não mapeado em docs/rcf/distribution.md:5; repetir somente após correção/migração causal válida ou evidência nova
+
+FT-20260810-001|nome=Contrato FormulaKit, procedência e Demos verificáveis|classe=implementacao_normativa|escopo=Técnico|prioridade=alta|status=em_andamento|inicio=2026-08-10T01:27:22-03:00
+objetivo=Substituir o catálogo `$` local pela delegação exclusiva à API pública real do FormulaKit, normatizar ausência configurável, confiança criptográfica/procedência e site público com Demos reais multipágina.
+nao_escopo=Implementar runtime, confiança, site ou workflow antes da validação/commit normativos; inventar trust anchor; publicar Pages, pacote, tag ou release nesta fase.
+dependencias=solicitação preservada em .ia.rules/state/requests/FT-20260810-001/request.md; FT-20260809-001 concluída; API pública FormulaKit 0.1.0; RCF.md e sub-RCFs.
+riscos=Duplicar funções terceiras; confundir descoberta com confiança; executar artefato antes de assinatura+hash; downgrade; resultado decisório falso; demo simulada; publicação não autorizada.
+arquivos_previstos=.ia.rules/state/requests/FT-20260810-001/*; .ia.rules/state/contexts/FT-20260810-001/*; .ia.rules/continue.ia; RCF.md; docs/rcf/browser-plugin.md; docs/rcf/distribution.md; docs/rcf/typescript-javascript.md; handoff.md.
+aceite=RCF cirúrgico cobre integralmente autoridade nominal do FormulaKit, ausência ignore/fail, fallback/loading/warn, decisão estrutural, cinco propriedades de procedência, trust anchor independente, KeyHistory/v1, continuidade/rotação/revogação/vigência, release+hash, cache/fallback/anti-downgrade/segredos e Demos/Pages verificáveis; conflito anterior explicitamente conciliado; validação normativa e commit exclusivos.
+vinculos=fonte sha256 e1c5e302c0d6fa94f4890b56e5fdffd5f42231826a805d01ee887d54ffa4b4fa; FormulaKit main observado em dd9bb97b38e109a8395c73c0d29baf92925ad677; FTs de código FT-20260809-002, FT-20260810-002 e FT-20260810-003.
+1/3 Conciliação [concluído]
+  1/3 Preservar fonte, hash e evidência externa [concluído]
+  2/3 Reconciliar FTs e conflito do catálogo local [concluído]
+  3/3 Fixar contextos e ordem de dependências [concluído]
+2/3 Normatização [em andamento]
+  1/3 Atualizar autoridade FormulaKit e política de ausência [pendente]
+  2/3 Normatizar procedência e confiança sem trust anchor inventada [pendente]
+  3/3 Normatizar site/Demos/Pages verificáveis [pendente]
+3/3 Validação [pendente]
+  1/3 Auditar cobertura origem→RCF e preservação [pendente]
+  2/3 Validar RCF/traçabilidade focada [pendente]
+  3/3 Commitar marco normativo e solicitar autorização pós-norma [pendente]
+
+FT-20260810-002|nome=Procedência criptográfica do FormulaKit|classe=implementacao_codigo|escopo=Técnico|prioridade=alta|status=pendente|inicio=2026-08-10T01:27:23-03:00
+objetivo=Implementar descoberta, validação, cache e estado anti-downgrade de procedência do FormulaKit, bloqueando aceitação/execução até cadeia, assinatura e hash válidos.
+nao_escopo=Gerar trust anchor, chave privada, assinatura ou documento de histórico do FormulaKit; aceitar HTTPS/GitHub/npm/manifesto global como prova isolada; publicar segredo.
+dependencias=FT-20260810-001 concluída e validada; autorização humana explícita posterior ao marco normativo; documento FormulaKitKeyHistory/v1 e trust anchor pública configurada por canal independente para validação positiva.
+riscos=TOFU acidental; truncamento/reescrita; rotação inválida; revogação temporal incorreta; cache envenenado; divergência entre fontes; downgrade; execução prematura.
+arquivos_previstos=src/ts/plugin/*; src/ts/provenance/*; schemas/*; config/*; manifests/*; scripts/build/*; scripts/test/*; tests/*; README.md; package/dslens/*; RCF.md; .ia.rules/continue.ia; handoff.md.
+aceite=Infraestrutura fail-closed e testável cobre schema, assinaturas, cadeia append-only, rotação/coassinatura, revogação/vigência, assinatura+hash do release, fontes equivalentes, cache validado, divergência e anti-downgrade; ausência de trust anchor permanece diagnóstico configurável, nunca confiança efetiva.
+1/3 Modelo e verificadores [pendente]
+  1/3 Implementar schemas/canonicalização/assinaturas [pendente]
+  2/3 Implementar continuidade, rotação, revogação e vigência [pendente]
+  3/3 Implementar release, artefato e hash [pendente]
+2/3 Obtenção e estado [pendente]
+  1/3 Implementar HTTPS/timeout/fontes alternativas [pendente]
+  2/3 Implementar cache validado e divergência [pendente]
+  3/3 Implementar mínimos confiados e anti-downgrade [pendente]
+3/3 Testes e integração [pendente]
+  1/3 Cobrir vetores válidos e inválidos [pendente]
+  2/3 Integrar gate antes dos exports FormulaKit [pendente]
+  3/3 Validar pacote/browser e ausência de segredos [pendente]
+
+FT-20260810-003|nome=Site público e Demos auditáveis DSLens|classe=implementacao_codigo|escopo=Técnico|prioridade=alta|status=pendente|inicio=2026-08-10T01:27:24-03:00
+objetivo=Consolidar GitHub Pages e uma área multipágina de Demos que execute o plugin/parser distribuído real e permita auditar fonte→configuração→plugin→resultado.
+nao_escopo=Substituir suíte automatizada por Demo; criar parser/mock funcional; hardcodear resultado; enfraquecer procedência FormulaKit; publicar remotamente sem autorização específica da etapa.
+dependencias=FT-20260810-001 concluída e validada; FT-20260809-002 e FT-20260810-002 funcionais; autorização humana explícita posterior ao marco normativo.
+riscos=Demo simulada; código exibido divergente; fixture distinta da consumida; navegação quebrada em subpath; Pages não publicado; highlighting interferir no exemplo.
+arquivos_previstos=site/*; demo/*; examples/*; .github/workflows/pages.yml; scripts/build/*; scripts/publish/*; scripts/test/*; tests/*; README.md; docs/rcf/distribution.md; .ia.rules/continue.ia; handoff.md.
+aceite=Home aponta para Demos; múltiplas páginas/categorias navegam em Pages; exemplos usam somente o plugin/parser distribuído; código exibido deriva do executado; resultados são reais; fontes JSON/YAML/XML usadas são acessíveis; integração FormulaKit e degradação aparecem sem contornar procedência; publicação e navegação reais são verificadas.
+1/3 Arquitetura e conteúdo [pendente]
+  1/3 Inventariar cenários e definir taxonomia mínima [pendente]
+  2/3 Criar páginas e navegação compartilhada [pendente]
+  3/3 Vincular código executado, highlight e fontes [pendente]
+2/3 Integração real [pendente]
+  1/3 Usar artefato distribuído do plugin/parser [pendente]
+  2/3 Demonstrar JSON/YAML/XML e FormulaKit opcional [pendente]
+  3/3 Demonstrar degradação e resultados reais [pendente]
+3/3 Pages e aceite [pendente]
+  1/3 Corrigir build/workflow Pages e subpath [pendente]
+  2/3 Testar site localmente em navegador real [pendente]
+  3/3 Publicar quando autorizado e verificar URL pública [pendente]
 
 FT-20260809-001|nome=Contrato do plugin browser documental|classe=implementacao_normativa|escopo=Técnico|prioridade=alta|status=concluído|inicio=2026-08-09T20:04:31-03:00|fim=2026-08-09T20:24:30-03:00
 objetivo=Normatizar uma camada browser/client-side opcional e desacoplada que identifica encapsulamentos explícitos em HTML/Markdown, resolve DSLens assincronamente e renderiza resultado inline com degradação progressiva.
@@ -28,14 +89,15 @@ vinculos=fonte sha256 886290367e54e01bfea3dbaa8b9b4a064548ab625bc8439c9e239c3a29
 verificacao=Catálogo 175/175; requisitos-chave cobertos; 42 sentenças materiais do sub-RCF e 50 sentenças totais registradas como PENDENTE-CODIGO para FT-20260809-002; target 2026 resolvido como ES2021.
 validacao_degradada=agent:rcf bloqueado por dívida preexistente RCF_SENTENCA_NAO_MAPEADA em docs/rcf/distribution.md:5; validação focada da FT aprovada sem migrar causalidade histórica indevida.
 autorizacao_codigo=pendente de nova autorização humana explícita após este marco normativo commitado.
+evolucao_20260810=A solicitação mais nova substitui somente o catálogo `$` local e amplia ausência/procedência/Demos; os demais contratos do plugin permanecem cumulativos e serão conciliados na FT-20260810-001 antes do código.
 
 FT-20260809-002|nome=Plugin browser documental DSLens|classe=implementacao_codigo|escopo=Técnico|prioridade=alta|status=pendente|inicio=2026-08-09T20:04:32-03:00
-objetivo=Implementar, empacotar, documentar e testar o plugin browser/client-side opcional conforme o contrato concluído pela FT-20260809-001.
+objetivo=Implementar, empacotar, documentar e testar o plugin browser/client-side opcional, delegando `$.<nome>()` exclusivamente à API pública FormulaKit validada e sem catálogo ou implementação utilitária local.
 nao_escopo=Modificar semântica ou bindings PowerShell/Python do núcleo; publicar release/npm sem autorização específica; executar HTML de resultado implicitamente.
-dependencias=FT-20260809-001 concluída e validada; commit normativo deste ciclo; nova autorização humana explícita após a fase normativa.
-riscos=MutationObserver recursivo; processamento duplicado; race condition; layout shift; XSS; bundle acoplado; funções não determinísticas sem injeção; regressão de exports e pacote.
+dependencias=FT-20260809-001 concluída; FT-20260810-001 concluída e validada; FT-20260810-002 funcional antes de aceitar/executar FormulaKit; nova autorização humana explícita após o novo marco normativo.
+riscos=MutationObserver recursivo; processamento duplicado; race condition; layout shift; XSS; bundle acoplado; delegação nominal divergente; resultado decisório falso na ausência; regressão de exports e pacote.
 arquivos_previstos=src/ts/plugin/*; package/dslens/*; scripts/build/*; scripts/test/*; tests/*; manifests/*; schemas/*; README.md; docs/*; RCF.md; .ia.rules/continue.ia; handoff.md.
-aceite=Fonte TypeScript e builds JavaScript/CSS independentes; all-in-one opcional; API automática/manual; conteúdo dinâmico; fallback seguro; catálogo $; testes funcionais, pacote, browser e layout; documentação de uso; rastreabilidade sincronizada.
+aceite=Fonte TypeScript e builds JavaScript/CSS independentes; all-in-one opcional; API automática/manual; conteúdo dinâmico; fallback seguro; integração FormulaKit opcional com ignore/fail e nomes exatos; nenhuma função `$` local; testes funcionais, pacote, browser e layout; documentação de uso; rastreabilidade sincronizada.
 vinculos=fonte sha256 886290367e54e01bfea3dbaa8b9b4a064548ab625bc8439c9e239c3a29b36ba1; depende de FT-20260809-001.
 1/4 Implementação do runtime [pendente]
   1/4 Criar identificação, parsing de configuração e estado idempotente [pendente]
@@ -44,7 +106,7 @@ vinculos=fonte sha256 886290367e54e01bfea3dbaa8b9b4a064548ab625bc8439c9e239c3a29
   4/4 Implementar renderização inline e customização de loader [pendente]
 2/4 Funções e integrações [pendente]
   1/3 Implementar parser seguro e composição aninhada de $ [pendente]
-  2/3 Implementar catálogo mínimo com validação determinística [pendente]
+  2/3 Delegar nomes exatos ao FormulaKit e aplicar políticas ignore/fail [pendente]
   3/3 Expor contratos TypeScript/JavaScript e adaptadores React/Preact [pendente]
 3/4 Build, pacote e documentação [pendente]
   1/3 Produzir plugin JS e CSS independentes [pendente]
