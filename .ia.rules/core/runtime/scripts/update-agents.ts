@@ -26,6 +26,7 @@ const HANDOFF_PHASE = "release-runtime-ready";
 const HANDOFF_RUNTIME_FORMAT = "agents-update-runtime/v1";
 const HANDOFF_STATE_ENV = "AGENTS_UPDATE_HANDOFF_STATE";
 const HANDOFF_KEY_ENV = "AGENTS_UPDATE_HANDOFF_KEY";
+const LEGACY_UPDATE_BRIDGE_CONDITION = "legacy-update-bridge";
 const MANAGED_EXTENSIONS = new Set([".js", ".json", ".md", ".py", ".ts", ".txt", ".yml", ".yaml"]);
 const PACKAGE_RELATIVE_PATH = "package.json";
 const BOOTSTRAP_MANAGED = new Set([
@@ -36,6 +37,32 @@ const BOOTSTRAP_MANAGED = new Set([
   ".ia.rules/scenarios/web/page-like/scenario.md",
 ]);
 const LEGACY_MANAGED_FILES = new Set([
+  ".agents/package.json",
+  ".agents/.autoupdate.md",
+  ".agents/agents-update.lock.json",
+  ".agents/core/contracts.md",
+  ".agents/core/concepts/microconceitos.md",
+  ".agents/core/runtime/scripts/autoupdate.js",
+  ".agents/core/runtime/scripts/autoupdate.ts",
+  ".agents/core/update/scenario.md",
+  ".agents/scenarios/web/page-like/scenario.md",
+  ".agents/microconceitos.md",
+  ".agents/publish.md",
+  ".agents/release.md",
+  ".agents/webPageLike.md",
+  "scripts/.agents/autoupdate.js",
+  "scripts/.agents/autoupdate.ts",
+  "scripts/.agents/bootstrap/core/concepts/microconceitos.md",
+  "scripts/.agents/bootstrap/core/contracts.md",
+  "scripts/.agents/bootstrap/core/update/scenario.md",
+  "scripts/.agents/bootstrap/scenarios/web/page-like/scenario.md",
+  "scripts/.agents/generate-agents-status.js",
+  "scripts/.agents/package.json",
+  "scripts/.agents/release-hooks.js",
+  "scripts/.agents/release-workflow.js",
+  "scripts/.agents/repo-tools.js",
+  "scripts/.agents/to-ia.js",
+  "scripts/.agents/update-agents.js",
   "scripts/.ia.rules/generate-agents-status.js",
   "scripts/.ia.rules/release-hooks.js",
   "scripts/.ia.rules/release-workflow.js",
@@ -44,6 +71,15 @@ const LEGACY_MANAGED_FILES = new Set([
   "scripts/.ia.rules/update-agents.js",
   "scripts/lib/archive.js",
 ]);
+const LEGACY_MANAGED_ROOTS = [
+  ".agents/core",
+  ".agents/meta",
+  ".agents/resources",
+  ".agents/roles",
+  ".agents/runtime",
+  ".agents/scenarios",
+  ".agents/workflows",
+];
 
 /** Representa entrada inválida do atualizador sem executar alteração parcial no destino. */
 class UsageError extends Error {}
@@ -62,7 +98,7 @@ async function main(argv = process.argv.slice(2), options = {}) {
   const rootDir = options.rootDir || ROOT_DIR;
   const httpClient = options.httpClient || defaultHttpClient;
   if (options.disableHandoff) {
-    const plan = await buildUpdatePlan(rootDir, httpClient);
+    const plan = await buildUpdatePlan(rootDir, httpClient, options);
     return executeUpdatePlan(parsed, rootDir, plan);
   }
   return handoffToReleaseRuntime(argv, rootDir, httpClient, options);
@@ -102,7 +138,9 @@ function executeUpdatePlan(parsed, rootDir, plan) {
 /** Executa parseArgs no fluxo deste módulo; centraliza contrato reutilizável e preserva validações do chamador. */
 function parseArgs(argv = []) {
   const parsed = { check: false, dryRun: false, force: false, help: false };
-  for (const value of argv) {
+  for (const original of argv) {
+    // Compatibilidade: wrappers npm antigos removiam o prefixo somente destes quatro modos conhecidos.
+    const value = ["check", "dry-run", "force", "help"].includes(original) ? `--${original}` : original;
     if (value === "--check") parsed.check = true;
     else if (value === "--dry-run") parsed.dryRun = true;
     else if (value === "--force") parsed.force = true;
@@ -114,7 +152,7 @@ function parseArgs(argv = []) {
 
 /** Executa help no fluxo deste módulo; centraliza contrato reutilizável e preserva validações do chamador. */
 function help() {
-  return "Uso: agent:autoupdate [--check|--dry-run] [--force] [--help]";
+  return "Uso: update:agents [--check|--dry-run] [--force] [--help]";
 }
 
 /** Executa handoffToReleaseRuntime no fluxo deste módulo; centraliza contrato reutilizável e preserva validações do chamador. */
@@ -145,7 +183,7 @@ async function handoffToReleaseRuntime(argv, targetRoot, httpClient, options = {
 /** Executa prepareReleaseHandoff no fluxo deste módulo; centraliza contrato reutilizável e preserva validações do chamador. */
 async function prepareReleaseHandoff(targetRoot, httpClient = defaultHttpClient, options = {}) {
   const canonicalTarget = realDirectory(targetRoot, "targetRoot");
-  const source = await resolveRemoteSource(httpClient, canonicalTarget);
+  const source = await resolveRemoteSource(httpClient, canonicalTarget, options);
   const archive = await httpClient(source.archiveUrl, { binary: true });
   assertArchiveResponse(archive, source);
   const handoffRoot = fs.mkdtempSync(path.join(os.tmpdir(), "agents-update-handoff-"));
@@ -291,8 +329,8 @@ function isPathInside(root, candidate) {
 }
 
 /** Executa buildUpdatePlan no fluxo deste módulo; centraliza contrato reutilizável e preserva validações do chamador. */
-async function buildUpdatePlan(rootDir, httpClient = defaultHttpClient) {
-  const source = await resolveRemoteSource(httpClient, rootDir);
+async function buildUpdatePlan(rootDir, httpClient = defaultHttpClient, options = {}) {
+  const source = await resolveRemoteSource(httpClient, rootDir, options);
   const archive = await httpClient(source.archiveUrl, { binary: true });
   assertArchiveResponse(archive, source);
   const tempRoot = fs.mkdtempSync(path.join(os.tmpdir(), "agents-update-"));
@@ -321,8 +359,8 @@ async function buildUpdatePlan(rootDir, httpClient = defaultHttpClient) {
 }
 
 /** Executa resolveRemoteSource no fluxo deste módulo; centraliza contrato reutilizável e preserva validações do chamador. */
-async function resolveRemoteSource(httpClient = defaultHttpClient, rootDir = ROOT_DIR) {
-  const source = resolveConfiguredUpstream(rootDir);
+async function resolveRemoteSource(httpClient = defaultHttpClient, rootDir = ROOT_DIR, options = {}) {
+  const source = resolveConfiguredUpstream(rootDir, options.upstreamRepository || "");
   const sourceApi = `https://api.github.com/repos/${source.repository}`;
   const latest = await requestJsonAllow404(httpClient, `${sourceApi}/releases/latest`);
 
@@ -363,17 +401,19 @@ async function resolveRemoteSource(httpClient = defaultHttpClient, rootDir = ROO
 }
 
 /** Executa resolveConfiguredUpstream no fluxo deste módulo; centraliza contrato reutilizável e preserva validações do chamador. */
-function resolveConfiguredUpstream(rootDir) {
+function resolveConfiguredUpstream(rootDir, fallbackRepository = "") {
   const packagePath = path.join(rootDir, "package.json");
-  const localPath = path.join(rootDir, ".ia.rules", "upstream.json");
+  const localPath = path.join(rootDir, ".ia.rules", "core", "update", "upstream.json");
+  const legacyLocalPath = path.join(rootDir, ".ia.rules", "upstream.json");
   const packageConfig = fs.existsSync(packagePath) ? JSON.parse(fs.readFileSync(packagePath, "utf8"))["agentsUpstream"] || {} : {};
-  const localConfig = fs.existsSync(localPath) ? JSON.parse(fs.readFileSync(localPath, "utf8")) : {};
+  const localConfig = fs.existsSync(localPath) ? JSON.parse(fs.readFileSync(localPath, "utf8")) :
+    (fs.existsSync(legacyLocalPath) ? JSON.parse(fs.readFileSync(legacyLocalPath, "utf8")) : {});
   const config = { ...packageConfig, ...localConfig };
-  const repository = String(config.upstreamRepository || "").trim();
+  const repository = String(config.upstreamRepository || fallbackRepository || "").trim();
   if (!/^[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+$/u.test(repository)) {
     throw new Error("UPSTREAM_AGENTS_NAO_RESOLVIDO: configure agentsUpstream.upstreamRepository.");
   }
-  return { repository, source: localConfig.upstreamRepository ? "local" : "package" };
+  return { repository, source: localConfig.upstreamRepository ? "local" : (packageConfig.upstreamRepository ? "package" : "bridge") };
 }
 
 /** Executa requestJsonAllow404 no fluxo deste módulo; centraliza contrato reutilizável e preserva validações do chamador. */
@@ -517,6 +557,8 @@ function collectRemoteGovernanceFiles(remoteRoot) {
   const source = discoverGovernanceManifest(remoteRoot);
   const files = new Map();
   for (const entry of source.manifest.files) {
+    // O bridge existe no asset para coletores anteriores ao handoff, mas não integra o estado canônico final.
+    if (entry.condition === LEGACY_UPDATE_BRIDGE_CONDITION) continue;
     const target = safeRelativePath(entry.path);
     if (isLocalExtensionPath(target) || toPosixPath(target).toLocaleLowerCase("en-US") === "agents.local.md") {
       throw new Error(`Manifesto remoto inclui extensao local: ${toPosixPath(target)}`);
@@ -544,7 +586,7 @@ function discoverGovernanceManifest(remoteRoot) {
 
 /** Executa parseGovernanceManifest no fluxo deste módulo; centraliza contrato reutilizável e preserva validações do chamador. */
 function parseGovernanceManifest(raw, label) {
-  const declared = raw && raw.update;
+  const declared = raw && (raw.canonicalUpdate || raw.update);
   if (declared && declared.format === FORMAT && declared.schema === VERSION && declared.marker === MARKER) {
     return validateGovernanceManifest(declared, label);
   }
@@ -651,7 +693,7 @@ function compareRemoteFiles(rootDir, remoteFiles, previousLock = null) {
     });
   }
 
-  for (const localRel of listManagedCleanupPaths(previousLock)) {
+  for (const localRel of listManagedCleanupPaths(rootDir, previousLock)) {
     if (toPosixPath(localRel) !== toPosixPath(LOCK_FILE) && toPosixPath(localRel) !== PACKAGE_RELATIVE_PATH &&
       !remotePaths.has(toPosixPath(localRel)) && fs.existsSync(path.join(rootDir, localRel))) {
       changes.push({
@@ -691,12 +733,35 @@ function listPreviouslyManagedFiles(lock) {
 }
 
 /** Executa listManagedCleanupPaths no fluxo deste módulo; centraliza contrato reutilizável e preserva validações do chamador. */
-function listManagedCleanupPaths(lock) {
+function listManagedCleanupPaths(rootDir, lock) {
   return [...new Set([
     ...BOOTSTRAP_MANAGED,
     ...LEGACY_MANAGED_FILES,
+    ...listLegacyManagedTreeFiles(rootDir),
     ...listPreviouslyManagedFiles(lock),
   ])].filter((relativePath) => !isLocalExtensionPath(relativePath) && toPosixPath(relativePath).toLocaleLowerCase("en-US") !== "agents.local.md");
+}
+
+/** Varre namespaces estruturais que eram integralmente gerenciados antes de .ia.rules. */
+function listLegacyManagedTreeFiles(rootDir) {
+  const result = [];
+  for (const relativeRoot of LEGACY_MANAGED_ROOTS) {
+    const absoluteRoot = path.join(rootDir, relativeRoot);
+    if (!fs.existsSync(absoluteRoot) || !fs.statSync(absoluteRoot).isDirectory()) continue;
+    const pending = [absoluteRoot];
+    while (pending.length > 0) {
+      const current = pending.pop();
+      for (const entry of fs.readdirSync(current, { withFileTypes: true })) {
+        const absolute = path.join(current, entry.name);
+        if (entry.isDirectory()) {
+          pending.push(absolute);
+        } else if (entry.isFile() && MANAGED_EXTENSIONS.has(path.extname(entry.name).toLocaleLowerCase("en-US"))) {
+          result.push(toPosixPath(path.relative(rootDir, absolute)));
+        }
+      }
+    }
+  }
+  return result.sort((a, b) => a.localeCompare(b, "en"));
 }
 
 /** Executa backupDivergentManagedFiles no fluxo deste módulo; centraliza contrato reutilizável e preserva validações do chamador. */
@@ -774,6 +839,10 @@ function mergePackageManifest(localContent, remoteContent) {
 
   mergeManagedDependencies(merged, localPackage, remotePackage, "dependencies", policy.dependencies);
   mergeManagedDependencies(merged, localPackage, remotePackage, "optionalDependencies", policy.optionalDependencies);
+  if (remotePackage["agentsUpstream"] && remotePackage["agentsUpstream"].schema === 1 &&
+    /^[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+$/u.test(String(remotePackage["agentsUpstream"].upstreamRepository || ""))) {
+    merged["agentsUpstream"] = remotePackage["agentsUpstream"];
+  }
   merged["agentsGovernance"] = policy;
   return Buffer.from(`${JSON.stringify(merged, null, 2)}\n`, "utf8");
 }
@@ -833,7 +902,8 @@ function mergeManagedDependencies(merged, localPackage, remotePackage, group, na
 
 /** Executa isRecognizedLegacyGovernanceFile no fluxo deste módulo; centraliza contrato reutilizável e preserva validações do chamador. */
 function isRecognizedLegacyGovernanceFile(relativePath) {
-  return LEGACY_MANAGED_FILES.has(toPosixPath(relativePath));
+  const normalized = toPosixPath(relativePath);
+  return LEGACY_MANAGED_FILES.has(normalized) || LEGACY_MANAGED_ROOTS.some((root) => normalized.startsWith(`${root}/`));
 }
 
 /** Executa applyPlan no fluxo deste módulo; centraliza contrato reutilizável e preserva validações do chamador. */
@@ -875,10 +945,26 @@ function applyTransactionalChange(rootDir, backupRoot, change, touched) {
   touched.push({ backup, existed, relativePath: change.relativePath });
   if (change.action === "remove") {
     fs.rmSync(target, { force: true });
+    removeEmptyLegacyParents(rootDir, path.dirname(target));
     return;
   }
   fs.mkdirSync(path.dirname(target), { recursive: true });
   fs.writeFileSync(target, change.content);
+}
+
+/** Remove somente diretórios vazios dos dois namespaces legados oficialmente reconhecidos. */
+function removeEmptyLegacyParents(rootDir, startPath) {
+  const legacyRoots = [path.join(rootDir, ".agents"), path.join(rootDir, "scripts", ".agents")]
+    .map((entry) => path.resolve(entry));
+  let current = path.resolve(startPath);
+  const boundary = legacyRoots.find((entry) => current === entry || current.startsWith(`${entry}${path.sep}`));
+  if (!boundary) return;
+  while (current === boundary || current.startsWith(`${boundary}${path.sep}`)) {
+    if (!fs.existsSync(current) || fs.readdirSync(current).length > 0) return;
+    fs.rmdirSync(current);
+    if (current === boundary) return;
+    current = path.dirname(current);
+  }
 }
 
 /** Executa restoreTransactionalChanges no fluxo deste módulo; centraliza contrato reutilizável e preserva validações do chamador. */
@@ -896,7 +982,10 @@ function restoreTransactionalChanges(rootDir, backupRoot, touched) {
 
 /** Executa commitAndPushNormativeUpdate no fluxo deste módulo; centraliza contrato reutilizável e preserva validações do chamador. */
 function commitAndPushNormativeUpdate(rootDir, plan) {
-  const paths = [...new Set([...prepareUpdateAnalogFiles(rootDir, plan), ...listChangedNormativePaths(plan)].map(toPosixPath))];
+  const candidates = [...new Set([...prepareUpdateAnalogFiles(rootDir, plan), ...listChangedNormativePaths(plan)].map(toPosixPath))];
+  const tracked = new Set(runGit(rootDir, ["ls-files", "--", ...candidates]).stdout.trim().split(/\r?\n/u).filter(Boolean).map(toPosixPath));
+  // Remoção de lock legado ignorado não possui entrada no índice e não pode virar pathspec de git add.
+  const paths = candidates.filter((entry) => fs.existsSync(path.join(rootDir, entry)) || tracked.has(entry));
 
   if (paths.length === 0) {
     return;
@@ -956,6 +1045,7 @@ function ensureGitignoreAllowsManagedRules(rootDir) {
     "/.ia.rules/cache/",
     "/.ia.rules/local/",
     "/.ia.rules/agents-update.lock.json",
+    "/agents-governance-backups/",
     "# END agents-governance managed",
   ].join(eol);
   const pattern = /(?:^|\r?\n)# BEGIN agents-governance managed\r?\n[\s\S]*?# END agents-governance managed(?:\r?\n|$)/u;
