@@ -8,7 +8,7 @@
     "type": "git",
     "url": "git+https://github.com/jcempro/DSLens.git"
   },
-  "homepage": "https://DSLens.jcemp.pro",
+  "homepage": "https://dslens.jcemp.pro",
   "bugs": "https://github.com/jcempro/DSLens/issues",
   "description": "Cross-language library for declaratively resolving dynamic endpoints and values through a navigation DSL over structured remote data.",
   "main": "README.md",
