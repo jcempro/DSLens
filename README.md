@@ -8,7 +8,7 @@
 
 > A Cross-language library for declaratively resolving dynamic endpoints and values through a navigation DSL over structured remote data.
 
-DSLens é uma especificação e uma família de bibliotecas para localizar valores em JSON, XML e, quando disponível, YAML por meio de uma expressão declarativa. A proposta se parece com um seletor para APIs estruturadas: entrada explícita, navegação previsível e o mesmo resultado semântico em cada linguagem certificada.
+DSLens é uma especificação e uma família de bibliotecas para localizar valores em JSON, XML e YAML por meio de uma expressão declarativa. A proposta se parece com um seletor para APIs estruturadas: entrada explícita, navegação previsível e o mesmo resultado semântico em cada linguagem certificada.
 
 ```text
 ${"https://api.example.com/data"}.items[0].download.url
@@ -36,23 +36,23 @@ npm install @jeancarloem/dslens
 Entradas principais:
 
 ```ts
-import { resolveDslData } from "@jeancarloem/dslens";
-import { resolveParserExpression } from "@jeancarloem/dslens/browser";
+import { resolveDslData } from '@jeancarloem/dslens';
+import { resolveParserExpression } from '@jeancarloem/dslens/browser';
 ```
 
 Componentes individualizados:
 
 ```ts
-import { hasParserExpression } from "@jeancarloem/dslens/components/detect";
-import { resolveDslData } from "@jeancarloem/dslens/components/resolve-data";
-import { resolveParserExpression } from "@jeancarloem/dslens/components/resolve-source";
+import { hasParserExpression } from '@jeancarloem/dslens/components/detect';
+import { resolveDslData } from '@jeancarloem/dslens/components/resolve-data';
+import { resolveParserExpression } from '@jeancarloem/dslens/components/resolve-source';
 ```
 
 Browser por componente:
 
 ```html
 <script type="module">
-  import { resolveParserExpression } from "@jeancarloem/dslens/browser/components/resolve-source";
+  import { resolveParserExpression } from '@jeancarloem/dslens/browser/components/resolve-source';
 </script>
 ```
 
@@ -69,13 +69,21 @@ O índice compacto fica em [manifests/components/index.json](manifests/component
 Uso por IA/máquina:
 
 ```js
-const index = await import("@jeancarloem/dslens/manifests/components", {
-  with: { type: "json" }
-});
-const target = index.default.components.find((item) => item.id === "resolve-data");
-const manifest = await import(`@jeancarloem/dslens/manifests/components/${target.id}`, {
-  with: { type: "json" }
-});
+const index = await import(
+  '@jeancarloem/dslens/manifests/components',
+  {
+    with: { type: 'json' },
+  }
+);
+const target = index.default.components.find(
+  (item) => item.id === 'resolve-data',
+);
+const manifest = await import(
+  `@jeancarloem/dslens/manifests/components/${target.id}`,
+  {
+    with: { type: 'json' },
+  }
+);
 ```
 
 O índice não replica contratos completos; carregue somente o manifest do componente necessário.
@@ -171,7 +179,7 @@ all(.users[*].name)
 ```
 
 ```json
-["Ana","Bruno"]
+["Ana", "Bruno"]
 ```
 
 Ausência retorna `null`/`None`/`$null` no binding. Existência é explícita:
