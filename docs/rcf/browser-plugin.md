@@ -13,13 +13,13 @@ O termo **host** designa o elemento explicitamente marcado; **slot de resultado*
 A notação canônica DEVE ser HTML inline nativo, igualmente utilizável como HTML bruto em Markdown: um `span[data-dslens-plugin]` host, exatamente um filho direto `span[data-dslens-result]`, a expressão em `data-dslens-expression` e configuração opcional em JSON estrito no atributo `data-dslens-options`. Texto semelhante à DSL fora desse host NÃO DEVE ser descoberto nem processado. [PENDENTE-CODIGO]
 
 ```html
-Preço:
+CPF:
 <span
   data-dslens-plugin
-  data-dslens-expression='${"https://example.test/product.json"}.price'
-  data-dslens-options='{"pipeline":"$.formatCurrencyBrl($.parseNumber(@))"}'
+  data-dslens-expression='${"https://example.test/customer.json"}.cpf'
+  data-dslens-options='{"pipeline":"$.formatCpf(@)"}'
 >
-  <span data-dslens-result>Preço indisponível</span>
+  <span data-dslens-result>CPF indisponível</span>
 </span>
 ```
 
@@ -29,7 +29,7 @@ O host, a expressão e o slot DEVEM ser inequívocos. Host ausente, expressão v
 
 O fallback DEVE residir como conteúdo real do slot, não em pseudo-elemento, atributo oculto, script, template ou dependência JavaScript. Sem plugin, com JavaScript desabilitado, em CSP incompatível ou diante de qualquer falha, ele DEVE permanecer visível, selecionável, acessível e integrado ao fluxo normal, sem tornar a expressão DSL texto visível da página. [PENDENTE-CODIGO]
 
-`data-dslens-options` DEVE aceitar somente propriedades versionadas: `placeholder`, `loading`, `loadingPosition`, `loader`, `pipeline`, `timeoutMs`, `errorMode`, `observe` e `accessibility`. Defaults são `placeholder:true`, `loading:true`, `loadingPosition:'after'`, `loader:'default'`, `pipeline:null`, timeout do adaptador browser, `errorMode:'preserve'`, `observe:true` e live region desativada. Propriedade desconhecida, tipo incorreto ou limite excedido DEVE falhar fechado para o host. Configuração JavaScript tipada PODE complementar o atributo segundo a precedência execução manual → host → global, sem mutar objetos recebidos. [PENDENTE-CODIGO]
+`data-dslens-options` DEVE aceitar somente propriedades versionadas: `placeholder`, `loading`, `loadingPosition`, `loader`, `pipeline`, `timeoutMs`, `errorMode`, `observe`, `accessibility`, `formulaKitPolicy` e `formulaKitFallback`. Defaults são `placeholder:true`, `loading:true`, `loadingPosition:'after'`, `loader:'default'`, `pipeline:null`, timeout do adaptador browser, `errorMode:'preserve'`, `observe:true`, live region desativada, `formulaKitPolicy:'ignore'` e `formulaKitFallback:'[error]'`. Propriedade desconhecida, tipo incorreto ou limite excedido DEVE falhar fechado para o host. Configuração JavaScript tipada PODE complementar o atributo segundo a precedência execução manual → host → global, sem mutar objetos recebidos; fontes, trust anchors e mínimos de confiança do FormulaKit somente PODEM ser configurados na API JavaScript, nunca em atributo documental. [PENDENTE-CODIGO]
 
 ## 3. Lifecycle, estado e idempotência
 
@@ -37,7 +37,7 @@ Ao ser carregado em navegador, o plugin DEVE instalar a observação antes de ag
 
 Um `MutationObserver` DEVE acompanhar inserção de subárvores e mudanças somente nos atributos canônicos, agrupar trabalho em fila finita e processar apenas hosts novos ou cuja assinatura tenha mudado. Mutações feitas pelo próprio plugin DEVEM ser identificadas e ignoradas para impedir laço, reentrada e processamento duplicado. [PENDENTE-CODIGO]
 
-Cada host DEVE possuir estado observável `idle|queued|loading|resolved|error|disposed` em `data-dslens-state` e estado privado em `WeakMap`. A identidade de execução DEVE combinar host, expressão, opções efetivas e revisão do registro de extensões; chamada repetida com a mesma identidade DEVE retornar o resultado vigente sem nova requisição, salvo `force: true` explícito. [PENDENTE-CODIGO]
+Cada host DEVE possuir estado observável `idle|queued|loading|resolved|error|disposed` em `data-dslens-state` e estado privado em `WeakMap`. A identidade de execução DEVE combinar host, expressão, opções efetivas, identidade do release FormulaKit validado e revisão dos loaders; chamada repetida com a mesma identidade DEVE retornar o resultado vigente sem nova requisição, salvo `force: true` explícito. [PENDENTE-CODIGO]
 
 Nova execução do mesmo host DEVE abortar a anterior quando possível e usar token monotônico para impedir que resultado antigo vença uma corrida. Remoção do host DEVE cancelar recursos associados; `disconnect()` DEVE encerrar observadores e tarefas futuras sem apagar resultado já renderizado; `dispose(target)` DEVE restaurar o fallback capturado e remover apenas nós/atributos pertencentes ao plugin. [PENDENTE-CODIGO]
 
@@ -45,7 +45,7 @@ Falha de um host NÃO DEVE interromper outros. Timeout, aborto, erro de rede, DS
 
 ## 4. API pública e integração
 
-A API TypeScript/JavaScript DEVE expor `configure(options)`, `scan(root?)`, `process(target, options?)`, `observe(root?)`, `disconnect(root?)`, `dispose(target)`, `registerFunction(name, contract, implementation)`, `registerLoader(name, factory)` e getters imutáveis de configuração, funções, loaders e estado. `root` DEVE aceitar `Document`, `DocumentFragment`, `ShadowRoot` ou `Element`; `target` DEVE aceitar elemento host ou descritor `{ element, expression?, options? }`. [PENDENTE-CODIGO]
+A API TypeScript/JavaScript DEVE expor `configure(options)`, `scan(root?)`, `process(target, options?)`, `observe(root?)`, `disconnect(root?)`, `dispose(target)`, `registerLoader(name, factory)` e getters imutáveis de configuração, loaders, estado e procedência FormulaKit. Não DEVE expor registro de função `$`: toda chamada `$.<nome>()` pertence exclusivamente ao FormulaKit. `root` DEVE aceitar `Document`, `DocumentFragment`, `ShadowRoot` ou `Element`; `target` DEVE aceitar elemento host ou descritor `{ element, expression?, options? }`. [PENDENTE-CODIGO]
 
 `scan` DEVE retornar `Promise<ScanReport>` com contagens por estado e diagnósticos; `process` DEVE retornar `Promise<RenderResult>` sem depender de evento global. A entrada global IIFE DEVE usar exclusivamente `globalThis.DSLens.browserPlugin`; npm/ESM DEVE usar exports nomeados e não criar global. [PENDENTE-CODIGO]
 
@@ -69,155 +69,65 @@ O loader padrão DEVE ser CSS puro, instantâneo, neutro e proporcional, reserva
 
 Loader alternativo DEVE ser registrado por nome e retornar `Node` ou `DocumentFragment`, nunca HTML em string. Falha do loader customizado DEVE usar o fallback textual mínimo sem cancelar a resolução. O CSS separado NÃO DEVE ser injetado pelo build independente; o all-in-one DEVE injetar o mesmo CSS uma única vez, respeitar `nonce` configurado e continuar fail-safe se a CSP bloquear a inserção. [PENDENTE-CODIGO]
 
-## 6. Pipeline `$`, tipos e falhas
+## 6. Pipeline `$`, FormulaKit e falhas
 
-O pipeline DEVE residir somente em `options.pipeline`, depois da resolução da DSL, e usar gramática própria sem alterar a expressão DSL: `pipeline = call; call = "$.", name, "(", [ argument, { ",", argument } ], ")"; argument = "@" | call | JSON-literal`. `@` representa o valor resolvido; somente chamadas registradas, literais JSON e aninhamento balanceado são aceitos. [PENDENTE-CODIGO]
+O pipeline DEVE residir somente em `options.pipeline`, depois da resolução da DSL, e usar gramática própria sem alterar a expressão DSL: `pipeline = call; call = "$.", name, "(", [ argument, { ",", argument } ], ")"; argument = "@" | call | JSON-literal`. `@` representa o valor resolvido; somente chamadas FormulaKit, literais JSON e aninhamento balanceado são aceitos. O parser DEVE produzir AST antes da avaliação e impor limites conservadores de comprimento, profundidade, chamadas, argumentos e valores; `eval`, `Function`, acesso arbitrário, variável global, operador, atribuição, protótipo e chamada indireta são proibidos. Regex isolada NÃO DEVE decidir multiplicidade quando aninhamento, escaping, argumentos ou composição puderem alterar caminhos. [PENDENTE-CODIGO]
 
-O parser DEVE possuir limites configurados e conservadores de comprimento, profundidade, quantidade de chamadas, argumentos e tamanho de valores. `eval`, `Function`, acesso a propriedade, índice arbitrário, variável global, template literal, operador, atribuição, `this`, `constructor`, protótipo e chamada indireta são proibidos. [PENDENTE-CODIGO]
+### 6.1 Autoridade, nomes e desacoplamento
 
-Valores internos permitidos são `string`, `boolean`, número finito, `null`, arrays desses valores e objetos de resultado declarados por função. A serialização final DEVE manter string sem alteração, usar representação decimal canônica para número finito, `true|false` para booleano, vazio para `null` e JSON compacto com chaves estáveis para array/objeto; a inserção permanece `textContent` mesmo após `escapeHtml` ou `stripTags`. [PENDENTE-CODIGO]
+FormulaKit, projeto público canônico `jcempro/FormulaKit`, é a única autoridade de implementação, cálculo, nomes, assinaturas, tipos e semântica de toda função apresentada pelo plugin como `$.<nome>()`. `<nome>` DEVE coincidir exatamente, inclusive caixa, com nome público documentado e exportado pelo release FormulaKit validado. DSLens NÃO DEVE manter catálogo autoritativo, alias, renomeação, wrapper semântico, cópia, fork, substituto, polyfill, registro customizado no namespace `$` ou lógica equivalente; documentação local referencia a API FormulaKit sem reproduzir sua lista. [PENDENTE-CODIGO]
 
-Toda função DEVE declarar nome, versão, pureza, aridade, tipos, defaults, limites, domínio, retorno e códigos de erro. Não há coerção implícita além de `Text` (`string|number finito|boolean` convertido canonicamente); conversão numérica exige `parseNumber`; argumento ausente, tipo incompatível, `NaN`, infinito, divisão por zero, domínio matemático inválido, overflow ou opção desconhecida DEVE falhar atomicamente sem executar chamadas externas restantes. [PENDENTE-CODIGO]
+A API FormulaKit 0.1.0 observada em 2026-08-10 exporta funções por namespaces no módulo raiz e documenta a superfície em `docs/API.md`; `globalThis.FormulaKit.manifests` contém assinaturas estruturais de artefatos e NÃO expõe nem autentica funções. O adaptador DEVE resolver somente propriedade própria e chamável dos namespaces públicos do módulo validado, rejeitar nome ausente ou ambíguo e invocar diretamente a função correspondente, sem reinterpretar argumentos ou resultado. Mudança futura é consumida da autoridade validada, não por lista local. [PENDENTE-CODIGO]
 
-Segmentação Unicode, listas linguísticas e perfis localizados DEVEM possuir versão no manifesto e produzir o mesmo resultado em toda a matriz suportada, sem expor diferenças de ICU/CLDR do host. Locales iniciais são `pt-BR`, `en-US` e `pt-PT`; outro locale somente PODE ser registrado com catálogo e vetores próprios. [PENDENTE-CODIGO]
+FormulaKit é estritamente opcional. Núcleo, parser DSL, markup, lifecycle, resolução sem pipeline e avaliações independentes DEVEM carregar e operar sem pacote, repositório, objeto global, rede ou artefato FormulaKit. FormulaKit somente entra por provedor que valide procedência e devolva handle opaco do módulo; objeto cru, manifesto global, endpoint, pacote instalado ou origem de download NÃO constituem handle validado. Build DSLens NÃO DEVE embutir FormulaKit, buscar seu repositório nem declará-lo dependência runtime obrigatória. [PENDENTE-CODIGO]
 
-Funções registradas DEVEM usar identificador ASCII `[A-Za-z][A-Za-z0-9]*`, não podem substituir builtin e recebem contexto congelado com locale, zona, `RandomSource`, limites e `AbortSignal`. Implementação customizada PODE ser assíncrona, mas NÃO DEVE acessar DOM, rede ou estado global sem contrato próprio; sua rejeição vira falha estruturada do pipeline. [PENDENTE-CODIGO]
+### 6.2 Ausência: `ignore` e `fail`
 
-As funções aleatórias DEVEM consumir exclusivamente `RandomSource` injetável. O padrão browser usa `crypto.getRandomValues`; testes e reprodução usam fonte determinística explícita, e ausência de fonte segura DEVE falhar sem recorrer silenciosamente a `Math.random`. [PENDENTE-CODIGO]
+`formulaKitPolicy` aceita somente `ignore|fail`, com `ignore` por padrão. Indisponibilidade inclui ausência física, procedência não validada, trust anchor ausente, release incompatível, nome inexistente, ambiguidade ou falha de carregamento. Avaliação afetada sempre DEVE encerrar `loading`, remover loader e `aria-busy`, sem lançar erro global, interromper página, parser, fila ou avaliação independente. Falha da própria função após invocação válida continua erro de pipeline, não ausência. [PENDENTE-CODIGO]
 
-### 6.1 Texto, documentos e validação
+Em `fail`, a avaliação falha silenciosamente: restaura e exibe o fallback original declarado no slot quando houver conteúdo; sem ele, escreve `formulaKitFallback`, cujo default é `[error]` e cuja personalização permanece texto seguro. Não emite `console.error`, não propaga rejeição não tratada nem altera outro host; código e estado estruturados continuam disponíveis pela API. [PENDENTE-CODIGO]
 
-| Função | Assinatura e contrato determinístico |
-|---|---|
-| `formatCpf` | `(Text) -> string`; extrai dígitos, exige 11 e formata `000.000.000-00`. |
-| `formatCnpj` | `(Text) -> string`; remove pontuação, aceita 12 alfanuméricos maiúsculos + 2 dígitos e formata `AA.AAA.AAA/AAAA-00`. |
-| `formatPhone` | `(Text) -> string`; exige DDD + 8 dígitos e produz `(00) 0000-0000`. |
-| `formatCellPhone` | `(Text) -> string`; exige DDD + 9 dígitos e produz `(00) 00000-0000`. |
-| `validateCpf` | `(Text) -> boolean`; normaliza pontuação, rejeita repetição e valida os dois DVs módulo 11. |
-| `validateAlphanumericCnpj` | `(Text) -> boolean`; normaliza pontuação/caixa, exige 12 posições `[0-9A-Z]` e 2 DVs numéricos, converte cada caractere por código ASCII menos 48 e aplica pesos/módulo 11 oficiais aos dois DVs. |
-| `extractDigits` | `(Text) -> string`; conserva somente ASCII `0-9`. |
-| `removeAccents` | `(Text) -> string`; normaliza NFD e remove marcas Unicode combinantes, sem transliteração adicional. |
-| `formatCep` | `(Text) -> string`; exige 8 dígitos e produz `00000-000`. |
-| `formatCurrencyBrl` | `(number) -> string`; `Intl.NumberFormat('pt-BR',{style:'currency',currency:'BRL'})`. |
-| `formatCurrencyUsd` | `(number) -> string`; `Intl.NumberFormat('en-US',{style:'currency',currency:'USD'})`. |
-| `formatCurrencyEur` | `(number, locale='pt-PT') -> string`; estilo `currency`, moeda `EUR`. |
-| `trim` / `trimStart` / `trimEnd` | `(Text) -> string`; semântica ECMAScript vigente. |
-| `wordCount` | `(Text) -> number`; conta palavras pelo segmentador Unicode versionado do catálogo, sem depender de segmentador do host. |
-| `length` | `(string|array) -> number`; conta code points Unicode para string e elementos para array. |
-| `toUpperCase` / `toLowerCase` | `(Text, locale?) -> string`; locale ausente usa mapeamento Unicode invariável, locale explícito usa forma canônica BCP 47. |
-| `capitalize` | `(Text, locale?) -> string`; transforma o primeiro code point textual e conserva o restante. |
-| `capitalizeWords` | `(Text, locale?) -> string`; capitaliza início de cada segmento de palavra sem colapsar espaços. |
-| `reverse` | `(string|array) -> mesmo tipo`; string por grapheme do catálogo Unicode versionado, array por cópia. |
-| `truncate` | `(Text,max,suffix='…') -> string`; mede graphemes, exige inteiro não negativo e inclui o sufixo no limite. |
-| `replace` | `(Text,search,replacement) -> string`; substitui a primeira ocorrência literal. |
-| `replaceAll` | `(Text,search,replacement) -> string`; substitui ocorrências literais não sobrepostas e rejeita busca vazia. |
-| `includes` / `startsWith` / `endsWith` | `(Text,search[,position]) -> boolean`; busca literal conforme ECMAScript e posição inteira validada. |
-| `repeat` | `(Text,count) -> string`; inteiro não negativo e limite de saída. |
-| `padStart` / `padEnd` | `(Text,length,pad=' ') -> string`; comprimento por code points e limite de saída. |
-| `split` | `(Text,separator,limit?) -> string[]`; separador literal, limite inteiro e quantidade máxima de itens. |
-| `slugify` | `(Text) -> string`; remove acentos, minúsculas invariáveis, troca sequências não alfanuméricas por `-` e apara hífens. |
-| `btoa` / `atob` | `(string) -> string`; contrato Web API de byte-string Latin-1/base64 estrito, com erro para caractere ou base64 inválido. |
-| `encodeUri` / `decodeUri` | `(Text) -> string`; semântica `encodeURI`/`decodeURI`, erro em sequência inválida. |
-| `isEmpty` | `(string|array|null) -> boolean`; `null`, string vazia e array vazio são vazios; espaços não são vazios. |
-| `isAlphanumeric` / `isAlpha` / `isNumeric` | `(Text) -> boolean`; string não vazia e classes Unicode versionadas; `isNumeric` não faz parsing decimal. |
-| `validateEmail` | `(Text) -> boolean`; formato pragmático local@domínio, sem DNS, sem aceitar controle ou espaço. |
-| `validateUrl` | `(Text) -> boolean`; URL absoluta WHATWG com protocolo `http:` ou `https:`. |
-| `validateIsoDate` | `(Text) -> boolean`; `YYYY-MM-DD` real no calendário gregoriano. |
-| `validateTime24h` | `(Text) -> boolean`; `HH:mm` ou `HH:mm:ss`, de `00:00:00` a `23:59:59`. |
-| `validateIpV4` / `validateIpV6` | `(Text) -> boolean`; endereço integral canônico/compactável, sem porta, CIDR ou zona. |
-| `validatePassword` | `(Text,options?) -> boolean`; defaults versionados: 8–128 code points, ao menos maiúscula, minúscula, dígito e símbolo, sem controle. |
-| `validateHexColor` | `(Text) -> boolean`; aceita somente `#RGB`, `#RGBA`, `#RRGGBB` ou `#RRGGBBAA`. |
-| `validateUuid` | `(Text,version?) -> boolean`; formato RFC 9562, variante válida e versão opcional explícita. |
-| `stripTags` | `(Text) -> string`; parseia em `template` desconectado e retorna apenas `textContent`, sem inserir/executar nós. |
-| `escapeHtml` / `unescapeHtml` | `(Text) -> string`; converte somente `& < > " '` e as cinco entidades nomeadas correspondentes. |
-| `levenshtein` | `(Text,Text) -> number`; distância por graphemes com limite quadrático explícito. |
-| `removeStopWords` | `(Text,locale='pt-BR') -> string`; usa lista imutável/versionada por locale, conserva separadores e rejeita locale sem catálogo. |
-| `extractHashtags` / `extractMentions` | `(Text) -> string[]`; ordem de ocorrência, sem duplicação implícita, identificadores Unicode delimitados. |
-| `extractUrls` | `(Text) -> string[]`; URLs absolutas HTTP(S) reconhecidas por delimitadores e validadas por `validateUrl`. |
-| `maskEmail` | `(Text,visibleStart=1) -> string`; valida e mascara parte local preservando domínio. |
-| `maskDocument` | `(Text,visibleEnd=4,mask='*') -> string`; conserva pontuação opcional e revela somente quantidade final explícita. |
+Em `ignore`, a AST completa e os contratos públicos validados DEVEM provar resultado único. Condicional, curto-circuito, seleção, lógica equivalente a `IF/ELSE`, `AND`, `XOR` ou `OR`, múltiplas ocorrências de `@`, alternativas literais, argumentos semanticamente concorrentes ou qualquer dúvida tornam a expressão multipercurso e aplicam `fail`. Metadado semântico insuficiente também aplica `fail`; inferência permissiva por nome, regex ou categoria é proibida. [PENDENTE-CODIGO]
 
-### 6.2 Matemática, estatística, geometria e conversões
+Somente quando a remoção da chamada ausente não puder escolher, descartar, combinar ou fabricar resultado, o plugin devolve o valor puro que a atravessa, sem coerção, serialização intermediária, formatação ou tratamento. Chamadas restantes só executam se ordem e entrada permanecerem inequívocas. `console.warn` sucinto informa código, nome e indisponibilidade sem dado remoto; avisos idênticos são deduplicados por documento, nome e identidade de release ou tentativa de confiança. [PENDENTE-CODIGO]
 
-| Função | Assinatura e contrato determinístico |
-|---|---|
-| `abs`, `acos`, `acosh`, `asin`, `asinh`, `atan`, `atanh`, `cbrt`, `ceil`, `cos`, `cosh`, `exp`, `expm1`, `floor`, `fround`, `log`, `log1p`, `log10`, `log2`, `round`, `sign`, `sin`, `sinh`, `sqrt`, `tan`, `tanh`, `trunc` | `(number) -> number`; semântica ECMAScript, resultado deve ser finito e domínio inválido falha. |
-| `atan2` / `pow` | `(number,number) -> number`; semântica ECMAScript com resultado finito. |
-| `clz32` | `(number) -> number`; conversão explícita para uint32 e contagem ECMAScript. |
-| `imul` | `(number,number) -> number`; conversão explícita int32 e produto int32 ECMAScript. |
-| `hypot`, `max`, `min`, `sum` | `(...number) -> number`; ao menos um argumento para `max/min`, resultado finito. |
-| `subtract` | `(first,...rest) -> number`; subtração associativa à esquerda. |
-| `multiply` | `(...number) -> number`; ao menos um argumento e produto finito. |
-| `divide` / `mod` | `(a,b) -> number`; divisor diferente de zero. |
-| `percent` | `(part,total) -> number`; `part/total*100`, total diferente de zero. |
-| `addPercent` / `subtractPercent` / `discount` | `(value,percent) -> number`; respectivamente soma, subtração e desconto percentual sobre `value`. |
-| `simpleInterest` | `(principal,ratePercent,periods) -> number`; retorna montante `P*(1+r*n)`. |
-| `compoundInterest` | `(principal,ratePercent,periods) -> number`; retorna montante `P*(1+r)^n`. |
-| `isEven` / `isOdd` | `(safeInteger) -> boolean`. |
-| `factorial` | `(safeInteger>=0) -> safeInteger`; falha em overflow. |
-| `toFixed` / `toPrecision` | `(number,digits) -> string`; limites ECMAScript validados. |
-| `toLocaleString` | `(number,locale='pt-BR',options?) -> string`; locale BCP 47 e allowlist de opções `Intl.NumberFormat`. |
-| `getInteger` | `(number) -> number`; parte inteira por truncamento em direção a zero. |
-| `getDecimal` | `(number) -> number`; `value-trunc(value)`, preservando sinal. |
-| `roundToMultiple` | `(value,multiple,mode='nearest') -> number`; múltiplo não zero e modo `nearest|floor|ceil|trunc`. |
-| `parseNumber` | `(Text,locale='pt-BR') -> number`; parser estrito de sinal, agrupamento e separador decimal do locale suportado, sem lixo residual. |
-| `mean` | `(number[]) -> number`; média aritmética de array não vazio. |
-| `median` | `(number[]) -> number`; cópia ordenada numericamente; média dos centrais em cardinalidade par. |
-| `mode` | `(number[]) -> number[]`; todos os modos em ordem numérica; array vazio falha. |
-| `stdDev` / `variance` | `(number[],sample=false) -> number`; população por padrão, amostra exige ao menos dois valores. |
-| `sumArray` / `productArray` | `(number[]) -> number`; soma inicia em 0, produto em 1, ambos com resultado finito. |
-| `weightedMean` | `(values,weights) -> number`; arrays não vazios de mesmo tamanho, pesos não negativos e soma positiva. |
-| `maxArray` / `minArray` | `(number[]) -> number`; array não vazio. |
-| `range` | `(number[]) -> number`; máximo menos mínimo. |
-| `percentile` | `(number[],p) -> number`; `p` em `[0,100]`, interpolação linear no índice `(n-1)*p/100`. |
-| `quartil` | `(number[],q) -> number`; `q` inteiro `0..4`, equivalente a `percentile(values,q*25)`. |
-| `dotProduct` | `(number[],number[]) -> number`; vetores não vazios de mesmo tamanho. |
-| `clamp` | `(value,min,max) -> number`; exige `min<=max`. |
-| `inRange` | `(value,min,max,inclusive=true) -> boolean`; exige `min<=max`. |
-| `linearRegression` | `(xs,ys) -> {slope,intercept,r2}`; pares finitos, ao menos dois, variância de `x` não zero. |
-| `lerp` | `(a,b,t) -> number`; `a+(b-a)*t`, sem restringir extrapolação. |
-| `degToRad` / `radToDeg` | `(number) -> number`; conversão por `π/180`. |
-| `circleArea` | `(radius>=0) -> number`; `πr²`. |
-| `triangleArea` | `(base>=0,height>=0) -> number`; `base*height/2`. |
-| `rectangleArea` | `(width>=0,height>=0) -> number`; produto. |
-| `circleCircumference` | `(radius>=0) -> number`; `2πr`. |
-| `rectanglePerimeter` | `(width>=0,height>=0) -> number`; `2*(w+h)`. |
-| `cubeVolume` | `(edge>=0) -> number`; `edge³`. |
-| `sphereVolume` | `(radius>=0) -> number`; `4πr³/3`. |
-| `cylinderVolume` | `(radius>=0,height>=0) -> number`; `πr²h`. |
-| `distance` | `(x1,y1,x2,y2) -> number`; distância euclidiana 2D. |
-| `isPrime` / `nextPrime` | `(safeInteger) -> boolean|safeInteger`; teste exato; próxima prima maior ou igual, com limite de iterações. |
-| `gcd` / `lcm` | `(safeInteger,safeInteger) -> safeInteger`; valores absolutos, algoritmo de Euclides, `lcm(0,0)=0`, overflow falha. |
-| `combination` | `(n,k) -> safeInteger`; `n!/(k!(n-k)!)`, inteiros `0<=k<=n`, cálculo redutor sem overflow intermediário evitável. |
-| `arrangement` | `(n,k) -> safeInteger`; `n!/(n-k)!`, inteiros `0<=k<=n`. |
-| `permutation` | `(n) -> safeInteger`; alias matemático de `factorial(n)`. |
-| `decToBin` / `decToHex` / `decToOct` | `(safeInteger) -> string`; sinal separado e dígitos em caixa alta para hexadecimal. |
-| `binToDec` / `hexToDec` / `octToDec` | `(Text) -> safeInteger`; string integral estrita na base correspondente e sem prefixo obrigatório. |
-| `celsiusToFahrenheit` / `fahrenheitToCelsius` | `(number) -> number`; fórmulas exatas usuais. |
-| `metersToKm` | `(number) -> number`; divide por 1000. |
-| `kmToMiles` | `(number) -> number`; usa constante versionada `0.621371192237334`. |
+### 6.3 Propriedades independentes de procedência
 
-### 6.3 Aleatoriedade, datas e formatos avançados
+A integração DEVE distinguir separadamente descoberta; autenticidade do histórico de chaves; continuidade histórica de confiança; autenticidade do release; e integridade dos bytes. Uma propriedade NÃO infere outra. HTTPS, GitHub, npm, tag, endpoint, nome, `keyId`, manifesto ou objeto global são vias ou evidências parciais e NÃO constituem autoria ou trust anchor isoladamente. [PENDENTE-CODIGO]
 
-| Função | Assinatura e contrato determinístico |
-|---|---|
-| `random` | `() -> number`; amostra uniforme em `[0,1)` do `RandomSource`. |
-| `randomString` | `(length,alphabet=alnum) -> string`; inteiro limitado, alfabeto não vazio/sem grapheme duplicado e seleção sem viés por rejeição. |
-| `randomInt` | `(min,max) -> safeInteger`; intervalo inclusivo uniforme. |
-| `randomArbitrary` | `(min,max) -> number`; intervalo `[min,max)`, exige `min<max`. |
-| `shuffle` | `(array) -> array`; cópia por Fisher–Yates uniforme, sem mutar entrada. |
-| `sample` | `(array,count=1) -> valor|array`; sem reposição, count 1 retorna valor, demais retornam array. |
-| `formatDate` | `(iso,locale='pt-BR',timeZone='UTC') -> string`; ISO estrito e `Intl.DateTimeFormat` apenas com data. |
-| `formatDateTime` | `(iso,locale='pt-BR',timeZone='UTC') -> string`; ISO estrito e data/hora com segundos. |
-| `formatCronometer` | `(totalSeconds,showMilliseconds=false) -> string`; duração não negativa em `HH:MM:SS` com horas não limitadas a 23. |
-| `formatBytes` | `(bytes,base=1024,decimals=2) -> string`; bytes não negativos, base somente `1000|1024`, unidades até `PB|PiB` e arredondamento half-away-from-zero. |
-| `toRoman` / `fromRoman` | `(integer|string) -> string|integer`; romanos canônicos de 1 a 3999, caixa alta e rejeição de forma não canônica. |
-| `numberToWords` | `(safeInteger,locale='pt-BR') -> string`; catálogo versionado, sinal explícito e intervalo inicial de `-999999999999999..999999999999999`. |
-| `currencyToWords` | `(number,currency='BRL',locale='pt-BR') -> string`; mesmo limite inteiro, arredonda para centavos por half-away-from-zero e flexiona unidade/subunidade do catálogo versionado. |
+Obtenção usa HTTPS, timeout explícito, cancelamento, limite de tamanho e fontes configuradas. Conteúdo permanece `discovered-unvalidated` até validação completa; só cache antes validado PODE ser reutilizado, sujeito a mínimos monotônicos. Indisponibilidade, invalidade ou divergência são determinísticas e não escolhem silenciosamente cópia mais nova, conveniente ou hospedada no serviço percebido como confiável. [PENDENTE-CODIGO]
+
+### 6.4 Trust anchor e `FormulaKitKeyHistory/v1`
+
+Histórico somente é aceito a partir de trust anchor pública previamente conhecida por canal independente e fornecida por configuração versionada com `keyId`, algoritmo, chave, escopo, origem independente registrada e mínimos de histórico, política e release. Enquanto essa origem não existir, infraestrutura e testes negativos DEVEM existir, mas nenhuma chave descoberta adquire confiança. Recuperação ou troca da anchor exige procedimento humano explícito, auditável e separado, sem reduzir mínimos silenciosamente. [PENDENTE-CODIGO]
+
+O verificador DEVE comprovar cumulativamente schema exatamente compatível com `FormulaKitKeyHistory/v1`; canonicalização e assinatura; assinante na cadeia confiada; continuidade append-only; rotação e/ou coassinatura; revogações; vigência para release alvo; ausência de truncamento ou reescrita; e não redução de histórico, chave, release, política ou versão mínima. Conteúdo autenticamente assinado abaixo de mínimo já aceito é downgrade e é rejeitado. [PENDENTE-CODIGO]
+
+Todos os `keyId` históricos necessários às versões suportadas são preservados. Chave nova somente entra assinada por chave anteriormente confiada, coassinada pelo modelo validado ou pelo procedimento explícito de recuperação. Revogação conserva história para release passado suportado, mas bloqueia uso incompatível com período, finalidade e motivo; chave desconhecida nunca é aceita só por constar no documento. [PENDENTE-CODIGO]
+
+### 6.5 Release, artefato e execução
+
+Antes de executar bytes FormulaKit, integrar módulo ou aceitar export, o provedor identifica o `keyId`; seleciona a chave do histórico validado; verifica vigência e revogação; valida assinatura do manifesto ou atestação; calcula e compara o hash dos bytes reais; confirma mínimos; e somente então cria handle opaco e executa o módulo. Assinatura sem hash correspondente e hash sem cadeia confiável são insuficientes. [PENDENTE-CODIGO]
+
+Estado confiado vincula indivisivelmente release e versão, hash, manifesto ou atestação, `keyId`, revisão do histórico, trust anchor e política. Import estático, `<script src>`, execução prévia pelo consumidor ou objeto global NÃO satisfazem o gate. Ambiente incapaz de validar bytes antes da execução mantém FormulaKit indisponível e aplica `formulaKitPolicy`, sem degradar DSLens. [PENDENTE-CODIGO]
+
+### 6.6 Fontes, cache, anti-downgrade e segredos
+
+URL canônica, subpath npm, asset de GitHub Release, tag ou repositório assinado e cache validado PODEM fornecer o mesmo histórico; são descoberta, não anchors. Todas recebem schema, canonicalização, assinatura, continuidade, validade e anti-downgrade. Cópias equivalentes são comparadas por schema, conteúdo canônico, assinatura e hash; divergência material invalida obtenção até cadeia confiável decidir inequivocamente. [PENDENTE-CODIGO]
+
+Cache armazena somente material público e metadados mínimos, distinguindo obtido, criptograficamente validado, maior histórico, release e política confiados e anchor usada. Persistência não promove conteúdo não validado; cache inválido, antigo, incompatível ou abaixo dos mínimos é rejeitado. Estado monotônico é atualizado atomicamente após validação e resiste a replay concorrente. [PENDENTE-CODIGO]
+
+É proibido armazenar, solicitar, transmitir desnecessariamente, registrar, publicar, embutir ou persistir em cliente, build ou artefato chave privada, token, credencial ou segredo. Implementação, fixture, log e Demo usam apenas material público; nenhum canal individual vira fonte única de confiança. [PENDENTE-CODIGO]
+
+A localização canônica futura abaixo é somente uma via de descoberta e NÃO constitui, isoladamente, fonte de confiança ou trust anchor:
+
+[https://raw.githubusercontent.com/jcempro/FormulaKit/main/provenance/keys/v1.json](https://raw.githubusercontent.com/jcempro/FormulaKit/main/provenance/keys/v1.json)
+
+Em 2026-08-10 essa localização ainda não existe em `main`; isso não autoriza inventar schema concreto além de `FormulaKitKeyHistory/v1`, anchor, chave, assinatura ou confiança. Validação positiva fica bloqueada até material compatível e anchor independente configurada existirem. [PENDENTE-CODIGO]
 
 ## 7. Distribuição e compatibilidade
 
-O pacote npm DEVE publicar fonte TypeScript tipada e JavaScript ESM do plugin em `./plugin`, CSS separado em `./plugin.css` e all-in-one em `./all-in-one`, mantendo a biblioteca principal importável sem o plugin. O plugin ESM DEVE declarar a biblioteca como dependência interna por export público, sem copiar seu núcleo; o all-in-one PODE agregá-los no build, mas a fonte continua composta por módulos independentes. [PENDENTE-CODIGO]
+O pacote npm DEVE publicar fonte TypeScript tipada e JavaScript ESM do plugin em `./plugin`, CSS separado em `./plugin.css` e all-in-one em `./all-in-one`, mantendo a biblioteca principal importável sem o plugin. O plugin ESM DEVE declarar a biblioteca DSLens como dependência interna por export público, sem copiar seu núcleo; FormulaKit permanece provedor opcional externo, nunca é embutido no all-in-one e somente é executado após o gate de procedência. O all-in-one PODE agregar núcleo DSLens e plugin, mas a fonte continua composta por módulos independentes. [PENDENTE-CODIGO]
 
 Release DEVE oferecer `dslens.browser.js`, `dslens-plugin.browser.js`, `dslens-plugin.css` e `dslens-all.browser.js`, com variantes minificadas quando o pipeline vigente as produzir. Os dois primeiros JavaScript DEVEM ser independentes como arquivos e o plugin separado exige a biblioteca carregada; o all-in-one DEVE conter ambos e incorporar exatamente o CSS versionado do arquivo separado. [PENDENTE-CODIGO]
 
@@ -233,7 +143,7 @@ Testes automatizados DEVEM cruzar fontes, tamanhos, pesos, `line-height`, direç
 
 A validação visual DEVE comparar a mesma linha antes/depois e com/sem plugin por métricas de `getBoundingClientRect`, `Range.getClientRects`, baseline de testemunha, scroll e screenshots. Altura de linha, baseline, avanço inline, espaçamento, quebra, alinhamento e ausência de overflow DEVEM permanecer dentro de tolerâncias fixadas antes do teste; exceção só é válida quando o resultado textual altera naturalmente a largura/quebra. [PENDENTE-CODIGO]
 
-Testes de segurança DEVEM cobrir texto com tags/scripts, atributos maliciosos, JSON/pipeline inválidos, prototype pollution, profundidade/tamanho excessivos, função/loader defeituoso, CSP sem style inline, host removido, resposta obsoleta e conteúdo dinâmico recursivo. O resultado sempre DEVE permanecer texto e o fallback deve sobreviver à falha total. [PENDENTE-CODIGO]
+Testes de segurança DEVEM cobrir texto com tags/scripts, atributos maliciosos, JSON/pipeline inválidos, prototype pollution, profundidade/tamanho excessivos, loader defeituoso, CSP sem style inline, host removido, resposta obsoleta e conteúdo dinâmico recursivo. Também DEVEM cobrir FormulaKit presente; ausência com `ignore|fail`; fallback original, `[error]` e personalizado; fluxo único e multipercurso aninhado; `loading` encerrado; warn deduplicado; histórico/schema/assinatura/keyId/rotação/revogação/vigência; assinatura+hash; downgrade; fontes/caches/divergência; ausência de trust anchor e inexistência de segredo. O resultado sempre DEVE permanecer texto e o fallback deve sobreviver à falha total. [PENDENTE-CODIGO]
 
 README e README do pacote DEVEM possuir seção **Modo de uso** sucinta e executável para núcleo e plugin: instalação/importação TS/JS, encapsulamento HTML/Markdown, fallback sem JavaScript, placeholder/loading, chamada manual, conteúdo dinâmico, customização, composição `$`, React/Preact e uso independente/all-in-one. Recurso somente DEVE ser descrito como disponível após os artefatos e testes correspondentes existirem. [PENDENTE-CODIGO]
 
@@ -241,8 +151,8 @@ README e README do pacote DEVEM possuir seção **Modo de uso** sucinta e execut
 
 Diagnósticos públicos DEVEM usar famílias `DSLENS_PLUGIN_MARKUP_*`, `DSLENS_PLUGIN_CONFIG_*`, `DSLENS_PLUGIN_LIFECYCLE_*`, `DSLENS_PLUGIN_RESOLVE_*`, `DSLENS_PLUGIN_PIPE_*`, `DSLENS_PLUGIN_RENDER_*` e `DSLENS_PLUGIN_DEPENDENCY_*`, com host/correlationId sanitizados e sem expressão, segredo, header ou conteúdo remoto integral por padrão. [PENDENTE-CODIGO]
 
-A implementação somente será conforme quando biblioteca e plugin forem instaláveis separadamente; fallback funcionar sem JavaScript; varredura inicial e dinâmica forem idempotentes; API manual cobrir raiz/descritor/elemento; resultado for texto seguro; catálogo mínimo estiver completo; CSS separado e all-in-one forem equivalentes; e todos os testes funcionais, visuais, de pacote e build anual estiverem aprovados.
+A implementação somente será conforme quando biblioteca e plugin forem instaláveis separadamente e permanecerem funcionais sem FormulaKit; fallback funcionar sem JavaScript; varredura inicial e dinâmica forem idempotentes; API manual cobrir raiz/descritor/elemento; resultado for texto seguro; nenhuma função `$` existir localmente; FormulaKit somente for executado após cadeia, assinatura e hash válidos; ausência multipercurso nunca produzir resultado silenciosamente falso; CSS separado e all-in-one forem equivalentes; e todos os testes funcionais, criptográficos, visuais, de pacote e build anual estiverem aprovados. [PENDENTE-CODIGO]
 
-## 10. Referência externa versionada
+## 10. Autoridade externa versionada
 
-`validateAlphanumericCnpj` DEVE seguir o [Manual de Cálculo do DV do CNPJ Alfanumérico da Receita Federal](https://www.gov.br/receitafederal/pt-br/centrais-de-conteudo/publicacoes/documentos-tecnicos/cnpj/manual-dv-cnpj.pdf), incluindo doze caracteres alfanuméricos, dois DVs numéricos, conversão ASCII menos 48 e módulo 11. Mudança futura da fonte oficial exige nova versão do contrato e vetores, sem alteração silenciosa. [PENDENTE-CODIGO]
+Nomes, contratos, exports e semântica de `$.<nome>()` DEVEM ser consultados na documentação e no release FormulaKit efetivamente validados. DSLens registra somente identidade/versão/hash/atestado consumidos e vínculo à API autoritativa; não copia a lista nem conserva contrato alternativo. A referência documental conhecida é [jcempro/FormulaKit](https://github.com/jcempro/FormulaKit), cuja disponibilidade isolada não prova autoria ou integridade. [PENDENTE-CODIGO]

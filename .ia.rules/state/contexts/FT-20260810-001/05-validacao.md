@@ -4,7 +4,7 @@
 - ordem: `5/5`
 - fase: `validacao_integracao`
 - FTs: `FT-20260810-001`, `FT-20260809-002`, `FT-20260810-002`, `FT-20260810-003`
-- estado: `pendente`
+- estado: `norma_concluida_codigo_pendente`
 - objetivo: provar cobertura integral, preservação e funcionamento real local/pacote/browser/Pages.
 - dependências: entregáveis das quatro FTs.
 - validações normativas: origem íntegra/hash; FTs/ordem/autorização; conflito conciliado; origem→RCF; nenhuma lista/função `$` local.

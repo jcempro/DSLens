@@ -125,6 +125,20 @@
     {
       "artifacts": [
         "src/ts/plugin/index.ts",
+        "tests/browser/plugin.html"
+      ],
+      "commit": "",
+      "ft": "FT-20260809-002",
+      "id": "c6b0bf4f6af9ffc7eadb3708",
+      "line": 32,
+      "rcf": "docs/rcf/browser-plugin.md",
+      "sentenceSha256": "5a501b748dfe9a9fe07314f27ff19b57af77cbfa9dcee0581dd5bb6fd6753873",
+      "state": "pending",
+      "syncCommit": ""
+    },
+    {
+      "artifacts": [
+        "src/ts/plugin/index.ts",
         "src/ts/plugin/styles.css",
         "tests/browser/plugin.html"
       ],
@@ -170,6 +184,20 @@
     {
       "artifacts": [
         "src/ts/plugin/index.ts",
+        "tests/browser/plugin.html"
+      ],
+      "commit": "",
+      "ft": "FT-20260809-002",
+      "id": "1a15b58d766437cf7f461e4a",
+      "line": 40,
+      "rcf": "docs/rcf/browser-plugin.md",
+      "sentenceSha256": "3e73c8de6b167667e73d40473b1a8596c1d6d0ec9dfbabe08e1419ebfaf2a81d",
+      "state": "pending",
+      "syncCommit": ""
+    },
+    {
+      "artifacts": [
+        "src/ts/plugin/index.ts",
         "src/ts/plugin/styles.css",
         "tests/browser/plugin.html"
       ],
@@ -209,6 +237,20 @@
       "line": 48,
       "rcf": "docs/rcf/browser-plugin.md",
       "sentenceSha256": "ce88a7cbbdf2662a58c6ddeb291e4c92b67b8dbabff7c246f09d4510e3aaa857",
+      "state": "pending",
+      "syncCommit": ""
+    },
+    {
+      "artifacts": [
+        "src/ts/plugin/index.ts",
+        "tests/browser/plugin.html"
+      ],
+      "commit": "",
+      "ft": "FT-20260809-002",
+      "id": "0bf37edcf95dbbfa721f736a",
+      "line": 48,
+      "rcf": "docs/rcf/browser-plugin.md",
+      "sentenceSha256": "1be606ee7b3fad0b1df7b25e138487505098ab6507efdb3fa1715e26df228700",
       "state": "pending",
       "syncCommit": ""
     },
@@ -379,6 +421,20 @@
     },
     {
       "artifacts": [
+        "src/ts/plugin/index.ts",
+        "tests/browser/plugin.html"
+      ],
+      "commit": "",
+      "ft": "FT-20260809-002",
+      "id": "41ab62832723608e07974cd5",
+      "line": 74,
+      "rcf": "docs/rcf/browser-plugin.md",
+      "sentenceSha256": "28e36c29c117d7aa1d9db4a406a95b2fd452705b265f6baa6839f8dfde98fdcf",
+      "state": "pending",
+      "syncCommit": ""
+    },
+    {
+      "artifacts": [
         "src/ts/plugin/functions.ts",
         "src/ts/plugin/pipeline.ts",
         "tests/conformance/plugin-functions.json"
@@ -409,6 +465,20 @@
     },
     {
       "artifacts": [
+        "src/ts/plugin/index.ts",
+        "tests/browser/plugin.html"
+      ],
+      "commit": "",
+      "ft": "FT-20260809-002",
+      "id": "307fc2f7fddcaebb12cb37f5",
+      "line": 78,
+      "rcf": "docs/rcf/browser-plugin.md",
+      "sentenceSha256": "0059a9ad5c01f90edda67a1a591505287f604e406b10cae1740c2f0a03eb3712",
+      "state": "pending",
+      "syncCommit": ""
+    },
+    {
+      "artifacts": [
         "src/ts/plugin/functions.ts",
         "src/ts/plugin/pipeline.ts",
         "tests/conformance/plugin-functions.json"
@@ -424,6 +494,20 @@
     },
     {
       "artifacts": [
+        "src/ts/plugin/index.ts",
+        "tests/browser/plugin.html"
+      ],
+      "commit": "",
+      "ft": "FT-20260809-002",
+      "id": "471a92188c1d58c62552405b",
+      "line": 80,
+      "rcf": "docs/rcf/browser-plugin.md",
+      "sentenceSha256": "0e04a30adf1f92a28f6ed37bc4443c3b388f477119dd00dcf8d794b13af736f1",
+      "state": "pending",
+      "syncCommit": ""
+    },
+    {
+      "artifacts": [
         "src/ts/plugin/functions.ts",
         "src/ts/plugin/pipeline.ts",
         "tests/conformance/plugin-functions.json"
@@ -434,6 +518,20 @@
       "line": 82,
       "rcf": "docs/rcf/browser-plugin.md",
       "sentenceSha256": "4af084e0d5d6b25f65952ca35d073b556a39176f4962630cfdf115e0b4f6b796",
+      "state": "pending",
+      "syncCommit": ""
+    },
+    {
+      "artifacts": [
+        "src/ts/plugin/index.ts",
+        "tests/browser/plugin.html"
+      ],
+      "commit": "",
+      "ft": "FT-20260809-002",
+      "id": "91bb0cc8ca578408be9ecd22",
+      "line": 82,
+      "rcf": "docs/rcf/browser-plugin.md",
+      "sentenceSha256": "6de6e46540142ba037767c1c27576b8bff9d8c0405d0df3e3c4acf43cce4a1db",
       "state": "pending",
       "syncCommit": ""
     },
@@ -464,6 +562,166 @@
       "line": 86,
       "rcf": "docs/rcf/browser-plugin.md",
       "sentenceSha256": "ccee9dd7d637fb4b6893125fb95054bd99860f3f26e5674fdfc33e7d4affdc80",
+      "state": "pending",
+      "syncCommit": ""
+    },
+    {
+      "artifacts": [
+        "src/ts/plugin/index.ts",
+        "tests/browser/plugin.html"
+      ],
+      "commit": "",
+      "ft": "FT-20260809-002",
+      "id": "60d69973fd7631bd1f8be6c1",
+      "line": 86,
+      "rcf": "docs/rcf/browser-plugin.md",
+      "sentenceSha256": "5ef4ec8debda3dcdde3b9e60eb7d89c0fa69e8603fe8c56859b37a6477bb6148",
+      "state": "pending",
+      "syncCommit": ""
+    },
+    {
+      "artifacts": [
+        "src/ts/plugin/index.ts",
+        "tests/browser/plugin.html"
+      ],
+      "commit": "",
+      "ft": "FT-20260809-002",
+      "id": "03500ef10ae8a53f6d669b19",
+      "line": 90,
+      "rcf": "docs/rcf/browser-plugin.md",
+      "sentenceSha256": "c6d81619f43899bb7d229b4cc817f436e229b6bef77c13cc274ff8b9a6116045",
+      "state": "pending",
+      "syncCommit": ""
+    },
+    {
+      "artifacts": [
+        "schemas/formulakit-key-history.v1.schema.json",
+        "src/ts/provenance/index.ts",
+        "tests/provenance"
+      ],
+      "commit": "",
+      "ft": "FT-20260810-002",
+      "id": "78401e58dfb35fdbe1a912fe",
+      "line": 96,
+      "rcf": "docs/rcf/browser-plugin.md",
+      "sentenceSha256": "04c683c06c478988572a8fef0c01e72f5cad043769ca9885f6e88e385f8e768d",
+      "state": "pending",
+      "syncCommit": ""
+    },
+    {
+      "artifacts": [
+        "schemas/formulakit-key-history.v1.schema.json",
+        "src/ts/provenance/index.ts",
+        "tests/provenance"
+      ],
+      "commit": "",
+      "ft": "FT-20260810-002",
+      "id": "b577519fbc1aab2657ae4b92",
+      "line": 98,
+      "rcf": "docs/rcf/browser-plugin.md",
+      "sentenceSha256": "26567eaf520333e273d836dff49d71483e52d442efc76c3f2b11df46d0357592",
+      "state": "pending",
+      "syncCommit": ""
+    },
+    {
+      "artifacts": [
+        "schemas/formulakit-key-history.v1.schema.json",
+        "src/ts/provenance/index.ts",
+        "tests/provenance"
+      ],
+      "commit": "",
+      "ft": "FT-20260810-002",
+      "id": "3742b31da671268572c6fa99",
+      "line": 102,
+      "rcf": "docs/rcf/browser-plugin.md",
+      "sentenceSha256": "90bcd4d1d94621b8d328065ae1ca6f00c0b0b7fdf4b40d7df305d295a401d59a",
+      "state": "pending",
+      "syncCommit": ""
+    },
+    {
+      "artifacts": [
+        "schemas/formulakit-key-history.v1.schema.json",
+        "src/ts/provenance/index.ts",
+        "tests/provenance"
+      ],
+      "commit": "",
+      "ft": "FT-20260810-002",
+      "id": "6c7469613df71513906cb083",
+      "line": 104,
+      "rcf": "docs/rcf/browser-plugin.md",
+      "sentenceSha256": "13608c188d909accb8135d1a5268035cb2b25fd1f1d305de56f165ac5cdf52bd",
+      "state": "pending",
+      "syncCommit": ""
+    },
+    {
+      "artifacts": [
+        "schemas/formulakit-key-history.v1.schema.json",
+        "src/ts/provenance/index.ts",
+        "tests/provenance"
+      ],
+      "commit": "",
+      "ft": "FT-20260810-002",
+      "id": "99c01f93e05a9f706a5f3779",
+      "line": 116,
+      "rcf": "docs/rcf/browser-plugin.md",
+      "sentenceSha256": "039e0a42643de9850ed5f90bb8e75119b326b9a31f61f0445a4ec2bb82797de5",
+      "state": "pending",
+      "syncCommit": ""
+    },
+    {
+      "artifacts": [
+        "schemas/formulakit-key-history.v1.schema.json",
+        "src/ts/provenance/index.ts",
+        "tests/provenance"
+      ],
+      "commit": "",
+      "ft": "FT-20260810-002",
+      "id": "79eb118b926c2cc61e289a81",
+      "line": 120,
+      "rcf": "docs/rcf/browser-plugin.md",
+      "sentenceSha256": "03d27a311285882791a5dfe4f8c691c362e408ead4b36b85b49ea68cd08b4981",
+      "state": "pending",
+      "syncCommit": ""
+    },
+    {
+      "artifacts": [
+        "src/ts/plugin/index.ts",
+        "tests/browser/plugin.html"
+      ],
+      "commit": "",
+      "ft": "FT-20260809-002",
+      "id": "e71d803c1ba9676cfa06305b",
+      "line": 130,
+      "rcf": "docs/rcf/browser-plugin.md",
+      "sentenceSha256": "c59720979e25802f2e64c8688743a14a27d88ab663bb1d83d9b2484dd0033227",
+      "state": "pending",
+      "syncCommit": ""
+    },
+    {
+      "artifacts": [
+        "src/ts/plugin/index.ts",
+        "tests/browser/plugin.html"
+      ],
+      "commit": "",
+      "ft": "FT-20260809-002",
+      "id": "c2e2eb15a54b102a49d73191",
+      "line": 146,
+      "rcf": "docs/rcf/browser-plugin.md",
+      "sentenceSha256": "7b66f4d97d99a8cdc7dd093f236cb987447ed4b17eaa6a9bbe4eaf321005c383",
+      "state": "pending",
+      "syncCommit": ""
+    },
+    {
+      "artifacts": [
+        "src/ts/plugin/index.ts",
+        "tests/browser/plugin.html"
+      ],
+      "commit": "",
+      "ft": "FT-20260809-002",
+      "id": "e6afb47d5eaf7b93ed6f262c",
+      "line": 158,
+      "rcf": "docs/rcf/browser-plugin.md",
+      "sentenceSha256": "461a4560d793827fc87bfb6180fc245760abfbc963dc5e14701ef6697b4c74f7",
       "state": "pending",
       "syncCommit": ""
     },
@@ -662,6 +920,102 @@
     },
     {
       "artifacts": [
+        ".github/workflows/pages.yml",
+        "demo/shared/demo-core.js",
+        "site/src/index.html",
+        "tests/site"
+      ],
+      "commit": "",
+      "ft": "FT-20260810-003",
+      "id": "59bb83f5dece9f58ce8ee4e7",
+      "line": 44,
+      "rcf": "docs/rcf/distribution.md",
+      "sentenceSha256": "0c46f4a3b9f35e46ac7878116468336a6cef174cea73050cc155a9b8ae476787",
+      "state": "pending",
+      "syncCommit": ""
+    },
+    {
+      "artifacts": [
+        ".github/workflows/pages.yml",
+        "demo/shared/demo-core.js",
+        "site/src/index.html",
+        "tests/site"
+      ],
+      "commit": "",
+      "ft": "FT-20260810-003",
+      "id": "2cc392b5cbc03af5ea625775",
+      "line": 56,
+      "rcf": "docs/rcf/distribution.md",
+      "sentenceSha256": "210bdaec9ca3a971b2e6ceefb6441d9490087920a7e90ae00412fc2c945db61f",
+      "state": "pending",
+      "syncCommit": ""
+    },
+    {
+      "artifacts": [
+        ".github/workflows/pages.yml",
+        "demo/shared/demo-core.js",
+        "site/src/index.html",
+        "tests/site"
+      ],
+      "commit": "",
+      "ft": "FT-20260810-003",
+      "id": "4b7e43c248bc7bc4da6b5d3d",
+      "line": 58,
+      "rcf": "docs/rcf/distribution.md",
+      "sentenceSha256": "acf99686c41774538cb89f0db2a63c6d205889e7ce5f4b1d3cdbd0ffee47bd09",
+      "state": "pending",
+      "syncCommit": ""
+    },
+    {
+      "artifacts": [
+        ".github/workflows/pages.yml",
+        "demo/shared/demo-core.js",
+        "site/src/index.html",
+        "tests/site"
+      ],
+      "commit": "",
+      "ft": "FT-20260810-003",
+      "id": "72c4e3e81599c85c404608c3",
+      "line": 60,
+      "rcf": "docs/rcf/distribution.md",
+      "sentenceSha256": "9508db173b3c00ceb0ab85649b7f83ed576fb323ea8f99d8ef99878218996a81",
+      "state": "pending",
+      "syncCommit": ""
+    },
+    {
+      "artifacts": [
+        ".github/workflows/pages.yml",
+        "demo/shared/demo-core.js",
+        "site/src/index.html",
+        "tests/site"
+      ],
+      "commit": "",
+      "ft": "FT-20260810-003",
+      "id": "0d4c525d1ae02aa254cef3f9",
+      "line": 62,
+      "rcf": "docs/rcf/distribution.md",
+      "sentenceSha256": "e5cc5a8a86696e7582137d117fece9ee40452a8045007dbd73e3564269647147",
+      "state": "pending",
+      "syncCommit": ""
+    },
+    {
+      "artifacts": [
+        ".github/workflows/pages.yml",
+        "demo/shared/demo-core.js",
+        "site/src/index.html",
+        "tests/site"
+      ],
+      "commit": "",
+      "ft": "FT-20260810-003",
+      "id": "f74fcba0c6b971c2df26954c",
+      "line": 64,
+      "rcf": "docs/rcf/distribution.md",
+      "sentenceSha256": "5e460ba85785b5354b1b1192f9415b768530450eb680b5fc7078ce639f188483",
+      "state": "pending",
+      "syncCommit": ""
+    },
+    {
+      "artifacts": [
         "src/ts/plugin/index.ts",
         "src/ts/plugin/styles.css"
       ],
@@ -671,6 +1025,22 @@
       "line": 33,
       "rcf": "docs/rcf/typescript-javascript.md",
       "sentenceSha256": "24a9ec996d1bce4a7e3fa3fae720950051a676dce6ecb5b4a77aa009498f126f",
+      "state": "pending",
+      "syncCommit": ""
+    },
+    {
+      "artifacts": [
+        "package/dslens/package.json",
+        "src/ts/plugin/index.ts",
+        "src/ts/provenance/index.ts",
+        "tests/browser/plugin.html"
+      ],
+      "commit": "",
+      "ft": "FT-20260809-002",
+      "id": "323acf19bcf04cc092a9e4c6",
+      "line": 33,
+      "rcf": "docs/rcf/typescript-javascript.md",
+      "sentenceSha256": "186ebaa61479c3e8405438c9f247028465ba6f248c13931db4a57775f9689aee",
       "state": "pending",
       "syncCommit": ""
     },
@@ -704,6 +1074,22 @@
     },
     {
       "artifacts": [
+        "package/dslens/package.json",
+        "src/ts/plugin/index.ts",
+        "src/ts/provenance/index.ts",
+        "tests/browser/plugin.html"
+      ],
+      "commit": "",
+      "ft": "FT-20260809-002",
+      "id": "d9faaaf8580365356329b97c",
+      "line": 59,
+      "rcf": "docs/rcf/typescript-javascript.md",
+      "sentenceSha256": "8dae41b98f80872cc8851bdbefa839afa4dc4cd0c99dbb484a5660b4080a3f05",
+      "state": "pending",
+      "syncCommit": ""
+    },
+    {
+      "artifacts": [
         "src/ts/plugin/index.ts"
       ],
       "commit": "",
@@ -712,6 +1098,20 @@
       "line": 150,
       "rcf": "RCF.md",
       "sentenceSha256": "5fd5d1886da99f1cf678efdcce26b70b92158108b551a5b44ed10d130f6f1076",
+      "state": "pending",
+      "syncCommit": ""
+    },
+    {
+      "artifacts": [
+        "src/ts/plugin/index.ts",
+        "tests/browser/plugin.html"
+      ],
+      "commit": "",
+      "ft": "FT-20260809-002",
+      "id": "599c0806169f31a9901cae24",
+      "line": 150,
+      "rcf": "RCF.md",
+      "sentenceSha256": "dbac728f17f6ac886f3f7b0c40e3bd6c902648c1886b022f9a67703f0d4383e8",
       "state": "pending",
       "syncCommit": ""
     },
@@ -731,6 +1131,20 @@
     },
     {
       "artifacts": [
+        "schemas/formulakit-key-history.v1.schema.json",
+        "src/ts/provenance/index.ts"
+      ],
+      "commit": "",
+      "ft": "FT-20260810-002",
+      "id": "1c4707da435324e09a5835a4",
+      "line": 178,
+      "rcf": "RCF.md",
+      "sentenceSha256": "03ea12bb2b89f3ffbd2213c82ecabe5b42fe22a2bfceb3e20fc3c613192273b3",
+      "state": "pending",
+      "syncCommit": ""
+    },
+    {
+      "artifacts": [
         "scripts/test/run.mjs",
         "tests/browser/plugin.html"
       ],
@@ -740,6 +1154,20 @@
       "line": 202,
       "rcf": "RCF.md",
       "sentenceSha256": "79c0a2906846e95d9f946c16612cdfc6f5ef680ef45b904521b187c3d6512239",
+      "state": "pending",
+      "syncCommit": ""
+    },
+    {
+      "artifacts": [
+        "src/ts/plugin/index.ts",
+        "tests/browser/plugin.html"
+      ],
+      "commit": "",
+      "ft": "FT-20260809-002",
+      "id": "c5a5c48b7fd9d26807654c63",
+      "line": 204,
+      "rcf": "RCF.md",
+      "sentenceSha256": "d7ea771f643f8ca75994f2910cdcd4b91017fde4742939d7d4e86ccf200bcff6",
       "state": "pending",
       "syncCommit": ""
     }

@@ -147,7 +147,7 @@ Perfis previstos: `core`, `browser`, `worker`, `node`, `server`, `ssr`, `build` 
 
 Classes DEVERIAM representar estado, ciclo de vida ou estratégia substituível; composição e injeção DEVERIAM prevalecer sobre herança rígida. Funções puras DEVEM permanecer permitidas quando reduzirem estado e bundle. Orientação a objetos NÃO DEVE criar abstração sem função, estado global, herança profunda ou perda desproporcional de tree-shaking.
 
-Integração de DSLens com HTML/Markdown DEVE permanecer em plugin browser opcional e desacoplado, dependente da API pública da biblioteca e regido por `./docs/rcf/browser-plugin.md`. O núcleo NÃO DEVE descobrir DOM, interpretar texto documental, renderizar markup, carregar CSS, observar lifecycle de página nem incorporar o catálogo utilitário `$`. [PENDENTE-CODIGO]
+Integração de DSLens com HTML/Markdown DEVE permanecer em plugin browser opcional e desacoplado, dependente da API pública da biblioteca e regido por `./docs/rcf/browser-plugin.md`. O núcleo NÃO DEVE descobrir DOM, interpretar texto documental, renderizar markup, carregar CSS, observar lifecycle de página nem incorporar função utilitária `$`. Toda função `$.<nome>()` é implementação e autoridade exclusiva do FormulaKit, com nome público exato, integração opcional, política de ausência `ignore|fail` (`ignore` por padrão) e procedência validada antes da execução; DSLens NÃO DEVE manter catálogo, alias, cópia, fork ou substituto local. [PENDENTE-CODIGO]
 
 ## 9. Superfície pública e documentação de código
 
@@ -175,6 +175,8 @@ Otimização DEVE preservar comportamento, efeitos necessários, nomes públicos
 
 Dependência DEVE estar na categoria correspondente ao uso. Lockfile, licença, vulnerabilidade, script de instalação, proveniência e origem DEVEM ser auditáveis. Build NÃO DEVE depender de recurso remoto não fixado. Segredo NÃO DEVE integrar fonte, build, map, manifesto, pacote, log ou fixture publicada.
 
+Consumo opcional do FormulaKit DEVE separar descoberta, autenticidade do histórico, continuidade da confiança, autenticidade do release e integridade do artefato; usar trust anchor pública obtida por canal independente; validar `FormulaKitKeyHistory/v1`, continuidade append-only, rotação/coassinatura, revogação, vigência, assinatura e hash antes de executar ou aceitar exports; manter cache validado e mínimos anti-downgrade; comparar fontes alternativas; e proibir absolutamente material privado. URL, HTTPS, GitHub, npm, manifesto ou objeto global NÃO constituem confiança isoladamente. [PENDENTE-CODIGO]
+
 Artefatos relevantes DEVEM possuir medição reproduzível de tamanho bruto, minificado, gzip e Brotli, além de baseline. O orçamento do build client-side otimizado DEVE ser fixado após primeiro baseline real aprovado; alteração do limite exige causa, quantificação, alternativas e decisão explícita.
 
 ## 12. Manifestos e schemas
@@ -199,7 +201,7 @@ Validação DEVE comparar resultado, falha, normalização, ordenação, default
 
 PowerShell, Python, TypeScript e JavaScript DEVEM demonstrar a mesma semântica pelos vetores comuns. Divergência existente DEVE ser corrigida na implementação divergente; nenhuma linguagem DEVE servir como evidência única do contrato.
 
-Capacidade exclusiva do plugin documental NÃO integra a paridade PowerShell/Python do núcleo. Sua conformidade DEVE ser demonstrada no navegador por contrato funcional, DOM dinâmico, fallback sem JavaScript, segurança textual, composição `$`, integração por API e preservação visual inline. [PENDENTE-CODIGO]
+Capacidade exclusiva do plugin documental NÃO integra a paridade PowerShell/Python do núcleo. Sua conformidade DEVE ser demonstrada no navegador por contrato funcional, DOM dinâmico, fallback sem JavaScript, segurança textual, composição `$` delegada ao FormulaKit, políticas de ausência, procedência criptográfica, integração por API e preservação visual inline. [PENDENTE-CODIGO]
 
 ### 14.1 Testes automatizados e CI
 

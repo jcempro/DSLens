@@ -1,14 +1,14 @@
 SCHEMA=1
 MACHINE_ID=JEAN-DESKTOP
-DATA_REF=20260810.012722
+DATA_REF=20260810.015410
 CONTRATO=./RCF.md
 CACHE=Norma integral, RCFs, estado Git, FT-20260809-001/002 e solicitação FormulaKit/Demos relidos em 20260810; reler somente arquivo alterado ou rota nova
-BLOQUEIO_NAO_REPETIR=agent:verify e agent:test procuravam raiz predecessora incorreta; agent:rcf encontra legado não mapeado em docs/rcf/distribution.md:5; repetir somente após correção/migração causal válida ou evidência nova
+BLOQUEIO_NAO_REPETIR=agent:verify e agent:test procuram raiz predecessora incorreta/TSCONFIG_AUSENTE; agent:rcf encontra somente legado não mapeado em docs/rcf/distribution.md:5; runner direto procura .github/workflows/npm-release.yml já renomeado para release.yml; repetir somente após correção/migração causal válida ou evidência nova
 
-FT-20260810-001|nome=Contrato FormulaKit, procedência e Demos verificáveis|classe=implementacao_normativa|escopo=Técnico|prioridade=alta|status=em_andamento|inicio=2026-08-10T01:27:22-03:00
+FT-20260810-001|nome=Contrato FormulaKit, procedência e Demos verificáveis|classe=implementacao_normativa|escopo=Técnico|prioridade=alta|status=concluído|inicio=2026-08-10T01:27:22-03:00|fim=2026-08-10T01:54:10-03:00
 objetivo=Substituir o catálogo `$` local pela delegação exclusiva à API pública real do FormulaKit, normatizar ausência configurável, confiança criptográfica/procedência e site público com Demos reais multipágina.
 nao_escopo=Implementar runtime, confiança, site ou workflow antes da validação/commit normativos; inventar trust anchor; publicar Pages, pacote, tag ou release nesta fase.
-dependencias=solicitação preservada em .ia.rules/state/requests/FT-20260810-001/request.md; FT-20260809-001 concluída; API pública FormulaKit 0.1.0; RCF.md e sub-RCFs.
+dependencias=solicitação preservada no commit 82921be:.ia.rules/state/requests/FT-20260810-001/request.md; FT-20260809-001 concluída; API pública FormulaKit 0.1.0; RCF.md e sub-RCFs.
 riscos=Duplicar funções terceiras; confundir descoberta com confiança; executar artefato antes de assinatura+hash; downgrade; resultado decisório falso; demo simulada; publicação não autorizada.
 arquivos_previstos=.ia.rules/state/requests/FT-20260810-001/*; .ia.rules/state/contexts/FT-20260810-001/*; .ia.rules/continue.ia; RCF.md; docs/rcf/browser-plugin.md; docs/rcf/distribution.md; docs/rcf/typescript-javascript.md; handoff.md.
 aceite=RCF cirúrgico cobre integralmente autoridade nominal do FormulaKit, ausência ignore/fail, fallback/loading/warn, decisão estrutural, cinco propriedades de procedência, trust anchor independente, KeyHistory/v1, continuidade/rotação/revogação/vigência, release+hash, cache/fallback/anti-downgrade/segredos e Demos/Pages verificáveis; conflito anterior explicitamente conciliado; validação normativa e commit exclusivos.
@@ -17,14 +17,18 @@ vinculos=fonte sha256 e1c5e302c0d6fa94f4890b56e5fdffd5f42231826a805d01ee887d54ff
   1/3 Preservar fonte, hash e evidência externa [concluído]
   2/3 Reconciliar FTs e conflito do catálogo local [concluído]
   3/3 Fixar contextos e ordem de dependências [concluído]
-2/3 Normatização [em andamento]
-  1/3 Atualizar autoridade FormulaKit e política de ausência [pendente]
-  2/3 Normatizar procedência e confiança sem trust anchor inventada [pendente]
-  3/3 Normatizar site/Demos/Pages verificáveis [pendente]
-3/3 Validação [pendente]
-  1/3 Auditar cobertura origem→RCF e preservação [pendente]
-  2/3 Validar RCF/traçabilidade focada [pendente]
-  3/3 Commitar marco normativo e solicitar autorização pós-norma [pendente]
+2/3 Normatização [concluído]
+  1/3 Atualizar autoridade FormulaKit e política de ausência [concluído]
+  2/3 Normatizar procedência e confiança sem trust anchor inventada [concluído]
+  3/3 Normatizar site/Demos/Pages verificáveis [concluído]
+3/3 Validação [concluído]
+  1/3 Auditar cobertura origem→RCF e preservação [concluído]
+  2/3 Validar RCF/traçabilidade focada [concluído]
+  3/3 Commitar marco normativo e solicitar autorização pós-norma [concluído]
+verificacao=16/16 conceitos exigidos cobertos; uma única seção de funções; registerFunction, catálogo mínimo, implementações locais e exemplos inexistentes removidos; todas as sentenças novas materiais mapeadas às FTs de código.
+validacao_degradada=agent:rcf permanece bloqueado somente pela dívida preexistente RCF_SENTENCA_NAO_MAPEADA em docs/rcf/distribution.md:5; npm test para em TSCONFIG_AUSENTE do wrapper; node scripts/test/run.mjs alcança typecheck/build e para na referência preexistente a .github/workflows/npm-release.yml, renomeado no repositório para release.yml; efeitos de staging foram restaurados.
+evidencia_externa=FormulaKit 0.1.0 observado no commit dd9bb97b38e109a8395c73c0d29baf92925ad677; provenance/keys/v1.json retorna 404; Pages informa built em www, mas https://dslens.jcem.pro/ retorna 404 e o workflow pages.yml não está no branch padrão.
+autorizacao_codigo=pendente de nova autorização humana explícita após este marco normativo commitado.
 
 FT-20260810-002|nome=Procedência criptográfica do FormulaKit|classe=implementacao_codigo|escopo=Técnico|prioridade=alta|status=pendente|inicio=2026-08-10T01:27:23-03:00
 objetivo=Implementar descoberta, validação, cache e estado anti-downgrade de procedência do FormulaKit, bloqueando aceitação/execução até cadeia, assinatura e hash válidos.
@@ -462,4 +466,4 @@ DECISOES=20260716: sintaxe/semântica são canônicas; linguagens equivalentes; 
 VERIFICACOES=20260716 npm test 9 etapas; test:real 10 etapas; browser real PASS sem console; npm pack/instalação/imports PASS; audit 0; build reproduzível; GitHub Actions 29471167293, 29471237832, 29471309806 e 29471417146 success; actions v6 sem avisos.
 DECISOES_20260809=Plugin documental opcional usa span/data-* explícito, fallback no slot real, texto seguro, lifecycle idempotente, pipeline $ separado da DSL, IIFE sob global DSLens e assets independentes/all-in-one.
 VERIFICACOES_20260809=Catálogo 175/175; requisitos-chave e target ES2021 aprovados; 50 sentenças PENDENTE-CODIGO mapeadas; agent:rcf degradado somente por legado anterior não mapeado.
-PROXIMO=Aguardar nova autorização humana explícita para iniciar FT-20260809-002; depois implementar runtime, catálogo $, builds, documentação e testes conforme docs/rcf/browser-plugin.md.
+PROXIMO=Aguardar nova autorização humana explícita pós-norma; então executar FT-20260810-002 (procedência), FT-20260809-002 (plugin com delegação FormulaKit) e FT-20260810-003 (site/Demos), nesta ordem, sem publicação remota implícita.

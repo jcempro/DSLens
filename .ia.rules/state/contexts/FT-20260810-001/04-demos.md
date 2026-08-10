@@ -4,7 +4,7 @@
 - ordem: `4/5`
 - fase: `implementacao_codigo`
 - FT: `FT-20260810-003`
-- estado: `bloqueado_por_norma`
+- estado: `bloqueado_por_autorizacao_pos_norma`
 - objetivo: transformar o site em demonstração funcional multipágina e auditável do produto distribuído.
 - dependências: plugin e procedência funcionais; FT normativa concluída; autorização pós-norma.
 - restrições: plugin é o único meio de executar o parser nas Demos; sem mock/parser paralelo/resultado hardcoded; código exibido deriva do executado; fontes externas acessíveis e idênticas às consumidas.

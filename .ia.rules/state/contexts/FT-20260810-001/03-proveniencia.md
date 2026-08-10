@@ -4,7 +4,7 @@
 - ordem: `3/5`
 - fase: `implementacao_codigo`
 - FT: `FT-20260810-002`
-- estado: `bloqueado_por_norma`
+- estado: `bloqueado_por_autorizacao_pos_norma`
 - objetivo: validar separadamente descoberta, autenticidade do histórico, continuidade da confiança, autenticidade do release e integridade do artefato.
 - dependências: FT-20260810-001 concluída; autorização pós-norma; material público FormulaKit disponível; trust anchor independente configurada para validação positiva.
 - restrições: HTTPS+timeout; cache apenas validado; append-only; rotação/coassinatura/recuperação; revogação/vigência; anti-downgrade; nenhuma chave privada/credencial.

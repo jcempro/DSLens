@@ -4,7 +4,7 @@
 - ordem: `2/5`
 - fase: `implementacao_codigo`
 - FT: `FT-20260809-002`
-- estado: `bloqueado_por_norma`
+- estado: `bloqueado_por_autorizacao_pos_norma`
 - objetivo: implementar o plugin documental existente e resolver `$.<nome>()` somente por export público FormulaKit previamente validado.
 - dependências: FT-20260810-001 concluída; FT-20260810-002 funcional; autorização pós-norma.
 - restrições: FormulaKit opcional; nenhuma cópia/fork/fallback equivalente; parser/núcleo independentes; `ignore|fail`, default `ignore`; fallback configurável; loader sempre encerrado; warn deduplicado.

@@ -41,7 +41,7 @@ Manifesto JSON canônico DEVE usar `./schemas/dslens-manifest.schema.json`, orde
 
 Toda API, hook, adaptador, evento, configuração, módulo, subpath, comando, build, binding e schema públicos DEVEM constar no manifesto. Assinatura divergente DEVE bloquear pacote e release.
 
-O plugin DEVE possuir manifesto próprio com dependência compatível do manifesto do núcleo, catálogo `$` versionado, opções, estados, eventos, diagnósticos, loaders e matriz de artefatos. O all-in-one DEVE referenciar os dois manifestos e provar que agrega versões compatíveis sem redefinir contratos. [PENDENTE-CODIGO]
+O plugin DEVE possuir manifesto próprio com dependência compatível do manifesto do núcleo, opções, estados, eventos, diagnósticos, loaders, contrato de integração FormulaKit e matriz de artefatos. O manifesto NÃO DEVE duplicar catálogo ou assinatura de funções FormulaKit; registra somente provedor, política, versão/hash/atestado efetivamente validados e referência autoritativa. O all-in-one DEVE referenciar os manifestos DSLens e provar que agrega versões compatíveis sem redefinir contratos nem embutir FormulaKit. [PENDENTE-CODIGO]
 
 Cada componente público DEVE possuir manifest individual em `./manifests/components/<id>.json`, documentação humana em `./docs/components/<id>.md` e referência no índice compacto `./manifests/components/index.json`. O pacote npm DEVE distribuir esses manifests em `./dist/manifests/components/` e expor subpaths JSON somente para leitura seletiva; o índice NÃO DEVE repetir contratos completos.
 
@@ -53,9 +53,17 @@ Publicação DEVE validar pacote montado, não somente árvore-fonte. Para npm, 
 
 Release GitHub no estado `published` DEVE acionar publicação npm somente quando a tag corresponder exatamente à versão do pacote. CI DEVE usar OIDC/provenance e `NPM_TOKEN` secreto, sem expor credencial. Publicação local inicial DEVE autenticar por navegador com PKI/2FA; falha `401`/`403` DEVE orientar a vinculação de token de automação ao repositório e ao escopo npm. Versão já publicada DEVE encerrar sem nova tentativa destrutiva.
 
-GitHub Pages DEVE usar workflow customizado, manual e explícito, com permissões mínimas, instalação reproduzível, build da biblioteca, validação de manifests, build do site e upload oficial do artefato. O site DEVE ser estático, reutilizar `./demo/shared/` como núcleo funcional, funcionar sob subpath e não executar publicação por `push`. Publicação de Pages pertence ao comando all-in-one `publish` e aos subcomandos `publish:*`; `release:*` NÃO DEVE acionar Pages, e alias transitório `site:publish` somente PODE delegar para `publish:pages`.
+GitHub Pages DEVE usar workflow customizado, manual e explícito, com permissões mínimas, instalação reproduzível, build da biblioteca e do plugin distribuído, validação de manifests, build do site e upload oficial do artefato. O site DEVE ser estático, funcionar sob domínio/subpath configurado e não publicar por `push`. Publicação Pages pertence a `publish`/`publish:*`; `release:*` NÃO DEVE acioná-la e `site:publish` somente PODE delegar para `publish:pages`. Estado `built` sem `index.html` navegável, workflow ausente da branch publicada ou URL pública 404 é publicação inválida. [PENDENTE-CODIGO]
 
-Demo online e offline DEVEM compartilhar núcleo funcional. Exemplo `live` executa requisição client-side real; `offline` usa fixture local declarada; `documental` descreve limitação externa ou de ambiente sem simular resultado real. Cada exemplo DEVE expor fonte, formato, comando executado, estado, duração e resultado ou falha.
+A Home pública DEVE identificar o produto e oferecer acesso inequívoco a **Demo/Demos**. A área usa múltiplas páginas organizadas por funcionalidades ou cenários reais, com categorias/subcategorias e navegação clara; uma página única que concentre artificialmente todos os casos é proibida. A taxonomia deriva do inventário real e não vira hierarquia rígida sem necessidade. [PENDENTE-CODIGO]
+
+Demo online e offline DEVEM compartilhar infraestrutura visual/documental, mas cada exemplo executa o próprio plugin distribuído e o parser real exclusivamente pela API do plugin. Mock funcional, parser especial, implementação paralela, chamada direta ao parser para contornar o plugin e resultado pré-calculado ou hardcoded são proibidos. `live` executa requisição client-side real; `offline` usa fixture local declarada; `documental` apenas descreve limitação sem simular resultado. [PENDENTE-CODIGO]
+
+Cada exemplo apresenta conjuntamente exemplo funcional, código correspondente com syntax highlighting e resultado produzido na execução. Sempre que viável, o bloco destacado deriva do mesmo elemento, template ou código executado, não de reprodução manual. Highlight, componente documental e navegação NÃO DEVEM interferir no exemplo nem implementar parte do parser. [PENDENTE-CODIGO]
+
+Quando usar JSON, YAML, XML ou outro formato suportado, a página oferece link ou botão à fonte exata consumida; transformação de build somente é aceita quando identificada, determinística e rastreável. A cadeia fonte real → HTML/configuração real → plugin/parser real → resultado exibido DEVE ser verificável por inspeção da página e dos artefatos publicados. [PENDENTE-CODIGO]
+
+A área cobre múltiplos usos reais e principais comportamentos sem substituir a suíte automatizada, incluindo exemplos representativos de `$.<nome>()` e degradação sem FormulaKit. Demo com FormulaKit real aplica integralmente o gate de procedência; não aceita objeto, manifesto ou origem como confiança e não enfraquece assinatura+hash para funcionar. [PENDENTE-CODIGO]
 
 ## 6. Orçamentos
 

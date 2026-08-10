@@ -30,7 +30,7 @@ Rede síncrona na thread principal NÃO DEVE ser requisito. Resolução síncron
 
 O artefato client-side ultraotimizado DEVE ser JavaScript sem TypeScript, carregar e executar em navegador real, preservar API aplicável e banner, excluir código Node.js, permitir CDN/local e registrar tamanhos bruto, minificado, gzip e Brotli. Dependência externa DEVE ser resolvida ou declarada.
 
-O plugin documental DEVE ocupar entry point `./plugin`, importar somente a API pública browser do núcleo e manter sua inicialização DOM fora de qualquer entry point principal. `./plugin.css` DEVE expor o CSS separado sem injeção automática; `./all-in-one` DEVE agregar núcleo, plugin e injeção idempotente do mesmo CSS, conforme `./browser-plugin.md`. [PENDENTE-CODIGO]
+O plugin documental DEVE ocupar entry point `./plugin`, importar somente a API pública browser do núcleo e manter sua inicialização DOM fora de qualquer entry point principal. `./plugin.css` DEVE expor o CSS separado sem injeção automática; `./all-in-one` DEVE agregar núcleo DSLens, plugin e injeção idempotente do mesmo CSS, sem incorporar FormulaKit, conforme `./browser-plugin.md`. O provedor FormulaKit é opcional e somente PODE criar/importar o módulo após validar histórico, release, assinatura e hash; import estático ou aceitação de objeto global é proibido. [PENDENTE-CODIGO]
 
 Baseline minificado após o perfil request v2: 4.510 bytes; orçamento anterior: 5.120 bytes. O perfil v3 de seletores estruturais mediu 11.180 bytes em 2026-07-22; o novo orçamento é 12.288 bytes. O aumento decorre de parser próprio, AST, filtros seguros, wildcard, recursão limitada, cardinalidade explícita, materialização determinística e bloqueio de protótipo sem dependência externa. Carregamento dinâmico permanece descartado por quebrar uso direto e offline.
 
@@ -56,7 +56,7 @@ Scripts npm futuros DEVEM compor os comandos `agent:*` aplicáveis sem renomeá-
 
 Runtime core DEVERIA possuir zero dependência. Parser YAML, XML ou fetch auxiliar somente PODE ser adotado após licença, manutenção, tamanho e suporte browser comprovados; dependência opcional DEVE ter ausência funcionalmente definida. O core JavaScript não DEVE adicionar parser XML ou YAML obrigatório ao browser para o perfil v3; seleção v3 sobre dados já carregados deve funcionar para objetos, arrays, escalares e objetos XML adaptados explicitamente.
 
-React e Preact NÃO DEVEM ser dependências ou peer dependencies obrigatórias do plugin. Tipos DOM, descritor manual, markup por `data-*` e exemplos com `ref`/efeito DEVEM constituir a integração compartilhada. [PENDENTE-CODIGO]
+React e Preact NÃO DEVEM ser dependências ou peer dependencies obrigatórias do plugin. FormulaKit também NÃO DEVE ser dependência runtime obrigatória, condição de carregamento do parser ou conteúdo embutido; eventual metadado npm de integração DEVE marcá-lo opcional e não autoriza execução sem procedência. Tipos DOM, descritor manual, markup por `data-*` e exemplos com `ref`/efeito DEVEM constituir a integração compartilhada. [PENDENTE-CODIGO]
 
 ## 8. Validação futura
 
